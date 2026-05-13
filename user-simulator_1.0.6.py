@@ -2074,8 +2074,11 @@ html_doc = f"""
        display: none;
        align-items: center;
        justify-content: center;
-       padding: 24px;
+       padding: clamp(14px, 3vw, 32px);
        z-index: 2000;
+   }}
+   body.modal-open {{
+       overflow: hidden;
    }}
    .modal.is-open {{
        display: flex;
@@ -2088,13 +2091,15 @@ html_doc = f"""
    .modal-dialog {{
        position: relative;
        z-index: 1;
-       width: min(1120px, 100%);
-       max-height: 90vh;
+       width: min(1240px, 96vw);
+       height: min(820px, 88vh);
+       max-height: 88vh;
        display: flex;
    }}
    .modal-content {{
        width: 100%;
-       max-height: 90vh;
+       height: 100%;
+       max-height: 88vh;
        display: flex;
        flex-direction: column;
        border-radius: 22px;
@@ -2131,26 +2136,32 @@ html_doc = f"""
        line-height: 1;
    }}
    .modal-body {{
-       padding: 22px;
+       flex: 1;
+       min-height: 0;
+       padding: 0;
        background: #f8fbff;
-       overflow: auto;
+       overflow: hidden;
    }}
    .modal-viewer {{
+       box-sizing: border-box;
+       display: block;
        width: 100%;
-       min-height: 420px;
-       max-height: 58vh;
-       border-radius: 16px;
-       border: 1px solid #dbe3ef;
+       height: 100%;
+       min-height: 0;
+       margin: 0;
+       border-radius: 0;
+       border: 0;
        background: white;
        color: #334155;
        font-family: Consolas, Monaco, monospace;
-       font-size: 14px;
-       line-height: 1.7;
-       padding: 18px;
-       resize: none;
+       font-size: 13px;
+       line-height: 1.65;
+       padding: 22px;
        outline: none;
        white-space: pre-wrap;
        overflow: auto;
+       scrollbar-gutter: stable;
+       tab-size: 2;
    }}
    .modal-footer {{
        border-top: 1px solid #e5e7eb;
@@ -2257,8 +2268,68 @@ html_doc = f"""
    }}
 
    .modal-rich-content {{
-   display: block;
-}}
+       box-sizing: border-box;
+       height: 100%;
+       overflow: auto;
+       padding: 22px;
+       background: #f8fbff;
+       scrollbar-gutter: stable;
+   }}
+   .conversation-thread {{
+       display: flex;
+       flex-direction: column;
+       gap: 14px;
+       max-width: 980px;
+       margin: 0 auto;
+   }}
+   .conversation-message {{
+       border: 1px solid #dbe3ef;
+       border-radius: 16px;
+       background: white;
+       box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+       padding: 14px 16px;
+   }}
+   .conversation-message.client {{
+       border-left: 5px solid #2563eb;
+   }}
+   .conversation-message.bot {{
+       border-left: 5px solid #16a34a;
+   }}
+   .conversation-role {{
+       color: #0f172a;
+       font-size: 12px;
+       font-weight: 900;
+       letter-spacing: .02em;
+       margin-bottom: 8px;
+       text-transform: uppercase;
+   }}
+   .conversation-text {{
+       color: #334155;
+       font-size: 14px;
+       line-height: 1.7;
+       white-space: pre-wrap;
+   }}
+   .data-panel {{
+       height: 100%;
+       background: white;
+       border: 1px solid #dbe3ef;
+       border-radius: 16px;
+       box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+       overflow: hidden;
+   }}
+   .data-pre {{
+       box-sizing: border-box;
+       height: 100%;
+       margin: 0;
+       overflow: auto;
+       padding: 20px;
+       color: #1f2937;
+       font-family: Consolas, Monaco, monospace;
+       font-size: 13px;
+       line-height: 1.65;
+       white-space: pre;
+       scrollbar-gutter: stable;
+   }}
 .metric-cards-grid {{
    display: grid;
    grid-template-columns: repeat(2, 1fr);
@@ -2406,7 +2477,7 @@ html_doc = f"""
          </div>
          <div class="modal-body">
             <div id="uniqueModalRichContent" class="modal-rich-content" style="display:none;"></div>
-            <textarea id="uniqueModalTextarea" class="modal-viewer" readonly></textarea>
+            <pre id="uniqueModalTextContent" class="modal-viewer"></pre>
          </div>
          <div class="modal-footer">
             <button type="button" class="modal-close-btn" onclick="closeGlobalModal()">Cerrar</button>
@@ -2477,14 +2548,46 @@ function renderMetricCard(item) {{
 </div>
 </div>
 
-`;
+`; 
  
 }} 
+
+function renderDataContent(contenido) {{
+   let texto = contenido;
+   if (typeof texto === "object" && texto !== null) {{
+       texto = JSON.stringify(texto, null, 2);
+   }}
+   try {{
+       const parsed = JSON.parse(String(texto));
+       texto = JSON.stringify(parsed, null, 2);
+   }} catch (e) {{}}
+   return `<div class="data-panel"><pre class="data-pre">${{escaparHtml(texto || "")}}</pre></div>`;
+}}
+
+function renderConversationContent(texto) {{
+   const raw = String(texto || "").trim();
+   if (!raw) {{
+       return `<div class="conversation-thread"><div class="conversation-message neutral"><div class="conversation-text">Sin contenido.</div></div></div>`;
+   }}
+   const blocks = raw.split(/\\n\\s*\\n/).filter(Boolean);
+   let messages = "";
+   blocks.forEach(function(block) {{
+       const match = block.match(/^\\[([^\\]]+)\\]\\s*([\\s\\S]*)$/);
+       const role = match ? match[1] : "DETALLE";
+       const body = match ? match[2] : block;
+       const roleUpper = role.toUpperCase();
+       const cssClass = roleUpper.includes("CLIENTE")
+           ? "client"
+           : (roleUpper.includes("AG.") || roleUpper.includes("BOT") || roleUpper.includes("PHOENIX") ? "bot" : "neutral");
+       messages += `<div class="conversation-message ${{cssClass}}"><div class="conversation-role">${{escaparHtml(roleUpper)}}</div><div class="conversation-text">${{escaparHtml(body.trim())}}</div></div>`;
+   }});
+   return `<div class="conversation-thread">${{messages}}</div>`;
+}}
 
 
 
 function showUniqueModalFromButton(btn) {{
-   let ta = document.getElementById('uniqueModalTextarea');
+   let textContent = document.getElementById('uniqueModalTextContent');
    let rich = document.getElementById('uniqueModalRichContent');
    let lbl = document.getElementById('uniqueModalTitle');
    let idx = Number(btn.getAttribute('data-content-idx'));
@@ -2500,15 +2603,30 @@ function showUniqueModalFromButton(btn) {{
        contenido = window.__MODAL_CONTENTS__[idx][tipo];
    }}
    // RESET
-   ta.style.display = "block";
+   textContent.style.display = "block";
    rich.style.display = "none";
-   ta.value = "";
+   textContent.textContent = "";
    rich.innerHTML = "";
 
+   if (tipo === "conversa") {{
+       textContent.style.display = "none";
+       rich.style.display = "block";
+       rich.innerHTML = renderConversationContent(contenido);
+       rich.scrollTop = 0;
+       return;
+   }}
+
+   if (tipo === "payload") {{
+       textContent.style.display = "none";
+       rich.style.display = "block";
+       rich.innerHTML = renderDataContent(contenido);
+       rich.scrollTop = 0;
+       return;
+   }}
 
    if (tipo === 'detalle_metricas') {{
 
-   ta.style.display = 'none';
+   textContent.style.display = 'none';
    rich.style.display = 'block';
 
    let metricas = contenido.metricas || [];
@@ -2549,7 +2667,7 @@ function showUniqueModalFromButton(btn) {{
    if (typeof contenido === "object" && contenido !== null) {{
        contenido = JSON.stringify(contenido, null, 2);
    }}
-   ta.value = contenido || '';
+   textContent.textContent = contenido || '';
 }}
 
 function openGlobalModal() {{
