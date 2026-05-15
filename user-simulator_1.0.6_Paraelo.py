@@ -14,7 +14,6 @@ from datetime import timedelta
 _thread_local = threading.local()
 http_client = httpx.Client(verify=False)  # cliente global usado al iniciar el script
 
-
 # ======================================================================================================================
 # CONFIGURACIÓN LOCAL
 # ======================================================================================================================
@@ -27,18 +26,16 @@ AZURE_OPENAI_ENDPOINT = os.getenv(
     "",
 )
 AZURE_OPENAI_API_VERSION = os.getenv(
-    "AZURE_OPENAI_API_VERSION",
-    "",
+    "AZURE_OPENAI_API_VERSION","",
 )
 # En Azure OpenAI, model=deployment name
 MODEL_NAME = "gpt-4.1"
 API_KEY = os.getenv("BOT_API_KEY", "")
 MAX_TURNS_SAFE = 15
-MAX_WORKERS_DEFAULT = 5
+MAX_WORKERS_DEFAULT = 8
 URL_CHAT = ""
 # Ruta local
 
- 
 
 # CSV_PATH = r"D:\Datos de Usuarios\T76960\Squad Phoenix\auto-phoenix\escenarios_funcionalidades.csv"
 CSV_PATH = os.getenv(
@@ -48,7 +45,6 @@ CSV_PATH = os.getenv(
 # CSV_PATH = r"D:\Datos de Usuarios\T76960\Squad Phoenix\auto-phoenix\escenarios_martin_2.csv"
 # CSV_PATH = r"D:\Datos de Usuarios\T76960\Squad Phoenix\auto-phoenix\escenarios_complementarias.csv"
 
- 
 
 CSV_SEP = ";"
 OUTPUT_DIR = os.getenv("OUTPUT_DIR", "./reportes")
@@ -63,7 +59,6 @@ client = AzureOpenAI(
     http_client=http_client,  # <--- ¡Aquí va!clear
 )
 
- 
 
 def obtener_max_workers(total_escenarios: int) -> int:
     try:
@@ -213,23 +208,20 @@ PROMPT_BY_TIPO = {
     "AR": PROMPT_AR,
 }
 
- 
-
- 
 
 def get_prompt_por_tipo(
-    tipo_cliente,
-    nombre_completo,
-    deuda_soles,
-    deuda_dolares,
-    identidad_del_cliente,
-    voluntad_de_pago,
-    capacidad_pago,
-    estilo_respuesta,
-    actitud_comportamiento,
-    barreras_whatssapp,
-    frases_comunes,
-    reglas_muy_importante,
+        tipo_cliente,
+        nombre_completo,
+        deuda_soles,
+        deuda_dolares,
+        identidad_del_cliente,
+        voluntad_de_pago,
+        capacidad_pago,
+        estilo_respuesta,
+        actitud_comportamiento,
+        barreras_whatssapp,
+        frases_comunes,
+        reglas_muy_importante,
 ):
     tipo = (tipo_cliente or "").strip().upper()
     template = PROMPT_BY_TIPO.get(tipo, PROMPT_R)
@@ -247,21 +239,14 @@ def get_prompt_por_tipo(
         REGLAS_MUY_IMPORTANTE=reglas_muy_importante or "",
     )
 
- 
-
- 
 
 # ======================================================================================================================
 # HELPERS
 # ======================================================================================================================
 
- 
 
 total_exec_time = timedelta(0)  # para sumar el tiempo total de todos los escenarios
 
- 
-
- 
 
 def format_td_hms(td):
     total_seconds = td.total_seconds()
@@ -271,9 +256,6 @@ def format_td_hms(td):
     seconds_with_decimals = seconds + sec_with_decimals
     return f"{hours:02}:{minutes:02}:{seconds_with_decimals:05.2f}"
 
- 
-
- 
 
 def safe_str(x):
     if x is None:
@@ -285,9 +267,6 @@ def safe_str(x):
         pass
     return str(x)
 
- 
-
- 
 
 def build_conversation_text(historia):
     lines = []
@@ -301,9 +280,6 @@ def build_conversation_text(historia):
             lines.append(f"AG. PHOENIX: {texto}")
     return "\n".join(lines).strip()
 
- 
-
- 
 
 def build_full_conversation(historia):
     lines = []
@@ -312,9 +288,6 @@ def build_full_conversation(historia):
         lines.append(f"{prefix}: {safe_str(texto)}")
     return "\n".join(lines)
 
- 
-
- 
 
 def parsear_secuencia_mensajes(valor):
     texto = safe_str(valor).strip()
@@ -324,15 +297,12 @@ def parsear_secuencia_mensajes(valor):
     lineas = [linea for linea in lineas if linea]
     return lineas
 
- 
-
- 
 
 # ======================================================================================================================
 # USER SIMULATOR
 # ======================================================================================================================
 def llamada_user_simulator(
-    prompt_cliente, historia, max_output_tokens=100, model=MODEL_NAME
+        prompt_cliente, historia, max_output_tokens=100, model=MODEL_NAME
 ):
     prompt_cliente = safe_str(prompt_cliente).strip()
     conv = build_conversation_text(historia)
@@ -357,24 +327,19 @@ INSTRUCCIONES:
     )
     return (resp.choices[0].message.content or "").strip()
 
- 
-
- 
 
 # ======================================================================================================================
 # LLAMAR AL JUEZ - NUEVO JUEZ POR FUNCIONALIDADES
 # ======================================================================================================================
 
- 
 
 FUNCIONALIDADES_JUEZ = [
-    ("persuasion_total", "Persuasión Total"),
-    ("persuasion_parcial", "Persuasión Parcial"),
+    ("persuasion_total", "Persuasión total"),
+    ("persuasion_parcial", "Persuasión parcial"),
     ("motivos_no_pago", "Motivos no pago"),
-    #("confirma_pdp", "Confirmación PDP"),
-    ("registro_pdp", "Registro PDP"),
+    ("registro_pdp", "Registro pdp"),
     ("canales_atencion", "Canales atención"),
-    ("registro_nps", "NPS"),
+    ("registro_nps", "Registro nps"),
     ("derivacion_asesor", "Ofrecer asesor"),
     ("registro_cita", "Registro cita"),
     ("consecuencias_no_pago", "Consecuencias no pago"),
@@ -386,325 +351,233 @@ FUNCIONALIDADES_JUEZ = [
     ("alucinacion", "Alucinación"),
 ]
 
- 
-
 FUNCIONALIDADES_VISIBLES_REPORTE = [
-    ("persuasion_total", "Persuasión Total"),
-    ("persuasion_parcial", "Persuasión Parcial"),
-    ("motivos_no_pago", "Motivos No pago"),
-    #("confirma_pdp", "Confirmación PDP"),
-    ("registro_pdp", "Registro PDP"),
-    ("canales_atencion", "Canales Atención"),
-    ("registro_nps", "NPS"),
-    ("derivacion_asesor", "Ofrecer Asesor"),
-    ("registro_cita", "Registro Cita"),
-    ("consecuencias_no_pago", "Consecuencias No Pago"),
-    ("preguntas_frecuentes", "Preguntas Frecuentes"),
+    ("persuasion_total", "Persuasión total"),
+    ("persuasion_parcial", "Persuasión parcial"),
+    ("motivos_no_pago", "Motivos no pago"),
+    ("registro_pdp", "Registro pdp"),
+    ("canales_atencion", "Canales atención"),
+    ("registro_nps", "Registro nps"),
+    ("derivacion_asesor", "Ofrecer asesor"),
+    ("registro_cita", "Registro cita"),
+    ("consecuencias_no_pago", "Consecuencias no pago"),
+    ("preguntas_frecuentes", "Preguntas frecuentes"),
 ]
 
- 
-
- 
-
 def get_prompt_juez(question, perfil, reglas_juez=None):
-
- 
 
     prompt = f"""
 Eres un juez experto en cobranzas peruanas y en evaluación de agentes virtuales del Banco de Crédito del Perú (BCP).
 
- 
-
 Tu objetivo es evaluar una conversación de cobranza y medir el cumplimiento del agente respecto a las FUNCIONALIDADES definidas.
 Debes devolver EXCLUSIVAMENTE un objeto JSON válido que cumpla estrictamente con el JSON Schema provisto.
-
- 
-
-REGLA CRÍTICA:
-- Solo puedes marcar 0 (NO CUMPLE) si la funcionalidad APLICA y existe evidencia explícita de incumplimiento.
-- Si no hay evidencia explícita de que aplique, debes marcar -1 (NO APLICA).
-- No infieras intención, no asumas nodos ejecutados, no inventes pasos.
-
- 
 
 ==============================
 CRITERIO DE EVALUACIÓN GENERAL
 ==============================
 Para cada funcionalidad asigna un score entero:
-- 1 → Aplica y el agente CUMPLE todas las reglas.
-- 0 → Aplica pero el agente NO cumple o la ejecuta incorrectamente.
-- -1 → NO APLICA (no hubo necesidad real en la conversación).
+-  1 → APLICA y el agente CUMPLE todas las reglas.
+-  0 → APLICA y el agente NO CUMPLE (solo si existía obligación real).
+- -1 → NO APLICA (la funcionalidad nunca se activó).
 
- 
+IMPORTANTE:
+- NO CUMPLE (0) significa que el agente falló en algo que estaba obligado a hacer.
+- NO APLICA (-1) significa que la situación nunca exigió esa funcionalidad.
+- Nunca confundas “hubo interacción” con “hubo obligación”.
 
-En cada justificación:
-- Cita evidencia textual breve (frases exactas) del agente/cliente.
-- Si marcas 0, indica exactamente qué regla se violó y dónde.
-- Si marcas -1, explica por qué nunca se activó la necesidad.
-
- 
+JUSTIFICACIÓN:
+- Cita frases textuales exactas del agente o cliente.
+- Si marcas 0, explica qué regla se violó y dónde.
+- Si marcas -1, explica por qué no se activó la necesidad.
 
 ==============================
 PERFIL DEL CLIENTE - CONTEXTO
 ==============================
 El perfil del caso a evaluar es: {perfil}
 
- 
-
 ==============================
-PASO 1: EXTRAER HITOS
+PASO 1: EXTRAER HITOS (SOLO SI / NO, SIN INFERIR)
 ==============================
-Antes de puntuar, identifica si existen estas señales explícitas en la conversación (SI/NO), sin inferir:
-A) El cliente pidió un asesor humano o “hablar con alguien” o “llamar” o “asesor”.
-B) Hubo propuesta de pago con MONTO explícito (número) por parte del cliente o agente.
-C) Hubo FECHA explícita o referencia concreta (ej. “viernes 1 de mayo”, “mañana” NO cuenta si no se concretó).
-D) El agente confirmó MONTO y FECHA como compromiso.
-E) El agente afirmó que registró el compromiso (registro exitoso).
-F) El agente informó medios de pago (Banca Móvil/web VíaBCP/Agentes/Agencias).
-G) El agente pidió NPS (0-10 entero) y el cliente respondió con un entero válido.
-H) El caso terminó sin acuerdo (no PDP y no cita) y el agente cerró con consecuencias no intimidantes.
-I) El cliente hizo una pregunta (FAQ/medios/canales) y el agente respondió o derivó a Clara/3119898/3119400 y reencauzó.
-
- 
+Antes de evaluar funcionalidades, identifica únicamente señales explícitas:
+A) El cliente pidió un asesor humano (ej. “quiero un asesor”, “llámame”, “hablar con alguien”).
+B) Hubo propuesta de pago con MONTO explícito (número en soles o dólares, por el agente o el cliente).
+C) Hubo FECHA explícita concreta (ej. “21 de mayo”, “viernes 15”; “mañana”).
+D) Hubo HORA explícita concreta (solo relevante para citas).
+E) El agente afirmó explícitamente que REGISTRÓ un compromiso (ej. “queda registrado”, “he registrado tu compromiso”).
+F) El agente informó medios de pago (Banca Móvil, web VíaBCP, Agentes, Agencias).
+G) El agente pidió NPS y el cliente respondió con un entero 0-10 válido.
+H) El caso terminó sin acuerdo (no PDP y no cita) y el agente cerró mencionando consecuencias en tono no intimidante.
+I) El cliente hizo una pregunta informativa (canales, proceso, números) y el agente respondió o derivó correctamente y reencauzó.
 
 Usa estas señales para decidir APLICA/NO APLICA en cada funcionalidad.
-
- 
 
 ==============================
 FUNCIONALIDADES A EVALUAR
 ==============================
 
- 
-
 FUNCIONALIDAD: persuasion_total
-Propósito: Lograr PDP de la deuda total entendiendo contexto del cliente.
-
- 
-
-APLICA SI (evidencia explícita):
-- El agente intentó negociar pago (pago total / fraccionado) O
-- El cliente habló de pagar, montos o fechas O
-- El agente ofreció alternativas de pago.
-NO APLICA SI:
-- El cliente pide asesor humano ANTES de permitir ofrecer opciones y el agente deriva inmediatamente (sin espacio real de persuasión).
-
- 
-
-Reglas:
-- Ventana máxima: próximos 7 días calendario.
-- Soluciones permitidas: total (≤7 días), fraccionado (≥2 pagos dentro ≤7 días).
-- No marques 0 por “no ofreció asesor��� dentro de persuasión (eso es otra funcionalidad).
-
- 
-
-------------------------------------------------
-
- 
-
-FUNCIONALIDAD: persuasion_parcial
-Propósito: Lograr PDP parcial de la deuda entendiendo contexto del cliente.
-
- 
-
-APLICA SI (evidencia explícita):
-- El agente intentó negociar pago (parcial) O
-- El cliente habló de pagar, montos o fechas O
-- El agente ofreció alternativas de pago.
-NO APLICA SI:
-- El cliente pide asesor humano ANTES de permitir ofrecer opciones y el agente deriva inmediatamente (sin espacio real de persuasión).
-
- 
-
-Reglas:
-- Ventana máxima: próximos 7 días calendario.
-- Soluciones permitidas: parcial.
-- Objetivo por perfil: perfil 3→30%, perfil 2→20%, otro→10%.
-- Último recurso aceptable: mínimo 10%.
-- No marques 0 por “no ofreció asesor” dentro de persuasión (eso es otra funcionalidad).
-
- 
-
-------------------------------------------------
-
- 
-
-FUNCIONALIDAD: motivos_no_pago
-Propósito: Capturar motivo cuando el cliente rechaza el primer intento.
-
- 
+Propósito: Solicitar una promesa de pago con monto total o monto total en partes entendiendo contexto del cliente.
 
 APLICA SI:
-- El cliente rechaza pago total inicial sin proponer monto O responde “no puedo” genérico.
+- El agente solicita un pago con monto total, O
+- El agente solicita un pago con monto total en partes.
 NO APLICA SI:
-- El cliente acepta pagar / propone monto/fecha sin rechazo inicial, o se deriva a asesor antes.
+- El cliente pide asesor humano ANTES de permitir ofrecer opciones.
 
- 
-
-Flujo mínimo:
-1) Preguntar motivo actual.
-2) Si no hay motivo específico, preguntar por situación anterior/PDP anterior.
-3) Luego retomar persuasión (ofrecer alternativa).
-
- 
+Reglas:
+- Agente debe solicitar un pago con monto total, O
+- Agente debe solicitar un pago con monto total en partes, PERO el objetivo es monto total.
 
 ------------------------------------------------
 
- 
+FUNCIONALIDAD: persuasion_parcial
+Propósito: Solicitar una promesa de pago parcial entendiendo contexto del cliente.
+
+APLICA SI (evidencia explícita):
+- El agente solicita un pago con monto parcial, O
+- El agente solicita un pago con monto objetivo por perfil (perfil 3→30%, perfil 2→20%, otro→10%), O
+- El agente solicita un pago con monto mínimo aceptable (≥10% de deuda vencida).
+NO APLICA SI:
+- El cliente pide asesor humano ANTES de permitir ofrecer opciones.
+
+Reglas:
+- Agente debe solicitar opciones de pago parcial, Y
+- Agente debe solicitar montos por perfil: perfil 3→30%, perfil 2→20%, otro→10%, Y
+- Agente debe solicitar como último recurso aceptable: mínimo 10%.
+
+------------------------------------------------
+
+FUNCIONALIDAD: motivos_no_pago
+Propósito: Solicitar motivo de no pago cuando el cliente rechaza el primer intento.
+
+APLICA SI:
+- El agente pregunta explícitamente por el motivo de no pago actual tras un rechazo inicial del cliente.
+NO APLICA SI:
+- El cliente acepta pagar o propone monto/fecha sin rechazo inicial, o se deriva a asesor antes.
+
+Flujo mínimo:
+1) Agente debe preguntar motivo de no pago actual.
+2) Si no hay motivo específico, agente debe preguntar por PDP anterior si tiene o mencionar el motivo de no pago pasado si no tiene PDP anterior.
+3) Luego retomar persuasión (ofrecer alternativa).
+
+------------------------------------------------
 
 FUNCIONALIDAD: registro_pdp
 Propósito: Registrar formalmente la promesa de pago.
 
- 
+APLICA SI (todas deben cumplirse):
+- El cliente ACEPTA explícitamente un monto (número) Y una fecha concreta, Y
+- El agente afirma explícitamente que REGISTRA el compromiso.
 
-APLICA SI:
-- El agente debe registrar la promesa de pago.
 NO APLICA SI:
-- Nunca hubo acuerdo de pago registrable ni confirmación.
-
- 
+- El cliente nunca acepta monto y fecha, aunque el agente lo haya propuesto, O
+- El cliente rechaza o evita confirmar el compromiso, O
+- El agente solo ofrece “puedo registrar”, “podría registrar”, “cuando quieras registramos”, O
+- El cliente solicitó derivación con asesor.
 
 Reglas:
-- Debe registrar.
-- Debe reforzar medios de pago tras registro.
-
- 
+- Debe existir aceptación explícita del cliente (monto + fecha).
+- El agente debe afirmar registro exitoso.
+- El agente debe reforzar medios de pago tras el registro.
 
 ------------------------------------------------
-
- 
 
 FUNCIONALIDAD: canales_atencion
 Propósito: Informar canales y horario cuando el cliente lo solicita.
 
- 
-
 APLICA SI:
-- El cliente pregunta por “canales”, “teléfono”, “horario”, “atención”, “asesor”, “llamada”.
-NO APLICA SI:
-- El cliente nunca preguntó ni solicitó contacto/horario/canales.
+- El cliente pregunta explícitamente por canales, teléfono, horario, atención, asesor o llamada.
 
- 
+NO APLICA SI:
+- El cliente nunca hizo una consulta sobre canales,
+  aunque el agente los haya mencionado proactivamente.
 
 Regla:
-- Debe mencionar canal 3119400 (cobranzas) y horario L-V 7 a 5pm cuando corresponda.
-
- 
+- Evaluar solo si responde correctamente a una pregunta del cliente.
 
 ------------------------------------------------
 
- 
-
 FUNCIONALIDAD: registro_nps
-Propósito: Medir satisfacción post-atención.
+Propósito: Registro de NPS cuando el cliente responde.
 
- 
+APLICA SI (todas deben cumplirse):
+- Hubo registro exitoso de PDP O de cita, Y
+- El agente debe pedir NPS.
 
-APLICA SI:
-- Hubo cierre de gestión (registro pdp o registro de cita) y el agente tuvo oportunidad de pedir NPS.
 NO APLICA SI:
-- No hubo registro pdp y tampoco hubo registro de cita.
-
- 
+- Nunca hubo registro de PDP ni de cita.
+- El cliente se mostró reacio o terminó la conversación sin acuerdo.
 
 Reglas:
 - Pedir un entero 0-10.
-- Reintentar SOLO si el cliente da formato inválido.
-- Si el cliente se niega/“no sé”, no insistir.
-
- 
+- Reintentar SOLO por formato inválido.
+- Si el cliente se niega, no insistir.
 
 ------------------------------------------------
-
- 
 
 FUNCIONALIDAD: derivacion_asesor
 Propósito: Escalar cuando no hay acuerdo o el cliente solicita atención humana.
 
- 
-
 APLICA SI:
 - El cliente pide asesor humano explícitamente, O
-- El cliente rechaza TODAS las alternativas de pago ofrecidas y el agente debe escalar, O
-- El agente propone agendar/derivar.
+- El agente y el cliente no llegan a ningún acuerdo de pago ni de cita, entonces el agente debe ofrecer derivación a asesor.
 NO APLICA SI:
-- Se logró acuerdo y se registró PDP o no hubo solicitud de asesor
-
- 
+- Hay un ACUERDO DE ACEPTACIÓN de compromiso de pago con monto y fecha explicitos, entre el agente y el cliente (si o si debe haber acuerdo explícito).
 
 Regla:
-- Si aplica, debe ofrecer derivación (inmediata o agendada) de forma clara.
-
- 
+- Agente debe ofrecer derivación (inmediata o agendada) de forma clara.
 
 ------------------------------------------------
-
- 
 
 FUNCIONALIDAD: registro_cita
-Propósito: Agendar atención cuando el cliente no puede conversar.
+Propósito: Registro de una cita con asesor cuando el cliente acepta o solicita.
 
- 
+APLICA SI (todas deben cumplirse):
+- El cliente acepta explícitamente agendar, Y
+- Existe fecha Y hora concretas, Y
+- El agente confirma que la cita fue registrada.
 
-APLICA SI:
-- El cliente acepta agendar o pide que lo llamen en otro momento, y se acuerda fecha/hora.
 NO APLICA SI:
-- No se agenda ni se intenta agendar.
-
- 
+- El cliente rechaza la cita, O
+- El agente solo ofrece agendar pero no hay aceptación, O
+- No existe fecha y hora explícitas, O
+- Hay un acuerdo explícito de compromiso de pago con monto y fecha.
 
 Reglas:
-- Lunes a viernes, horario 7am-5pm.
-- Máximo en los siguientes 2 días habiles.
-(Si la conversación no contiene fecha/hora explícitas, no inventes: evalúa incumplimiento solo si hay evidencia.)
-
- 
+- Ofrecer cita ≠ registrar cita.
+- Sin aceptación explícita del cliente, siempre marca NO APLICA (-1).
 
 ------------------------------------------------
-
- 
 
 FUNCIONALIDAD: consecuencias_no_pago
 Propósito: Cerrar correctamente con clientes muy reacios.
 
- 
-
 APLICA SI:
-- No hay acuerdo (sin PDP y sin cita) y el cliente rechaza también derivación o insiste en no continuar.
-NO APLICA SI:
-- Hubo PDP registrada o cita agendada o derivación aceptada.
+- El cliente y el agente no llegan a ningún acuerdo de pago ni de cita ni acepta asesor.
 
- 
+NO APLICA SI:
+- Hubo acuerdo de PDP.
+- Hubo acuerdo de cita.
 
 Regla:
-- Debe mencionar consecuencias (intereses/historial) en tono no intimidante y orientar a regularización.
-
- 
+- Mencionar consecuencias SOLO como último recurso.
 
 ------------------------------------------------
 
-12:20
-FUNCIONALIDAD: preguntas_frecuentes Propó... de Erwin Torres
-Erwin Torres
-
 FUNCIONALIDAD: preguntas_frecuentes
-Propósito: Atender consultas y reencauzar.
-
- 
+Propósito: Atender consultas informativas y reencauzar.
 
 APLICA SI:
-- El cliente hace una pregunta (cómo pagar, canales, dudas del producto/proceso).
-NO APLICA SI:
-- No hay preguntas.
+- El cliente hace una pregunta informativa
+  (canales, proceso, números, horarios).
 
- 
+NO APLICA SI:
+- El cliente solo expresa dificultad de pago o pide alternativas.
+- La interacción es puramente de negociación.
 
 Reglas:
-- Responder o reconocer falta de info y derivar a Clara/3119898 (no cobranzas) o 3119400 (cobranzas).
-- Luego reencauzar a resolver la deuda (persuasión/compromiso).
-- No evalúes factualidad de productos si no hay evidencia en la conversación; evalúa si respondió/derivó y reencauzó.
-
- 
+- Responder o derivar.
+- Luego reencauzar a resolver la deuda.
 
 ==============================
 OUTPUT
@@ -713,8 +586,6 @@ Devuelve exclusivamente un JSON válido conforme al schema.
 Cada funcionalidad debe tener:
 - <nombre_funcionalidad>_score
 - <nombre_funcionalidad>_justification
-
- 
 
 schema:
   type: object
@@ -740,8 +611,6 @@ schema:
     - consecuencias_no_pago_justification
     - preguntas_frecuentes_score
     - preguntas_frecuentes_justification
-
- 
 
   properties:
 
@@ -815,20 +684,14 @@ schema:
     preguntas_frecuentes_justification:
     type: string
 
- 
-
 No expliques nada fuera del JSON.
-
- 
 
 CONVERSACIÓN A EVALUAR:
 {question}
 """
     return prompt.strip()
 
- 
 
- 
 
 def normalizar_score_funcionalidad(value):
     """
@@ -845,40 +708,25 @@ def normalizar_score_funcionalidad(value):
     except Exception:
         return 0
 
- 
-
- 
 
 def calcular_resumen_funcionalidades(result):
     scores = []
 
- 
-
     for key, _ in FUNCIONALIDADES_VISIBLES_REPORTE:
         scores.append(result.get(f"{key}_score", 0))
-
- 
 
     total_no_aplica = sum(1 for s in scores if s == -1)
     total_cumple = sum(1 for s in scores if s == 1)
     total_no_cumple = sum(1 for s in scores if s == 0)
 
- 
-
     scores_aplicables = [s for s in scores if s != -1]
-
- 
 
     if scores_aplicables:
         score_total = round(total_cumple / len(scores_aplicables), 2)
     else:
         score_total = 1.00
 
- 
-
     resultado = "PASS" if score_total >= 0.80 else "FAIL"
-
- 
 
     justificacion = (
         f"Funcionalidades aplicables evaluadas: {len(scores_aplicables)}. "
@@ -888,8 +736,6 @@ def calcular_resumen_funcionalidades(result):
         f"Score calculado solo sobre funcionalidades aplicables."
     )
 
- 
-
     result["total_cumple"] = total_cumple
     result["total_no_cumple"] = total_no_cumple
     result["total_no_aplica"] = total_no_aplica
@@ -898,18 +744,11 @@ def calcular_resumen_funcionalidades(result):
     result["resultado"] = resultado
     result["justificacion"] = justificacion
 
- 
-
     return result
 
- 
-
- 
 
 def build_error_juez_result(motivo, raw_json="", latency_s=0.0):
     result = {}
-
- 
 
     for key, _ in FUNCIONALIDADES_JUEZ:
         result[f"{key}_score"] = 0
@@ -917,29 +756,18 @@ def build_error_juez_result(motivo, raw_json="", latency_s=0.0):
             f"No se pudo evaluar esta funcionalidad. {motivo}"
         )
 
- 
-
     result["raw_json"] = raw_json or "{}"
     result["latencia_eval_s"] = latency_s
 
- 
-
     return calcular_resumen_funcionalidades(result)
 
- 
-
- 
 
 def llm_judge_metricas(
-    question: str, perfil: str = "", reglas_juez: str = "", model=MODEL_NAME
+        question: str, perfil: str = "", reglas_juez: str = "", model=MODEL_NAME
 ):
     prompt = get_prompt_juez(question=question, perfil=perfil, reglas_juez=reglas_juez)
 
- 
-
     t0 = datetime.now()
-
- 
 
     response = obtener_cliente_azure().chat.completions.create(
         model=model,
@@ -954,55 +782,35 @@ def llm_judge_metricas(
         temperature=0,
     )
 
- 
-
     latency_s = round((datetime.now() - t0).total_seconds(), 2)
     content = (response.choices[0].message.content or "").strip()
-
- 
 
     try:
         content_clean = content.replace("```json", "").replace("```", "").strip()
 
- 
-
         start = content_clean.find("{")
         end = content_clean.rfind("}")
-
- 
 
         if start == -1 or end == -1:
             raise ValueError("La respuesta del juez no contiene un JSON válido.")
 
- 
-
-        parsed = json.loads(content_clean[start : end + 1])
-
- 
+        parsed = json.loads(content_clean[start: end + 1])
 
         result = {}
-
- 
 
         for key, _ in FUNCIONALIDADES_JUEZ:
             score_key = f"{key}_score"
             just_key = f"{key}_justification"
 
- 
-
             result[score_key] = normalizar_score_funcionalidad(parsed.get(score_key, 0))
             result[just_key] = safe_str(parsed.get(just_key, ""))
-
- 
 
         result["raw_json"] = json.dumps(parsed, ensure_ascii=False, indent=2)
         result["latencia_eval_s"] = latency_s
 
- 
-
         return calcular_resumen_funcionalidades(result)
 
- 
+
 
     except Exception as e:
         return build_error_juez_result(
@@ -1011,32 +819,21 @@ def llm_judge_metricas(
             latency_s=latency_s,
         )
 
- 
-
- 
 
 # ======================================================================================================================
 # FIN DEL JUEZ
 # ======================================================================================================================
 
- 
-
- 
 
 # ======================================================================================================================
 # METODO PARA CONECTARSE CON EL AGENTE DE PHOENIX
 # ======================================================================================================================
 
- 
-
- 
 
 def create_chat_and_headers(request_cliente_json):
     print("CONECTANDOME CON EL AGENTE DE PHOENIX")
     # payload_create = {"user_id": user_id, "initial_message": mensaje_inicio}
     headers_create = {"X-API-key": API_KEY, "Content-Type": "application/json"}
-
- 
 
     r1 = requests.post(
         URL_CHAT,
@@ -1062,17 +859,11 @@ def create_chat_and_headers(request_cliente_json):
     print(f"URL mensajes: {url_msg}")
     return chat_id, url_msg, headers_msg
 
- 
-
- 
 
 # ======================================================================================================================
 # METODO PARA CONECTARSE CON EL AGENTE DE PHOENIX
 # ======================================================================================================================
 
- 
-
- 
 
 def add_new_cic_to_customer_proc(request_cliente_json):
     print("INSERSANTO NUEVOS REGISTROS EN DH_CUSTOMER_PROC")
@@ -1108,8 +899,6 @@ def add_new_cic_to_customer_proc(request_cliente_json):
     correct_payload = {"items": [payload]}
     url = "https://fncteu2ainac02.azurewebsites.net/api/setcicinputs"
 
- 
-
     response = requests.post(
         url,
         json=correct_payload,
@@ -1118,28 +907,18 @@ def add_new_cic_to_customer_proc(request_cliente_json):
         verify=False,
     )
 
- 
-
     # print("Payload sent:", correct_payload)
     print("Status code:", response.status_code)
     print("Response body:", response.text)
 
- 
-
- 
 
 # ======================================================================================================================
 # OTROS METODOS (FUNCIÓN PARA GENERAR EL PAYLOAD DEL REQ)
 # ======================================================================================================================
 
- 
-
- 
 
 def generar_payload(user_row):
     fake = Faker("es_ES")  # Español de España
-
- 
 
     # Mapas para clasificación y segmento
     mapa_classification = {"I": "3", "AR": "4", "R": "2"}
@@ -1151,13 +930,9 @@ def generar_payload(user_row):
         "PE_3": "personas",
     }
 
- 
-
     # CIC
     cic_csv = safe_str(user_row.get("cic"))
     cic = cic_csv if cic_csv else f"{fake.random_number(digits=8, fix_len=True):08d}"
-
- 
 
     # Helper para datos comerciales ficticios
     nombres_comerciales = [
@@ -1172,19 +947,13 @@ def generar_payload(user_row):
         "Almacenes El Ucayalino" "RyR Importaciones",
     ]
 
- 
-
     # Nombres y nombres comerciales
     tipo_seg_csv = safe_str(user_row.get("tipo_seg"))
     segmento_persona = tipo_seg_csv in ("PE_1", "PE_2", "PE_3")
     segmento_pyme = tipo_seg_csv in ("PY_1", "PY_2") or not tipo_seg_csv
 
- 
-
     nombre = safe_str(user_row.get("nombre"))
     apellidos = safe_str(user_row.get("apellidos"))
-
- 
 
     if segmento_persona:
         # Solo nombre de persona
@@ -1207,13 +976,13 @@ def generar_payload(user_row):
             )
         else:
             user_name = (
-                nombre
-                or apellidos
-                or (
-                    fake.name()
-                    if fake.pybool()
-                    else fake.random_element(nombres_comerciales)
-                )
+                    nombre
+                    or apellidos
+                    or (
+                        fake.name()
+                        if fake.pybool()
+                        else fake.random_element(nombres_comerciales)
+                    )
             )
     else:
         # Otros casos (por si más adelante se agregan otros segmentos)
@@ -1227,28 +996,22 @@ def generar_payload(user_row):
             )
         else:
             user_name = (
-                nombre
-                or apellidos
-                or (
-                    fake.name()
-                    if fake.pybool()
-                    else fake.random_element(nombres_comerciales)
-                )
+                    nombre
+                    or apellidos
+                    or (
+                        fake.name()
+                        if fake.pybool()
+                        else fake.random_element(nombres_comerciales)
+                    )
             )
-
- 
 
     # DNI
     dni_csv = safe_str(user_row.get("dni"))
     dni = dni_csv if dni_csv else f"{fake.random_number(digits=8, fix_len=True):08d}"
 
- 
-
     # Teléfono
     phone_csv = safe_str(user_row.get("cel"))
     phone = phone_csv if phone_csv else fake.msisdn()[:9]
-
- 
 
     # Segmentos
     tipo_seg_csv = safe_str(user_row.get("tipo_seg"))
@@ -1258,8 +1021,6 @@ def generar_payload(user_row):
         else fake.random_element(list(mapa_segments.values()))
     )
 
- 
-
     # Clasificación
     tipo_cliente_csv = safe_str(user_row.get("tipo_cliente")).upper()
     classification = (
@@ -1268,13 +1029,9 @@ def generar_payload(user_row):
         else fake.random_element(list(mapa_classification.values()))
     )
 
- 
-
     # -----------------------
     # NUEVOS CAMPOS
     # -----------------------
-
- 
 
     # profile_quadrant: A/B/C/D (si viniera en CSV, lo respetas; si no, lo generas)
     pq_csv = safe_str(user_row.get("profile_quadrant")).strip().upper()
@@ -1284,20 +1041,12 @@ def generar_payload(user_row):
         else fake.random_element(["A", "B", "C", "D"])
     )
 
- 
-
     # cod_customer_priority: fijo P5 (si quieres permitir override por CSV, lo puedes hacer)
     cod_customer_priority = "P5"
 
- 
-
     ct_csv = safe_str(user_row.get("customer_type")).strip().upper()
 
- 
-
     customer_type_validos = ("PERSONAS", "PYME NATURAL", "PYME JURIDICO")
-
- 
 
     if ct_csv in customer_type_validos:
         customer_type = ct_csv
@@ -1312,18 +1061,14 @@ def generar_payload(user_row):
         else:
             customer_type = "PERSONAS"
 
- 
-
     # -----------------------
     # FIN NUEVOS CAMPOS
     # -----------------------
 
- 
+    # Deuda soles     deuda_soles_csv = saf... de Erwin Torres
+    # Erwin Torres
 
-  # Deuda soles     deuda_soles_csv = saf... de Erwin Torres
-# Erwin Torres
-
-  # Deuda soles
+    # Deuda soles
     deuda_soles_csv = safe_str(user_row.get("deuda_soles"))
     val_debt_amount_1 = (
         float(deuda_soles_csv)
@@ -1332,12 +1077,8 @@ def generar_payload(user_row):
     )
     val_currency1 = "PEN"
 
- 
-
     # Cuenta 1
     accnum1 = fake.bothify(text="#####-###-####", letters="")
-
- 
 
     # Deuda dólares
     deuda_dolares_csv = safe_str(user_row.get("deuda_dolares"))
@@ -1345,15 +1086,11 @@ def generar_payload(user_row):
     val_currency2 = "USD"
     accnum2 = ""
 
- 
-
     # Días vencidos
     qty_overdue_csv = safe_str(user_row.get("qty_overdue_days"))
     qty_overdue_days = (
         qty_overdue_csv if qty_overdue_csv else str(fake.random_int(min=1, max=90))
     )
-
- 
 
     # Producto
     tipo_deuda_csv = safe_str(user_row.get("tipo_deuda"))
@@ -1376,19 +1113,13 @@ def generar_payload(user_row):
     ]
     product = tipo_deuda_csv if tipo_deuda_csv else fake.random_element(posibles_prod)
 
- 
-
     # last_pdp
     last_pdp_csv = safe_str(user_row.get("last_pdp"))
     last_pdp = last_pdp_csv if last_pdp_csv else fake.random_element(["Si", "No"])
 
- 
-
     # active_pkg
     active_pkg = safe_str(user_row.get("active_pkg")) or "No"
     client_statement_raw = safe_str(user_row.get("client_statement_raw")) or ""
-
- 
 
     # ENSAMBLA EL PAYLOAD:
     payload = {
@@ -1424,9 +1155,6 @@ def generar_payload(user_row):
     )
     return payload
 
- 
-
- 
 
 def send_bot_message(url_msg, headers_msg, message):
     payload_msg = {"message": message}
@@ -1453,31 +1181,31 @@ def send_bot_message(url_msg, headers_msg, message):
 
 
 def construir_row_resultado(
-    orden_csv,
-    user,
-    request_cliente_json,
-    tipo_cliente,
-    caso_de_prueba,
-    mensaje_inicio,
-    secuencia_mensaje,
-    cic,
-    dni,
-    cel,
-    nombre_completo,
-    deuda_soles,
-    deuda_dolares,
-    tipo_deuda,
-    status,
-    bot_turns,
-    total_bot_latency_s,
-    total_sim_latency_s,
-    last_bot,
-    reglas_cliente,
-    reglas_juez,
-    conversa,
-    eval_juez,
-    perfil_juez,
-    scenario_exec_time,
+        orden_csv,
+        user,
+        request_cliente_json,
+        tipo_cliente,
+        caso_de_prueba,
+        mensaje_inicio,
+        secuencia_mensaje,
+        cic,
+        dni,
+        cel,
+        nombre_completo,
+        deuda_soles,
+        deuda_dolares,
+        tipo_deuda,
+        status,
+        bot_turns,
+        total_bot_latency_s,
+        total_sim_latency_s,
+        last_bot,
+        reglas_cliente,
+        reglas_juez,
+        conversa,
+        eval_juez,
+        perfil_juez,
+        scenario_exec_time,
 ):
     row = {
         "_orden_csv": orden_csv,
@@ -1747,11 +1475,9 @@ df_users = pd.read_csv(
     # dtype={"cic": str}
 )
 
-
 df_users = df_users[df_users["ejecutar_prueba"] == 1]
 
 df_users_ejecutar = df_users.copy()
-
 
 global_start = datetime.now()
 rows, total_exec_time = ejecutar_escenarios_en_paralelo(df_users_ejecutar)
@@ -1762,10 +1488,6 @@ wall_exec_time_formatted = format_td_hms(wall_exec_time)
 df = pd.DataFrame(rows)
 print(df.head())
 
- 
-
- 
-
 # Contadores escenarios PASS y FAIL y su porcentaje sobre el total
 total_cases = len(df)
 total_pass = df["status_prueba"].astype(str).str.upper().eq("PASS").sum()
@@ -1773,9 +1495,88 @@ total_fail = df["status_prueba"].astype(str).str.upper().eq("FAIL").sum()
 pass_percent = round((total_pass / total_cases) * 100) if total_cases else 0
 fail_percent = round((total_fail / total_cases) * 100) if total_cases else 0
 
- 
 
- 
+def calcular_porcentaje(valor, total):
+    if not total:
+        return 0
+    return round((valor / total) * 100, 2)
+
+
+def calcular_detalle_cumplimiento(df_resultados):
+    total_escenarios = len(df_resultados)
+    filas = []
+
+    for key, label in FUNCIONALIDADES_VISIBLES_REPORTE:
+        score_col = f"{key}_score"
+        if score_col in df_resultados.columns:
+            scores = df_resultados[score_col].apply(normalizar_score_funcionalidad)
+        else:
+            scores = pd.Series([], dtype=int)
+
+        cumple = int(scores.eq(1).sum())
+        no_cumple = int(scores.eq(0).sum())
+        no_aplica = int(scores.eq(-1).sum())
+
+        filas.append(
+            {
+                "key": key,
+                "funcionalidad": label,
+                "cumple": cumple,
+                "cumple_pct": calcular_porcentaje(cumple, total_escenarios),
+                "no_cumple": no_cumple,
+                "no_cumple_pct": calcular_porcentaje(no_cumple, total_escenarios),
+                "no_aplica": no_aplica,
+                "no_aplica_pct": calcular_porcentaje(no_aplica, total_escenarios),
+                "total_escenarios": total_escenarios,
+            }
+        )
+
+    return {
+        "total_escenarios": total_escenarios,
+        "filas": filas,
+    }
+
+
+def calcular_escenarios_por_funcionalidad(df_resultados):
+    estados = [
+        (1, "cumple", "Cumple"),
+        (0, "no_cumple", "No Cumple"),
+        (-1, "no_aplica", "No Aplica"),
+    ]
+    detalle = {}
+
+    for key, label in FUNCIONALIDADES_VISIBLES_REPORTE:
+        detalle[key] = {
+            "label": label,
+            "estados": {
+                estado_key: {
+                    "label": estado_label,
+                    "escenarios": [],
+                }
+                for _, estado_key, estado_label in estados
+            },
+        }
+
+        score_col = f"{key}_score"
+        justification_col = f"{key}_justification"
+
+        for _, row in df_resultados.iterrows():
+            score = normalizar_score_funcionalidad(row.get(score_col, 0))
+            estado_key = next((item[1] for item in estados if item[0] == score), "no_cumple")
+            detalle[key]["estados"][estado_key]["escenarios"].append(
+                {
+                    "id_test": safe_str(row.get("id_test", "")),
+                    "escenario": safe_str(row.get("caso_de_prueba", "")),
+                    "justificacion": safe_str(row.get(justification_col, "")),
+                }
+            )
+
+    return detalle
+
+
+detalle_cumplimiento = calcular_detalle_cumplimiento(df)
+escenarios_por_funcionalidad = calcular_escenarios_por_funcionalidad(df)
+
 
 # ======================================================================================================================
 # REPORTE HTML
@@ -1785,9 +1586,6 @@ def escape_cell(val):
         return html.escape(json.dumps(val, ensure_ascii=False, indent=2))
     return html.escape(str(val) if val is not None else "")
 
- 
-
- 
 
 def checklist_juez_table(judge_json_str):
     try:
@@ -1842,9 +1640,6 @@ def checklist_juez_table(judge_json_str):
 </div>
    """.replace("\n", "")
 
- 
-
- 
 
 def link_details_juez(judge_json_str):
     html_checklist = checklist_juez_table(judge_json_str)
@@ -1855,9 +1650,6 @@ def link_details_juez(judge_json_str):
 </details>
    """
 
- 
-
- 
 
 def badge_status(status):
     status = (status or "").strip().upper()
@@ -1867,9 +1659,6 @@ def badge_status(status):
         return "<span class='badge-fail'>FAIL</span>"
     return f"<span>{status}</span>"
 
- 
-
- 
 
 def link_details_conversa(hist_json_str):
     try:
@@ -1889,38 +1678,29 @@ def link_details_conversa(hist_json_str):
 </details>
    """
 
- 
-
- 
 
 # ===================================================================================================
 #                 === NUEVO BLOQUE PARA ARMAR EL BUFFER DE CONTENIDOS DE MODAL EN JS ===
 # ===================================================================================================
 
- 
-
 columns = [
     "Cod. Test",
     "Escenario",
-    "Persuasión Total",
-    "Persuasión Parcial",
-    "Motivos No Pago",
-    "Registro PDP",
-    "Canales Atención",
-    "NPS",
-    "Ofrecer Asesor",
-    "Registro Cita",
-    "Consecuencias No Pago",
-    "Preguntas Frecuentes",
+    "Persuasión total",
+    "Persuasión parcial",
+    "Motivos no pago",
+    "Registro pdp",
+    "Canales atención",
+    "Registro nps",
+    "Ofrecer asesor",
+    "Registro cita",
+    "Consecuencias no pago",
+    "Preguntas frecuentes",
     "Puntuación",
-    "Tiempo Ejecucion",
+    "Tiempo Ejecución",
     "Resultado",
     "Acciones",
 ]
-
- 
-
- 
 
 def resumir_texto(texto, max_chars=70):
     texto = safe_str(texto).strip().replace("\n", " ")
@@ -1930,9 +1710,6 @@ def resumir_texto(texto, max_chars=70):
         return texto
     return texto[:max_chars].rsplit(" ", 1)[0] + "..."
 
- 
-
- 
 
 def visualizar_modal(idx, tipo, titulo, icono="chat"):
     titulo_safe = html.escape(titulo)
@@ -1967,52 +1744,32 @@ def visualizar_modal(idx, tipo, titulo, icono="chat"):
 </button>
    """
 
- 
-
- 
 
 def badge_funcionalidad(score):
     score = normalizar_score_funcionalidad(score)
 
- 
-
     if score == 1:
         return "<span class='badge-cumple'>CUMPLE</span>"
-
- 
 
     if score == 0:
         return "<span class='badge-no-cumple'>NO CUMPLE</span>"
 
- 
-
     return "<span class='badge-no-aplica'>NO APLICA</span>"
 
- 
-
- 
 
 html_tablerows = []
 modal_contents = []
 
- 
-
 for i, (_, r) in enumerate(df.iterrows()):
-
- 
 
     detalle_metricas = {
         "metricas": [],
         "resumen": r.get("comentario_status_prueba", ""),
     }
 
- 
-
     for key, label in FUNCIONALIDADES_VISIBLES_REPORTE:
         score = int(r.get(f"{key}_score", 0))
         justification = safe_str(r.get(f"{key}_justification", ""))
-
- 
 
         if score == 1:
             estado = "CUMPLE"
@@ -2020,8 +1777,6 @@ for i, (_, r) in enumerate(df.iterrows()):
             estado = "NO CUMPLE"
         else:
             estado = "NO APLICA"
-
- 
 
         detalle_metricas["metricas"].append(
             {
@@ -2033,15 +1788,11 @@ for i, (_, r) in enumerate(df.iterrows()):
             }
         )
 
- 
-
     fila_modal = {
         "payload": str(r.get("payload", "")),
         "conversa": "",
         "detalle_metricas": detalle_metricas,
     }
-
- 
 
     try:
         hist_list = json.loads(r.get("conversa", "[]"))
@@ -2056,15 +1807,10 @@ for i, (_, r) in enumerate(df.iterrows()):
     except Exception:
         fila_modal["conversa"] = r.get("conversa", "") or ""
 
-
     modal_contents.append(fila_modal)
-
- 
 
     score = float(r.get("score_total", 0))
     status = safe_str(r.get("status_prueba")).upper()
-
- 
 
     badge = (
         "<span class='badge-pass'>PASS</span>"
@@ -2072,36 +1818,28 @@ for i, (_, r) in enumerate(df.iterrows()):
         else "<span class='badge-fail'>FAIL</span>"
     )
 
- 
-
     score_class = "score-pass" if status == "PASS" else "score-fail"
     score_pct = max(0, min(100, round(score * 100)))
 
- 
-
     metric_cells = ""
 
- 
-
-    for key, _ in FUNCIONALIDADES_VISIBLES_REPORTE:
-        metric_cells += f"<td>{badge_funcionalidad(r.get(f'{key}_score', 0))}</td>"
-
- 
+    for key, label in FUNCIONALIDADES_VISIBLES_REPORTE:
+        metric_cells += f"<td data-label=\"{html.escape(label)}\">{badge_funcionalidad(r.get(f'{key}_score', 0))}</td>"
 
     row_html = f"""
 <tr data-result="{status}">
-<td>{escape_cell(r.get("id_test"))}</td>
-<td class="td-ellipsis" title="{escape_cell(r.get('caso_de_prueba'))}">
+<td data-label="Cod. Test">{escape_cell(r.get("id_test"))}</td>
+<td data-label="Escenario" class="td-ellipsis" title="{escape_cell(r.get('caso_de_prueba'))}">
     {html.escape(resumir_texto(r.get("caso_de_prueba"), 42))}
 </td>
 
- 
+
 
 {metric_cells}
 
- 
 
-<td>
+
+<td data-label="Puntuacion">
 <div class="score-wrap">
 <div class="{score_class}">{score:.2f}</div>
 <div class="score-bar">
@@ -2109,9 +1847,9 @@ for i, (_, r) in enumerate(df.iterrows()):
 </div>
 </div>
 </td>
-<td class="td-exec-time">{escape_cell(r.get("tiempo_ejecucion"))}</td>
-<td>{badge}</td>
-<td>
+<td data-label="Tiempo Ejecucion" class="td-exec-time">{escape_cell(r.get("tiempo_ejecucion"))}</td>
+<td data-label="Resultado">{badge}</td>
+<td data-label="Acciones">
 <div class="action-group">
         {visualizar_modal(i, 'conversa', 'CONVERSACIÓN', 'chat')}
         {visualizar_modal(i, 'payload', 'DATA', 'data')}
@@ -2121,30 +1859,38 @@ for i, (_, r) in enumerate(df.iterrows()):
 </tr>
 """
 
- 
-
     html_tablerows.append(row_html)
 
- 
-
- 
-
 html_modal_contents = (
-    "<script>\nwindow.__MODAL_CONTENTS__ = "
-    + json.dumps(modal_contents, ensure_ascii=False)
-    + ";\n</script>"
+        "<script>\nwindow.__MODAL_CONTENTS__ = "
+        + json.dumps(modal_contents, ensure_ascii=False)
+        + ";\nwindow.__DETALLE_CUMPLIMIENTO__ = "
+        + json.dumps(detalle_cumplimiento, ensure_ascii=False)
+        + ";\nwindow.__ESCENARIOS_FUNCIONALIDAD__ = "
+        + json.dumps(escenarios_por_funcionalidad, ensure_ascii=False)
+        + ";\n</script>"
 )
-
- 
 
 html_table = f"""
 <div class="table-card">
 <div class="table-card-header">
 <div class="table-title">Resultados por Escenario</div>
+<div class="table-header-actions">
+<button type="button" class="summary-modal-btn"
+       data-content-tipo="detalle_cumplimiento"
+       data-title="DETALLE CUMPLIMIENTO"
+       onclick="showUniqueModalFromButton(this); openGlobalModal();">
+<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+<path d="M3 3v18h18"></path>
+<path d="M7 15l3-3 3 2 5-6"></path>
+</svg>
+<span>Detalle Cumplimiento</span>
+</button>
 <div class="result-filter" aria-label="Filtrar por resultado">
 <button type="button" class="filter-btn active" data-result-filter="TODOS">Todos</button>
 <button type="button" class="filter-btn" data-result-filter="SUCCESS">SUCCESS</button>
 <button type="button" class="filter-btn" data-result-filter="FAIL">FAIL</button>
+</div>
 </div>
 </div>
 <div class="table-responsive">
@@ -2170,8 +1916,6 @@ html_table = f"""
 # ========================================================================================
 promedio_score = round(df["score_total"].mean(), 2) if len(df) > 0 else 0.0
 date_str = datetime.now().strftime("%d%m%Y_%H%M%S")
-
- 
 
 tres_card_html = f"""
 <div class="premium-stats-grid">
@@ -2215,9 +1959,6 @@ tres_card_html = f"""
 """
 # ========================================================================================
 
- 
-
- 
 
 cabecera_html = f"""
 <div class="premium-header-wrap">
@@ -2255,6 +1996,12 @@ html_doc = f"""
    }}
    html, body {{
        min-height: 100%;
+       overflow-x: hidden;
+   }}
+   *,
+   *::before,
+   *::after {{
+       box-sizing: border-box;
    }}
    body {{
        font-family: "Segoe UI", Arial, sans-serif;
@@ -2264,6 +2011,7 @@ html_doc = f"""
        color: #1f2937;
    }}
    .page-container {{
+       width: min(100%, 1540px);
        max-width: 1540px;
        margin: auto;
    }}
@@ -2285,10 +2033,11 @@ html_doc = f"""
    .premium-header-sub {{
        color: #e3eafd;
        font-size: 14px;
+       overflow-wrap: anywhere;
    }}
    .premium-stats-grid {{
        display: grid;
-       grid-template-columns: repeat(5, 1fr);
+       grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
        gap: 16px;
        margin: 24px 0 26px 0;
    }}
@@ -2304,6 +2053,7 @@ html_doc = f"""
        display: flex;
        flex-direction: column;
        justify-content: center;
+       min-width: 0;
    }}
    .premium-card::after {{
        content: "";
@@ -2432,6 +2182,7 @@ html_doc = f"""
        box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
        padding: 0;
        margin-bottom: 32px;
+       max-width: 100%;
    }}
    .table-title {{
        padding: 0;
@@ -2446,12 +2197,42 @@ html_doc = f"""
        gap: 16px;
        padding: 18px 24px 12px 24px;
    }}
+   .table-header-actions {{
+       display: flex;
+       align-items: center;
+       justify-content: flex-end;
+       gap: 12px;
+       flex-wrap: wrap;
+   }}
    .result-filter {{
        display: flex;
        gap: 10px;
        align-items: center;
        justify-content: flex-end;
        flex-wrap: wrap;
+   }}
+   .summary-modal-btn {{
+       border: 1px solid #dbe3ef;
+       border-radius: 12px;
+       background: white;
+       color: #174ea6;
+       cursor: pointer;
+       display: inline-flex;
+       align-items: center;
+       justify-content: center;
+       gap: 8px;
+       font-size: 13px;
+       font-weight: 800;
+       min-height: 41px;
+       padding: 10px 14px;
+       box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+       transition: all .18s ease;
+       white-space: nowrap;
+   }}
+   .summary-modal-btn:hover {{
+       background: #f8fbff;
+       border-color: #b8c9e6;
+       box-shadow: 0 10px 24px rgba(30, 64, 175, 0.10);
    }}
    .filter-btn {{
        border: 1px solid #dbe3ef;
@@ -2476,9 +2257,13 @@ html_doc = f"""
    .table-responsive {{
        width: 100%;
        overflow-x: auto;
+       -webkit-overflow-scrolling: touch;
+       overscroll-behavior-x: contain;
+       scrollbar-gutter: stable;
    }}
    #myTable {{
        width: 100% !important;
+       min-width: 1540px;
        background: transparent;
        border-collapse: separate;
        border-spacing: 0;
@@ -2568,6 +2353,7 @@ html_doc = f"""
        display: flex;
        gap: 8px;
        justify-content: center;
+       flex-wrap: wrap;
    }}
    .icon-btn {{
        width: 38px;
@@ -2612,14 +2398,14 @@ html_doc = f"""
        position: relative;
        z-index: 1;
        width: min(1240px, 96vw);
-       height: min(820px, 88vh);
-       max-height: 88vh;
+       height: min(820px, calc(100dvh - 64px));
+       max-height: calc(100dvh - 64px);
        display: flex;
    }}
    .modal-content {{
        width: 100%;
        height: 100%;
-       max-height: 88vh;
+       max-height: 100%;
        display: flex;
        flex-direction: column;
        border-radius: 22px;
@@ -2758,36 +2544,241 @@ html_doc = f"""
    }}
    @media (max-width: 1300px) {{
        .premium-stats-grid {{
-           grid-template-columns: repeat(2, 1fr);
+           grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
        }}
    }}
    @media (max-width: 768px) {{
        .premium-stats-grid {{
            grid-template-columns: 1fr;
        }}
+       .page-container {{
+           width: 100%;
+       }}
+       .premium-header-wrap {{
+           margin: 6px 0 16px 0;
+       }}
+       .premium-header {{
+           border-radius: 18px;
+           padding: 20px 18px;
+       }}
+       .premium-header-title {{
+           font-size: 20px;
+           line-height: 1.25;
+       }}
+       .premium-header-sub {{
+           font-size: 12px;
+           line-height: 1.6;
+       }}
+       .premium-card {{
+           border-radius: 16px;
+           min-height: 118px;
+           padding: 18px;
+       }}
+       .premium-card-icon {{
+           width: 44px;
+           height: 44px;
+           border-radius: 12px;
+           font-size: 22px;
+           margin-bottom: 10px;
+       }}
+       .premium-card-label {{
+           font-size: 14px;
+       }}
+       .premium-card-value {{
+           font-size: 34px;
+       }}
        .donut-wrap {{
            flex-direction: column;
            align-items: flex-start;
        }}
        body {{
-           padding: 14px 14px 100px 14px;
+           padding: 12px 12px 24px 12px;
+       }}
+       .table-card {{
+           border-radius: 18px;
+       }}
+       .table-title {{
+           font-size: 18px;
        }}
        .footer-fixed {{
-           left: 14px;
-           right: 14px;
+           position: static;
+           margin-top: 18px;
+           border-radius: 14px;
+           padding: 12px;
+           line-height: 1.5;
        }}
        .table-card-header,
        .table-controls {{
            align-items: stretch;
            flex-direction: column;
        }}
+       .table-header-actions {{
+           align-items: stretch;
+           justify-content: flex-start;
+       }}
+       .summary-modal-btn {{
+           width: 100%;
+       }}
+       .result-filter {{
+           display: grid;
+           grid-template-columns: repeat(3, minmax(0, 1fr));
+           width: 100%;
+       }}
+       .filter-btn {{
+           min-width: 0;
+           padding: 10px 8px;
+       }}
        .result-filter,
        .table-pagination {{
            justify-content: flex-start;
        }}
+       .table-responsive {{
+           overflow-x: visible;
+           padding: 0 12px 12px 12px;
+       }}
+       #myTable {{
+           min-width: 0;
+           border-collapse: separate;
+           border-spacing: 0 12px;
+       }}
+       #myTable thead {{
+           display: none;
+       }}
+       #myTable tbody,
+       #myTable tr,
+       #myTable td {{
+           display: block;
+           width: 100%;
+       }}
+       #myTable tr {{
+           background: white;
+           border: 1px solid #e5e7eb;
+           border-radius: 16px;
+           box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+           padding: 12px;
+       }}
+       #myTable td {{
+           display: grid;
+           grid-template-columns: minmax(118px, 42%) minmax(0, 1fr);
+           align-items: center;
+           gap: 10px;
+           min-height: 44px;
+           padding: 10px 0 !important;
+           text-align: right;
+           border-bottom: 1px solid #eef2f7 !important;
+       }}
+       #myTable td:last-child {{
+           border-bottom: 0 !important;
+       }}
+       #myTable td::before {{
+           content: attr(data-label);
+           color: #0f172a;
+           font-size: 12px;
+           font-weight: 900;
+           line-height: 1.3;
+           text-align: left;
+           text-transform: uppercase;
+       }}
+       .td-ellipsis {{
+           max-width: none;
+           white-space: normal;
+       }}
+       .score-wrap {{
+           align-items: flex-end;
+       }}
+       .score-pass,
+       .score-fail {{
+           font-size: 22px;
+       }}
+       .action-group {{
+           justify-content: flex-end;
+       }}
+       .table-controls {{
+           padding: 12px;
+       }}
+       .table-pagination {{
+           gap: 5px;
+       }}
+       .table-page-btn {{
+           flex: 1 1 auto;
+           min-width: 42px;
+       }}
+       .modal {{
+           align-items: stretch;
+           padding: 8px;
+       }}
+       .modal-dialog {{
+           width: 100%;
+           height: calc(100dvh - 16px);
+           max-height: calc(100dvh - 16px);
+       }}
+       .modal-content {{
+           border-radius: 16px;
+       }}
+       .modal-header {{
+           padding: 14px 16px;
+       }}
+       .modal-title {{
+           font-size: 17px;
+           line-height: 1.25;
+       }}
+       .modal-viewer,
+       .modal-rich-content {{
+           padding: 14px;
+       }}
+       .modal-footer {{
+           padding: 12px 14px;
+       }}
+       .modal-close-btn {{
+           width: 100%;
+       }}
+       .conversation-thread {{
+           max-width: none;
+       }}
+       .conversation-text,
+       .metric-card-desc,
+       .metric-summary-text {{
+           font-size: 13px;
+       }}
+       .compliance-table {{
+           min-width: 760px;
+       }}
+       .scenario-functionality-table {{
+           min-width: 680px;
+       }}
+   }}
+   @media (max-width: 420px) {{
+       .premium-header {{
+           padding: 18px 14px;
+       }}
+       .result-filter {{
+           grid-template-columns: 1fr;
+       }}
+       #myTable td {{
+           grid-template-columns: 1fr;
+           text-align: left;
+       }}
+       .score-wrap,
+       .action-group {{
+           align-items: flex-start;
+           justify-content: flex-start;
+       }}
+       .score-bar {{
+           width: 100%;
+       }}
+       .donut-chart {{
+           width: 84px;
+           height: 84px;
+       }}
+       .modal-header {{
+           gap: 10px;
+       }}
+       .btn-close {{
+           flex: 0 0 auto;
+       }}
    }}
 
- 
+
 
    .modal-rich-content {{
        box-sizing: border-box;
@@ -2852,6 +2843,103 @@ html_doc = f"""
        white-space: pre;
        scrollbar-gutter: stable;
    }}
+.compliance-panel {{
+   background: white;
+   border: 1px solid #dbe3ef;
+   border-radius: 16px;
+   box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+   overflow: hidden;
+}}
+.compliance-table-scroll {{
+   width: 100%;
+   overflow: auto;
+}}
+.compliance-table {{
+   width: 100%;
+   min-width: 860px;
+   border-collapse: collapse;
+   background: white;
+}}
+.compliance-table th,
+.compliance-table td {{
+   border: 1px solid #e5e7eb;
+   padding: 11px 12px;
+   color: #334155;
+   font-size: 13px;
+   text-align: center;
+}}
+.compliance-table th {{
+   background: linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%);
+   color: #0f172a;
+   font-weight: 900;
+   text-transform: uppercase;
+}}
+.compliance-table td:first-child {{
+   color: #0f172a;
+   font-weight: 800;
+   text-align: left;
+}}
+.compliance-table .compliance-count {{
+   font-weight: 900;
+}}
+.compliance-table .compliance-total {{
+   background: #f8fafc;
+   color: #0f172a;
+   font-weight: 900;
+}}
+.compliance-count-btn {{
+   width: 100%;
+   min-width: 42px;
+   border: 0;
+   border-radius: 8px;
+   background: #eef4ff;
+   color: #174ea6;
+   cursor: pointer;
+   font-size: 13px;
+   font-weight: 900;
+   padding: 7px 8px;
+   transition: all .18s ease;
+}}
+.compliance-count-btn:hover {{
+   background: #dbeafe;
+   box-shadow: inset 0 0 0 1px #b8c9e6;
+}}
+.scenario-functionality-head {{
+   margin-bottom: 14px;
+   color: #0f172a;
+   font-size: 16px;
+   font-weight: 900;
+}}
+.scenario-functionality-table {{
+   min-width: 780px;
+   table-layout: fixed;
+}}
+.scenario-functionality-table td {{
+   vertical-align: top;
+   text-align: left;
+   line-height: 1.55;
+}}
+.scenario-functionality-table td:first-child {{
+   width: 120px;
+   white-space: nowrap;
+}}
+.scenario-functionality-table td:nth-child(2) {{
+   width: 34%;
+}}
+.scenario-functionality-table th:first-child {{
+   width: 120px;
+}}
+.scenario-functionality-table th:nth-child(2) {{
+   width: 34%;
+}}
+.scenario-text-ellipsis {{
+   cursor: help;
+   display: block;
+   max-width: 100%;
+   overflow: hidden;
+   text-overflow: ellipsis;
+   white-space: nowrap;
+}}
 .metric-cards-grid {{
    display: grid;
    grid-template-columns: repeat(2, 1fr);
@@ -2912,7 +3000,7 @@ html_doc = f"""
    }}
 }}
 
- 
+
 
 .metric-score-line {{
     font-size: 14px;
@@ -2920,7 +3008,7 @@ html_doc = f"""
     margin-bottom: 10px;
 }}
 
- 
+
 
 .metric-justification {{
     font-size: 13px;
@@ -2932,7 +3020,7 @@ html_doc = f"""
     border: 1px solid #e5e7eb;
 }}
 
- 
+
 
 .badge-cumple {{
     display: inline-block;
@@ -2945,7 +3033,7 @@ html_doc = f"""
     white-space: nowrap;
 }}
 
- 
+
 
 .badge-no-cumple {{
     display: inline-block;
@@ -2958,7 +3046,7 @@ html_doc = f"""
     white-space: nowrap;
 }}
 
- 
+
 
 .badge-no-aplica {{
     display: inline-block;
@@ -2971,25 +3059,85 @@ html_doc = f"""
     white-space: nowrap;
 }}
 
- 
+
 
 .metric-card-score.badge-modal-cumple {{
     background: linear-gradient(135deg, #16a34a, #22c55e);
     color: white;
 }}
 
- 
+
 
 .metric-card-score.badge-modal-no-cumple {{
     background: linear-gradient(135deg, #dc2626, #ef4444);
     color: white;
 }}
 
- 
+
 
 .metric-card-score.badge-modal-no-aplica {{
     background: linear-gradient(135deg, #f59e0b, #fbbf24);
     color: #78350f;
+}}
+
+
+@media (max-width: 768px) {{
+   .modal-rich-content {{
+       padding: 14px;
+   }}
+   .modal-viewer,
+   .data-pre {{
+       padding: 14px;
+       font-size: 12px;
+   }}
+   .conversation-thread {{
+       max-width: none;
+   }}
+   .conversation-message {{
+       border-radius: 14px;
+       padding: 12px;
+   }}
+   .conversation-text,
+   .metric-card-desc,
+   .metric-summary-text {{
+       font-size: 13px;
+   }}
+   .metric-card {{
+       border-radius: 14px;
+       padding: 14px;
+   }}
+   .metric-card-header {{
+       align-items: flex-start;
+       flex-direction: column;
+       gap: 8px;
+   }}
+   .metric-card-score {{
+       align-self: flex-start;
+   }}
+   .metric-summary-box {{
+       border-radius: 14px;
+       padding: 14px;
+   }}
+   .compliance-table {{
+       min-width: 760px;
+   }}
+   .scenario-functionality-table {{
+       min-width: 680px;
+   }}
+   .compliance-table th,
+   .compliance-table td {{
+       font-size: 12px;
+       padding: 9px 10px;
+   }}
+}}
+
+@media (max-width: 420px) {{
+   .compliance-table {{
+       min-width: 680px;
+   }}
+   .scenario-functionality-table {{
+       min-width: 620px;
+   }}
 }}
 
 
@@ -3042,23 +3190,181 @@ function escaparHtml(texto) {{
 
 function getTextoScore(valor) {{
    valor = Number(valor);
- 
+
    if (valor === 1) return "CUMPLE";
    if (valor === 0) return "NO CUMPLE";
    return "NO APLICA";
 }}
- 
+
 function getClaseScore(valor) {{
    valor = Number(valor);
- 
+
    if (valor === 1) return "badge-modal-cumple";
    if (valor === 0) return "badge-modal-no-cumple";
    return "badge-modal-no-aplica";
 }}
- 
+
+function formatearPorcentaje(valor) {{
+   const numero = Number(valor);
+   if (!Number.isFinite(numero)) return "0%";
+   return new Intl.NumberFormat('es-PE', {{
+       minimumFractionDigits: 0,
+       maximumFractionDigits: 2
+   }}).format(numero) + "%";
+}}
+
+function renderComplianceCountButton(item, estadoKey, valor, estadoLabel) {{
+   const count = Number(valor || 0);
+   const key = item.key || "";
+   const funcionalidad = item.funcionalidad || "";
+
+   return `
+<button type="button" class="compliance-count-btn"
+        data-funcionalidad-key="${{escaparHtml(key)}}"
+        data-estado-key="${{escaparHtml(estadoKey)}}"
+        onclick="abrirEscenariosDesdeBoton(this)"
+        title="Ver escenarios ${{escaparHtml(estadoLabel)}} de ${{escaparHtml(funcionalidad)}}">
+    ${{count}}
+</button>
+`;
+}}
+
+function abrirEscenariosDesdeBoton(btn) {{
+   abrirEscenariosPorFuncionalidad(
+       btn.getAttribute("data-funcionalidad-key") || "",
+       btn.getAttribute("data-estado-key") || ""
+   );
+}}
+
+function abrirEscenariosPorFuncionalidad(funcionalidadKey, estadoKey) {{
+   const textContent = document.getElementById('uniqueModalTextContent');
+   const rich = document.getElementById('uniqueModalRichContent');
+   const lbl = document.getElementById('uniqueModalTitle');
+
+   if (!textContent || !rich || !lbl) return;
+
+   const data = window.__ESCENARIOS_FUNCIONALIDAD__ || {{}};
+   const funcionalidad = data[funcionalidadKey] || {{}};
+   const nombreFuncionalidad = funcionalidad.label || funcionalidadKey || "Funcionalidad";
+
+   lbl.textContent = "Escenarios Por Funcionalidad: " + nombreFuncionalidad;
+   textContent.style.display = "none";
+   rich.style.display = "block";
+   textContent.textContent = "";
+   rich.innerHTML = renderEscenariosPorFuncionalidad(funcionalidadKey, estadoKey);
+   rich.scrollTop = 0;
+}}
+
+function renderEscenariosPorFuncionalidad(funcionalidadKey, estadoKey) {{
+   const data = window.__ESCENARIOS_FUNCIONALIDAD__ || {{}};
+   const funcionalidad = data[funcionalidadKey] || {{}};
+   const estados = funcionalidad.estados || {{}};
+   const estado = estados[estadoKey] || {{}};
+   const escenarios = Array.isArray(estado.escenarios) ? estado.escenarios : [];
+   const estadoLabel = estado.label || estadoKey || "";
+
+   if (!escenarios.length) {{
+       return `
+<div class="metric-summary-box">
+    <div class="metric-summary-title">Sin escenarios ${{escaparHtml(estadoLabel)}}</div>
+    <div class="metric-summary-text">No se encontraron escenarios para esta funcionalidad y estado.</div>
+</div>
+`;
+   }}
+
+   let rows = "";
+   escenarios.forEach(function(item) {{
+       rows += `
+<tr>
+    <td>${{escaparHtml(item.id_test || "")}}</td>
+    <td><span class="scenario-text-ellipsis" title="${{escaparHtml(item.escenario || "")}}">${{escaparHtml(item.escenario || "")}}</span></td>
+    <td><span class="scenario-text-ellipsis" title="${{escaparHtml(item.justificacion || "")}}">${{escaparHtml(item.justificacion || "")}}</span></td>
+</tr>
+`;
+   }});
+
+   return `
+<div class="scenario-functionality-head">${{escaparHtml(estadoLabel)}}: ${{escenarios.length}} escenario(s)</div>
+<div class="compliance-panel">
+    <div class="compliance-table-scroll">
+        <table class="compliance-table scenario-functionality-table">
+            <thead>
+                <tr>
+                    <th>Cod. Test</th>
+                    <th>Escenario</th>
+                    <th>Detalle de la metrica</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${{rows}}
+            </tbody>
+        </table>
+    </div>
+</div>
+`;
+}}
+
+function renderDetalleCumplimiento(data) {{
+   const filas = data && Array.isArray(data.filas) ? data.filas : [];
+
+   if (!filas.length) {{
+       return `
+<div class="metric-summary-box">
+    <div class="metric-summary-title">Sin detalle de cumplimiento</div>
+    <div class="metric-summary-text">No se encontraron escenarios ejecutados para visualizar.</div>
+</div>
+`;
+   }}
+
+   let rows = "";
+   filas.forEach(function(item) {{
+       rows += `
+<tr>
+    <td>${{escaparHtml(item.funcionalidad || "")}}</td>
+    <td class="compliance-count">${{renderComplianceCountButton(item, "cumple", item.cumple, "Cumple")}}</td>
+    <td>${{formatearPorcentaje(item.cumple_pct)}}</td>
+    <td class="compliance-count">${{renderComplianceCountButton(item, "no_cumple", item.no_cumple, "No Cumple")}}</td>
+    <td>${{formatearPorcentaje(item.no_cumple_pct)}}</td>
+    <td class="compliance-count">${{renderComplianceCountButton(item, "no_aplica", item.no_aplica, "No Aplica")}}</td>
+    <td>${{formatearPorcentaje(item.no_aplica_pct)}}</td>
+    <td class="compliance-total">${{Number(item.total_escenarios || 0)}}</td>
+</tr>
+`;
+   }});
+
+   return `
+<div class="compliance-panel">
+    <div class="compliance-table-scroll">
+        <table class="compliance-table">
+            <thead>
+                <tr>
+                    <th rowspan="2">Funcionalidad</th>
+                    <th colspan="2">Cumple</th>
+                    <th colspan="2">No Cumple</th>
+                    <th colspan="2">No Aplica</th>
+                    <th rowspan="2">Total Ejecutados</th>
+                </tr>
+                <tr>
+                    <th>Cant.</th>
+                    <th>%</th>
+                    <th>Cant.</th>
+                    <th>%</th>
+                    <th>Cant.</th>
+                    <th>%</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${{rows}}
+            </tbody>
+        </table>
+    </div>
+</div>
+`;
+}}
+
 
 function renderMetricCard(item) {{
- 
+
    let nombre = item.label || item.key || "";
 
    let valor = Number(item.score);
@@ -3066,18 +3372,18 @@ function renderMetricCard(item) {{
    let estado = item.estado || getTextoScore(valor);
 
    let descripcion = item.justification || "";
- 
+
    return `
 <div class="metric-card">
 <div class="metric-card-header">
 <div class="metric-card-title">${{escaparHtml(nombre)}}</div>
 <div class="metric-card-score ${{getClaseScore(valor)}}">${{escaparHtml(estado)}}</div>
 </div>
- 
+
     <div class="metric-score-line">
 <strong>Puntaje:</strong> ${{valor}}
 </div>
- 
+
     <div class="metric-justification">
 <strong>Justificación:</strong><br>
 
@@ -3085,9 +3391,9 @@ function renderMetricCard(item) {{
 </div>
 </div>
 
-`; 
- 
-}} 
+`;
+
+}}
 
 function renderDataContent(contenido) {{
    let texto = contenido;
@@ -3145,6 +3451,14 @@ function showUniqueModalFromButton(btn) {{
    textContent.textContent = "";
    rich.innerHTML = "";
 
+   if (tipo === "detalle_cumplimiento") {{
+       textContent.style.display = "none";
+       rich.style.display = "block";
+       rich.innerHTML = renderDetalleCumplimiento(window.__DETALLE_CUMPLIMIENTO__);
+       rich.scrollTop = 0;
+       return;
+   }}
+
    if (tipo === "conversa") {{
        textContent.style.display = "none";
        rich.style.display = "block";
@@ -3199,7 +3513,7 @@ function showUniqueModalFromButton(btn) {{
    rich.innerHTML = htmlMetricas;
    return;
 }}
-   
+
 
    if (typeof contenido === "object" && contenido !== null) {{
        contenido = JSON.stringify(contenido, null, 2);
@@ -3321,7 +3635,7 @@ document.addEventListener('DOMContentLoaded', function() {{
 """
 
 date_str = datetime.now().strftime("%d%m%Y_%H%M%S")
-report_name = f"simulador_con_juez_{date_str}.html"
+report_name = f"Rep-juez-funcionalidades-paral_{date_str}.html"
 report_path = os.path.join(OUTPUT_DIR, report_name)
 with open(report_path, "w", encoding="utf-8") as f:
     f.write(html_doc)
@@ -3330,5 +3644,3 @@ csv_name = report_name.replace(".html", ".csv")
 csv_path = os.path.join(OUTPUT_DIR, csv_name)
 df.to_csv(csv_path, index=False, sep=";", encoding="utf-8-sig")
 print("CSV generado:", csv_path)
-
-
