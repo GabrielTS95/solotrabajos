@@ -2,16 +2,13 @@ import os
 import json
 import html
 import requests
-import threading
 import pandas as pd
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from openai import AzureOpenAI
 import httpx
 from faker import Faker
 from datetime import timedelta
 
-_thread_local = threading.local()
 http_client = httpx.Client(verify=False)  # <--- Desactiva SSL
 
 # ======================================================================================================================
@@ -33,7 +30,6 @@ AZURE_OPENAI_API_VERSION = os.getenv(
 MODEL_NAME = "gpt-4.1"
 API_KEY = os.getenv("BOT_API_KEY", "")
 MAX_TURNS_SAFE = 15
-MAX_WORKERS_DEFAULT = 5
 URL_CHAT = ""
 # Ruta local
 
@@ -58,34 +54,8 @@ client = AzureOpenAI(
     http_client=http_client,  # <--- ¡Aquí va!clear
 )
 
-def obtener_max_workers(total_escenarios: int) -> int:
-    try:
-        max_workers = int(os.getenv("MAX_WORKERS", str(MAX_WORKERS_DEFAULT)))
-    except ValueError:
-        max_workers = MAX_WORKERS_DEFAULT
-
-    return max(1, min(max_workers, total_escenarios))
-
-
-def obtener_http_client():
-    thread_http_client = getattr(_thread_local, "http_client", None)
-    if thread_http_client is None:
-        thread_http_client = httpx.Client(verify=False)
-        _thread_local.http_client = thread_http_client
-    return thread_http_client
-
-
 def obtener_cliente_azure():
-    thread_client = getattr(_thread_local, "azure_client", None)
-    if thread_client is None:
-        thread_client = AzureOpenAI(
-            api_key=AZURE_OPENAI_API_KEY,
-            azure_endpoint=AZURE_OPENAI_ENDPOINT,
-            api_version=AZURE_OPENAI_API_VERSION,
-            http_client=obtener_http_client(),
-        )
-        _thread_local.azure_client = thread_client
-    return thread_client
+    return client
 
 
 # ======================================================================================================================
@@ -1182,67 +1152,57 @@ def ejecutar_escenario(orden_csv, user):
     )
 
 
-def ejecutar_escenarios_en_paralelo(df_escenarios):
+def ejecutar_escenarios_secuencial(df_escenarios):
     total_escenarios = len(df_escenarios)
     if total_escenarios == 0:
         return [], timedelta(0)
 
-    max_workers = obtener_max_workers(total_escenarios)
-    print(
-        f"[INFO] Ejecutando {total_escenarios} escenarios "
-        f"en paralelo con {max_workers} worker(s)."
-    )
+    print(f"[INFO] Ejecutando {total_escenarios} escenarios en modo secuencial.")
 
     inicio_ejecucion = datetime.now()
     rows_resultado = []
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futuros = {}
-        for orden_csv, (_, user) in enumerate(df_escenarios.iterrows()):
-            user = user.copy()
-            futuro = executor.submit(ejecutar_escenario, orden_csv, user)
-            futuros[futuro] = (orden_csv, user)
-
-        for completados, futuro in enumerate(as_completed(futuros), start=1):
-            orden_csv, user = futuros[futuro]
-            try:
-                rows_resultado.append(futuro.result())
-            except Exception as e:
-                eval_juez = construir_evaluacion_error(
-                    f"Excepcion inesperada ejecutando escenario: {type(e).__name__}: {e}"
+    for orden_csv, (_, user) in enumerate(df_escenarios.iterrows()):
+        completados = orden_csv + 1
+        user = user.copy()
+        try:
+            rows_resultado.append(ejecutar_escenario(orden_csv, user))
+        except Exception as e:
+            eval_juez = construir_evaluacion_error(
+                f"Excepcion inesperada ejecutando escenario: {type(e).__name__}: {e}"
+            )
+            rows_resultado.append(
+                construir_row_resultado(
+                    orden_csv,
+                    user,
+                    {},
+                    safe_str(user.get("tipo_cliente")),
+                    safe_str(user.get("caso_de_prueba")),
+                    safe_str(user.get("mensaje_inicio")),
+                    parsear_secuencia_mensajes(user.get("secuencia_mensaje")),
+                    safe_str(user.get("cic")),
+                    safe_str(user.get("dni")),
+                    safe_str(user.get("Cel")),
+                    (
+                        safe_str(user.get("nombre"))
+                        + " "
+                        + safe_str(user.get("apellidos"))
+                    ).strip(),
+                    safe_str(user.get("deuda_soles")),
+                    safe_str(user.get("deuda_dolares")),
+                    safe_str(user.get("tipo_deuda")),
+                    f"ERROR {type(e).__name__}: {e}",
+                    0,
+                    0.0,
+                    0.0,
+                    "",
+                    safe_str(user.get("reglas_negocio_cliente")),
+                    safe_str(user.get("reglas_negocio_juez")),
+                    [],
+                    eval_juez,
+                    timedelta(0),
                 )
-                rows_resultado.append(
-                    construir_row_resultado(
-                        orden_csv,
-                        user,
-                        {},
-                        safe_str(user.get("tipo_cliente")),
-                        safe_str(user.get("caso_de_prueba")),
-                        safe_str(user.get("mensaje_inicio")),
-                        parsear_secuencia_mensajes(user.get("secuencia_mensaje")),
-                        safe_str(user.get("cic")),
-                        safe_str(user.get("dni")),
-                        safe_str(user.get("Cel")),
-                        (
-                            safe_str(user.get("nombre"))
-                            + " "
-                            + safe_str(user.get("apellidos"))
-                        ).strip(),
-                        safe_str(user.get("deuda_soles")),
-                        safe_str(user.get("deuda_dolares")),
-                        safe_str(user.get("tipo_deuda")),
-                        f"ERROR {type(e).__name__}: {e}",
-                        0,
-                        0.0,
-                        0.0,
-                        "",
-                        safe_str(user.get("reglas_negocio_cliente")),
-                        safe_str(user.get("reglas_negocio_juez")),
-                        [],
-                        eval_juez,
-                        timedelta(0),
-                    )
-                )
-            print(f"[PROGRESO] {completados}/{total_escenarios} escenarios completados")
+            )
+        print(f"[PROGRESO] {completados}/{total_escenarios} escenarios completados")
 
     rows_resultado.sort(key=lambda row: row.get("_orden_csv", 0))
     for row in rows_resultado:
@@ -1481,7 +1441,7 @@ for _, user in df_users.iterrows():
             "secuencia_mensaje": "\n".join(secuencia_mensaje),
         }
     )
-rows, total_exec_time = ejecutar_escenarios_en_paralelo(df_users_ejecutar)
+rows, total_exec_time = ejecutar_escenarios_secuencial(df_users_ejecutar)
 total_exec_time_formatted = format_td_hms(total_exec_time)
 df = pd.DataFrame(rows)
 print(df.head())

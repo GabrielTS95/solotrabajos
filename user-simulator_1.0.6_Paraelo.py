@@ -226,8 +226,8 @@ def get_prompt_por_tipo(
     tipo = (tipo_cliente or "").strip().upper()
     template = PROMPT_BY_TIPO.get(tipo, PROMPT_R)
     return template.format(
-        NOMBRE_COMPLETO=nombre_completo or "XXXXXX",
-        DEUDA_SOLES=deuda_soles or "XXXXXX",
+        NOMBRE_COMPLETO=nombre_completo or "",
+        DEUDA_SOLES=deuda_soles or "",
         DEUDA_DOLARES=deuda_dolares or "",
         IDENTIDAD_DEL_CLIENTE=identidad_del_cliente or "",
         VOLUNTAD_DE_PAGO=voluntad_de_pago or "",
@@ -1156,6 +1156,19 @@ def generar_payload(user_row):
     return payload
 
 
+def obtener_datos_prompt_desde_payload(request_cliente_json):
+    customer_data = request_cliente_json.get("customer_data", {})
+    return {
+        "nombre_completo": safe_str(customer_data.get("user_name")).strip(),
+        "deuda_soles": safe_str(customer_data.get("val_debt_amount_1")).strip(),
+        "deuda_dolares": safe_str(customer_data.get("val_debt_amount_2")).strip(),
+        "cic": safe_str(customer_data.get("cic")).strip(),
+        "dni": safe_str(customer_data.get("dni")).strip(),
+        "cel": safe_str(customer_data.get("phone")).strip(),
+        "tipo_deuda": safe_str(customer_data.get("product")).strip(),
+    }
+
+
 def send_bot_message(url_msg, headers_msg, message):
     payload_msg = {"message": message}
     print("--- DEBUG SEND BOT MESSAGE ---")
@@ -1290,6 +1303,14 @@ def ejecutar_escenario_phoenix(orden_csv, user):
 
     try:
         request_cliente_json = generar_payload(user)
+        datos_prompt = obtener_datos_prompt_desde_payload(request_cliente_json)
+        nombre_completo = datos_prompt.get("nombre_completo") or nombre_completo
+        deuda_soles = datos_prompt.get("deuda_soles") or deuda_soles
+        deuda_dolares = datos_prompt.get("deuda_dolares") or deuda_dolares
+        cic = datos_prompt.get("cic") or cic
+        dni = datos_prompt.get("dni") or dni
+        cel = datos_prompt.get("cel") or cel
+        tipo_deuda = datos_prompt.get("tipo_deuda") or tipo_deuda
         perfil_juez = safe_str(
             request_cliente_json.get("customer_data", {}).get("classification", "")
         )
