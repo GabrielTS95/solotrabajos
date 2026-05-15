@@ -1516,6 +1516,8 @@ def calcular_detalle_cumplimiento(df_resultados):
         cumple = int(scores.eq(1).sum())
         no_cumple = int(scores.eq(0).sum())
         no_aplica = int(scores.eq(-1).sum())
+        aplica = cumple + no_cumple
+        escenarios = aplica + no_aplica
 
         filas.append(
             {
@@ -1527,6 +1529,9 @@ def calcular_detalle_cumplimiento(df_resultados):
                 "no_cumple_pct": calcular_porcentaje(no_cumple, total_escenarios),
                 "no_aplica": no_aplica,
                 "no_aplica_pct": calcular_porcentaje(no_aplica, total_escenarios),
+                "aplica": aplica,
+                "aplica_pct": calcular_porcentaje(aplica, total_escenarios),
+                "escenarios": escenarios,
                 "total_escenarios": total_escenarios,
             }
         )
@@ -1556,6 +1561,10 @@ def calcular_escenarios_por_funcionalidad(df_resultados):
                 for _, estado_key, estado_label in estados
             },
         }
+        detalle[key]["estados"]["aplica"] = {
+            "label": "Aplica",
+            "escenarios": [],
+        }
 
         score_col = f"{key}_score"
         justification_col = f"{key}_justification"
@@ -1563,13 +1572,14 @@ def calcular_escenarios_por_funcionalidad(df_resultados):
         for _, row in df_resultados.iterrows():
             score = normalizar_score_funcionalidad(row.get(score_col, 0))
             estado_key = next((item[1] for item in estados if item[0] == score), "no_cumple")
-            detalle[key]["estados"][estado_key]["escenarios"].append(
-                {
-                    "id_test": safe_str(row.get("id_test", "")),
-                    "escenario": safe_str(row.get("caso_de_prueba", "")),
-                    "justificacion": safe_str(row.get(justification_col, "")),
-                }
-            )
+            escenario_detalle = {
+                "id_test": safe_str(row.get("id_test", "")),
+                "escenario": safe_str(row.get("caso_de_prueba", "")),
+                "justificacion": safe_str(row.get(justification_col, "")),
+            }
+            detalle[key]["estados"][estado_key]["escenarios"].append(escenario_detalle)
+            if score != -1:
+                detalle[key]["estados"]["aplica"]["escenarios"].append(escenario_detalle)
 
     return detalle
 
@@ -1879,17 +1889,33 @@ html_table = f"""
 <button type="button" class="summary-modal-btn"
        data-content-tipo="detalle_cumplimiento"
        data-title="DETALLE CUMPLIMIENTO"
+       aria-label="Detalle Cumplimiento"
+       title="Detalle Cumplimiento"
        onclick="showUniqueModalFromButton(this); openGlobalModal();">
 <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
 <path d="M3 3v18h18"></path>
 <path d="M7 15l3-3 3 2 5-6"></path>
 </svg>
-<span>Detalle Cumplimiento</span>
 </button>
 <div class="result-filter" aria-label="Filtrar por resultado">
-<button type="button" class="filter-btn active" data-result-filter="TODOS">Todos</button>
-<button type="button" class="filter-btn" data-result-filter="SUCCESS">SUCCESS</button>
-<button type="button" class="filter-btn" data-result-filter="FAIL">FAIL</button>
+<button type="button" class="filter-btn active" data-result-filter="TODOS" aria-label="Todos" title="Todos">
+<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2">
+<path d="M4 6h16"></path>
+<path d="M4 12h16"></path>
+<path d="M4 18h16"></path>
+</svg>
+</button>
+<button type="button" class="filter-btn" data-result-filter="SUCCESS" aria-label="SUCCESS" title="SUCCESS">
+<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2">
+<path d="M20 6 9 17l-5-5"></path>
+</svg>
+</button>
+<button type="button" class="filter-btn" data-result-filter="FAIL" aria-label="FAIL" title="FAIL">
+<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2">
+<path d="M18 6 6 18"></path>
+<path d="m6 6 12 12"></path>
+</svg>
+</button>
 </div>
 </div>
 </div>
@@ -2220,14 +2246,15 @@ html_doc = f"""
        display: inline-flex;
        align-items: center;
        justify-content: center;
-       gap: 8px;
-       font-size: 13px;
-       font-weight: 800;
-       min-height: 41px;
-       padding: 10px 14px;
+       width: 48px;
+       height: 42px;
+       padding: 0;
        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
        transition: all .18s ease;
-       white-space: nowrap;
+   }}
+   .summary-modal-btn svg,
+   .filter-btn svg {{
+       pointer-events: none;
    }}
    .summary-modal-btn:hover {{
        background: #f8fbff;
@@ -2240,10 +2267,13 @@ html_doc = f"""
        background: white;
        color: #0f172a;
        cursor: pointer;
-       font-size: 13px;
-       font-weight: 800;
-       min-width: 74px;
-       padding: 11px 16px;
+       display: inline-flex;
+       align-items: center;
+       justify-content: center;
+       width: 48px;
+       height: 42px;
+       min-width: 0;
+       padding: 0;
        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
        transition: all .18s ease;
    }}
@@ -2474,7 +2504,27 @@ html_doc = f"""
        background: white;
        padding: 14px 22px;
        display: flex;
+       gap: 10px;
        justify-content: flex-end;
+   }}
+   .modal-back-btn {{
+       border: 1px solid #dbe3ef;
+       border-radius: 10px;
+       background: white;
+       color: #174ea6;
+       cursor: pointer;
+       display: none;
+       font-weight: 800;
+       padding: 10px 18px;
+   }}
+   .modal-back-btn.is-visible {{
+       display: inline-flex;
+       align-items: center;
+       justify-content: center;
+   }}
+   .modal-back-btn:hover {{
+       background: #eef4ff;
+       border-color: #b8c9e6;
    }}
    .modal-close-btn {{
        border: 0;
@@ -2613,20 +2663,21 @@ html_doc = f"""
            flex-direction: column;
        }}
        .table-header-actions {{
-           align-items: stretch;
+           align-items: center;
            justify-content: flex-start;
        }}
        .summary-modal-btn {{
-           width: 100%;
+           flex: 0 0 48px;
+           width: 48px;
        }}
        .result-filter {{
            display: grid;
-           grid-template-columns: repeat(3, minmax(0, 1fr));
-           width: 100%;
+           grid-template-columns: repeat(3, 48px);
+           width: auto;
        }}
        .filter-btn {{
-           min-width: 0;
-           padding: 10px 8px;
+           width: 48px;
+           padding: 0;
        }}
        .result-filter,
        .table-pagination {{
@@ -2729,8 +2780,10 @@ html_doc = f"""
        .modal-footer {{
            padding: 12px 14px;
        }}
+       .modal-back-btn,
        .modal-close-btn {{
-           width: 100%;
+           flex: 1 1 0;
+           width: auto;
        }}
        .conversation-thread {{
            max-width: none;
@@ -2741,7 +2794,7 @@ html_doc = f"""
            font-size: 13px;
        }}
        .compliance-table {{
-           min-width: 760px;
+           min-width: 940px;
        }}
        .scenario-functionality-table {{
            min-width: 680px;
@@ -2752,7 +2805,7 @@ html_doc = f"""
            padding: 18px 14px;
        }}
        .result-filter {{
-           grid-template-columns: 1fr;
+           grid-template-columns: repeat(3, 48px);
        }}
        #myTable td {{
            grid-template-columns: 1fr;
@@ -2856,7 +2909,7 @@ html_doc = f"""
 }}
 .compliance-table {{
    width: 100%;
-   min-width: 860px;
+   min-width: 1040px;
    border-collapse: collapse;
    background: white;
 }}
@@ -3119,7 +3172,7 @@ html_doc = f"""
        padding: 14px;
    }}
    .compliance-table {{
-       min-width: 760px;
+       min-width: 940px;
    }}
    .scenario-functionality-table {{
        min-width: 680px;
@@ -3133,7 +3186,7 @@ html_doc = f"""
 
 @media (max-width: 420px) {{
    .compliance-table {{
-       min-width: 680px;
+       min-width: 860px;
    }}
    .scenario-functionality-table {{
        min-width: 620px;
@@ -3165,6 +3218,7 @@ html_doc = f"""
             <pre id="uniqueModalTextContent" class="modal-viewer"></pre>
          </div>
          <div class="modal-footer">
+            <button type="button" class="modal-back-btn" id="modalBackToComplianceBtn" onclick="volverDetalleCumplimiento()">Volver</button>
             <button type="button" class="modal-close-btn" onclick="closeGlobalModal()">Cerrar</button>
          </div>
       </div>
@@ -3236,6 +3290,28 @@ function abrirEscenariosDesdeBoton(btn) {{
    );
 }}
 
+function setModalBackButtonVisible(visible) {{
+   const backBtn = document.getElementById('modalBackToComplianceBtn');
+   if (!backBtn) return;
+   backBtn.classList.toggle('is-visible', Boolean(visible));
+}}
+
+function volverDetalleCumplimiento() {{
+   const textContent = document.getElementById('uniqueModalTextContent');
+   const rich = document.getElementById('uniqueModalRichContent');
+   const lbl = document.getElementById('uniqueModalTitle');
+
+   if (!textContent || !rich || !lbl) return;
+
+   lbl.textContent = "DETALLE CUMPLIMIENTO";
+   textContent.style.display = "none";
+   rich.style.display = "block";
+   textContent.textContent = "";
+   rich.innerHTML = renderDetalleCumplimiento(window.__DETALLE_CUMPLIMIENTO__);
+   rich.scrollTop = 0;
+   setModalBackButtonVisible(false);
+}}
+
 function abrirEscenariosPorFuncionalidad(funcionalidadKey, estadoKey) {{
    const textContent = document.getElementById('uniqueModalTextContent');
    const rich = document.getElementById('uniqueModalRichContent');
@@ -3253,6 +3329,7 @@ function abrirEscenariosPorFuncionalidad(funcionalidadKey, estadoKey) {{
    textContent.textContent = "";
    rich.innerHTML = renderEscenariosPorFuncionalidad(funcionalidadKey, estadoKey);
    rich.scrollTop = 0;
+   setModalBackButtonVisible(true);
 }}
 
 function renderEscenariosPorFuncionalidad(funcionalidadKey, estadoKey) {{
@@ -3325,9 +3402,12 @@ function renderDetalleCumplimiento(data) {{
     <td>${{formatearPorcentaje(item.cumple_pct)}}</td>
     <td class="compliance-count">${{renderComplianceCountButton(item, "no_cumple", item.no_cumple, "No Cumple")}}</td>
     <td>${{formatearPorcentaje(item.no_cumple_pct)}}</td>
+    <td class="compliance-total">${{Number(item.aplica || 0)}}</td>
     <td class="compliance-count">${{renderComplianceCountButton(item, "no_aplica", item.no_aplica, "No Aplica")}}</td>
     <td>${{formatearPorcentaje(item.no_aplica_pct)}}</td>
-    <td class="compliance-total">${{Number(item.total_escenarios || 0)}}</td>
+    <td class="compliance-count">${{renderComplianceCountButton(item, "aplica", item.aplica, "Aplica")}}</td>
+    <td>${{formatearPorcentaje(item.aplica_pct)}}</td>
+    <td class="compliance-total">${{Number(item.escenarios || 0)}}</td>
 </tr>
 `;
    }});
@@ -3338,13 +3418,21 @@ function renderDetalleCumplimiento(data) {{
         <table class="compliance-table">
             <thead>
                 <tr>
-                    <th rowspan="2">Funcionalidad</th>
-                    <th colspan="2">Cumple</th>
-                    <th colspan="2">No Cumple</th>
-                    <th colspan="2">No Aplica</th>
-                    <th rowspan="2">Total Ejecutados</th>
+                    <th rowspan="3">Funcionalidad</th>
+                    <th colspan="5">Aplica</th>
+                    <th colspan="5">Total Casos</th>
                 </tr>
                 <tr>
+                    <th colspan="2">Cumple</th>
+                    <th colspan="2">No Cumple</th>
+                    <th rowspan="2">Total</th>
+                    <th colspan="2">No Aplica</th>
+                    <th colspan="2">Aplica</th>
+                    <th rowspan="2">Esc.</th>
+                </tr>
+                <tr>
+                    <th>Cant.</th>
+                    <th>%</th>
                     <th>Cant.</th>
                     <th>%</th>
                     <th>Cant.</th>
@@ -3450,6 +3538,7 @@ function showUniqueModalFromButton(btn) {{
    rich.style.display = "none";
    textContent.textContent = "";
    rich.innerHTML = "";
+   setModalBackButtonVisible(false);
 
    if (tipo === "detalle_cumplimiento") {{
        textContent.style.display = "none";
@@ -3535,6 +3624,7 @@ function closeGlobalModal() {{
    modal.classList.remove('is-open');
    modal.setAttribute('aria-hidden', 'true');
    document.body.classList.remove('modal-open');
+   setModalBackButtonVisible(false);
 }}
 
 document.addEventListener('keydown', function(event) {{
