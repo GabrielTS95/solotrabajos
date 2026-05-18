@@ -1787,12 +1787,6 @@ for i, (_, r) in enumerate(df.iterrows()):
 
 
 def construir_detalle_cumplimiento_html():
-    grupos = [
-        ("FAIL", "NO CUMPLE", "fail", total_fail, fail_percent),
-        ("WARNING", "PARCIALMENTE", "warning", total_warning, warning_percent),
-        ("PASS", "SI CUMPLE", "pass", total_pass, pass_percent),
-    ]
-
     resumen = f"""
 <table class="compliance-summary-table">
 <thead>
@@ -1819,58 +1813,10 @@ def construir_detalle_cumplimiento_html():
 </table>
    """
 
-    secciones = []
-    for resultado, titulo, css, _, _ in grupos:
-        filas = []
-        for _, r in df.iterrows():
-            score = normalizar_score(r.get("m_cumplimiento", r.get("score_total", 0)))
-            if clasificar_cumplimiento(score)["resultado"] != resultado:
-                continue
-            escenario = safe_str(r.get("caso_de_prueba"))
-            detalle = safe_str(r.get("exp_cumplimiento"))
-            filas.append(
-                f"""
-<tr class="compliance-row compliance-{css}">
-<td>{escape_cell(r.get("id_test"))}</td>
-<td class="compliance-text-cell" title="{escape_cell(escenario)}">{html.escape(resumir_texto(escenario, 90))}</td>
-<td class="compliance-text-cell" title="{escape_cell(detalle)}">{html.escape(resumir_texto(detalle, 130))}</td>
-<td class="compliance-score-cell">{cumplimiento_score_html(score)}</td>
-</tr>
-               """
-            )
-        if not filas:
-            filas.append(
-                f'<tr><td colspan="4" class="compliance-empty">Sin escenarios en {titulo}.</td></tr>'
-            )
-
-        secciones.append(
-            f"""
-<section class="compliance-section">
-<h4>ESCENARIOS DE PRUEBA: {titulo}</h4>
-<div class="compliance-table-wrap">
-<table class="compliance-detail-table">
-<thead>
-<tr>
-<th>COD. TEST</th>
-<th>ESCENARIO</th>
-<th>DETALLE DE LA METRICA</th>
-<th>Score</th>
-</tr>
-</thead>
-<tbody>
-{''.join(filas)}
-</tbody>
-</table>
-</div>
-</section>
-           """
-        )
-
     return f"""
 <div class="compliance-detail-report">
 <div class="compliance-report-title">DETALLE CUMPLIMIENTO</div>
 {resumen}
-{''.join(secciones)}
 </div>
    """
 
