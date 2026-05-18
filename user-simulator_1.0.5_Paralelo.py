@@ -2492,11 +2492,11 @@ html_doc = f"""
    .modal-dialog {{
        position: relative;
        z-index: 1;
-       width: min(1240px, 96vw);
-       height: min(820px, calc(100vh - 64px));
-       max-height: calc(100vh - 64px);
-       height: min(820px, calc(100dvh - 64px));
-       max-height: calc(100dvh - 64px);
+       width: min(1680px, calc(100vw - 40px));
+       height: min(860px, calc(100vh - 48px));
+       max-height: calc(100vh - 48px);
+       height: min(860px, calc(100dvh - 48px));
+       max-height: calc(100dvh - 48px);
        display: flex;
    }}
    .modal-content {{
@@ -2945,13 +2945,16 @@ html_doc = f"""
    line-height: 1.7;
 }}
 .compliance-detail-report {{
-   max-width: 1060px;
+   width: 100%;
+   max-width: none;
    margin: 0 auto;
    background: white;
    border: 1px solid #dbe3ef;
    border-radius: 16px;
-   padding: 22px;
+   padding: 26px;
    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+   overflow-x: auto;
+   scrollbar-gutter: stable;
 }}
 .compliance-report-title {{
    color: #0f172a;
@@ -2966,17 +2969,18 @@ html_doc = f"""
    border-collapse: collapse;
    background: white;
    font-size: 13px;
+   table-layout: fixed;
 }}
 .compliance-summary-table {{
-   max-width: 720px;
-   margin-bottom: 30px;
+   max-width: none;
+   margin: 14px 0 0 0;
 }}
 .compliance-summary-table th,
 .compliance-summary-table td,
 .compliance-detail-table th,
 .compliance-detail-table td {{
    border: 1px solid #cbd5e1;
-   padding: 9px 10px;
+   padding: 12px 14px;
    text-align: center;
    vertical-align: middle;
 }}
@@ -2988,6 +2992,7 @@ html_doc = f"""
    text-transform: uppercase;
 }}
 .compliance-count-btn {{
+   width: min(122px, 100%);
    min-width: 84px;
    border: 0;
    border-radius: 10px;
@@ -3042,19 +3047,36 @@ html_doc = f"""
    scrollbar-gutter: stable;
 }}
 .compliance-detail-table {{
-   min-width: 760px;
+   min-width: 1080px;
 }}
 .compliance-detail-table th {{
    background: #f8fbff;
 }}
+.compliance-scenarios-table th:nth-child(1),
+.compliance-scenarios-table td:nth-child(1) {{
+   width: 120px;
+}}
+.compliance-scenarios-table th:nth-child(2),
+.compliance-scenarios-table td:nth-child(2) {{
+   width: 38%;
+}}
+.compliance-scenarios-table th:nth-child(3),
+.compliance-scenarios-table td:nth-child(3) {{
+   width: 46%;
+}}
+.compliance-scenarios-table th:nth-child(4),
+.compliance-scenarios-table td:nth-child(4) {{
+   width: 130px;
+}}
 .compliance-text-cell {{
-   max-width: 360px;
+   max-width: none;
    text-align: left !important;
    color: #334155;
-   line-height: 1.45;
+   line-height: 1.55;
+   white-space: normal;
 }}
 .compliance-score-cell {{
-   width: 120px;
+   width: 130px;
 }}
 .compliance-row.compliance-fail {{
    background: #fff7f7;
@@ -3071,7 +3093,8 @@ html_doc = f"""
    text-align: center;
 }}
 .compliance-scenarios-report {{
-   max-width: 1060px;
+   width: 100%;
+   max-width: none;
    margin: 0 auto;
 }}
 .compliance-scenarios-count {{
@@ -3084,6 +3107,7 @@ html_doc = f"""
    background: white;
    border-radius: 16px;
    overflow: hidden;
+   box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
 }}
 @media (max-width: 900px) {{
    .metric-cards-grid {{
@@ -3094,6 +3118,12 @@ html_doc = f"""
    .modal-rich-content,
    .modal-viewer {{
        padding: 14px;
+   }}
+   .compliance-detail-report {{
+       padding: 14px;
+   }}
+   .compliance-summary-table {{
+       min-width: 640px;
    }}
    .conversation-message {{
        padding: 12px;
