@@ -266,6 +266,45 @@ def safe_str(x):
     return str(x)
 
 
+def normalizar_score(x):
+    try:
+        v = float(x)
+        if v < 0:
+            return 0.0
+        if v > 1:
+            return 1.0
+        return round(v, 2)
+    except Exception:
+        return 0.0
+
+
+def clasificar_cumplimiento(score):
+    score = normalizar_score(score)
+    if score <= 0.35:
+        return {
+            "estado": "NO CUMPLE",
+            "resultado": "FAIL",
+            "css": "fail",
+            "badge": "badge-fail",
+            "fill": "fill-fail",
+        }
+    if score <= 0.80:
+        return {
+            "estado": "PARCIALMENTE",
+            "resultado": "WARNING",
+            "css": "warning",
+            "badge": "badge-warning",
+            "fill": "fill-warning",
+        }
+    return {
+        "estado": "CUMPLE",
+        "resultado": "PASS",
+        "css": "pass",
+        "badge": "badge-pass",
+        "fill": "fill-pass",
+    }
+
+
 def build_conversation_text(historia):
     lines = []
     for rol, texto in historia:
@@ -422,8 +461,11 @@ Reglas obligatorias:
 - Fluidez no debe compensar un error funcional de interpretación de fecha.
 - Correccion solo evalúa gramática, ortografía y redacción; no debe ocultar errores funcionales.
 - Cada métrica debe estar entre 0.00 y 1.00
-- score_total es el promedio de todas las métricas
-- resultado = "PASS" si score_total >= 0.80, si no "FAIL"
+- score_total debe ser igual al puntaje de cumplimiento
+- Las métricas coherencia, fluidez, integridad, claridad y correccion no se promedian para el resultado final
+- resultado = "FAIL" si cumplimiento está entre 0.00 y 0.35
+- resultado = "WARNING" si cumplimiento está entre 0.36 y 0.80
+- resultado = "PASS" si cumplimiento está entre 0.81 y 1.00
 - Para cada criterio debes dar una explicación breve y puntual
 - Devuelve SOLO JSON válido
 - No agregues texto fuera del JSON
@@ -485,20 +527,8 @@ CONVERSACIÓN A EVALUAR:
         m_integridad = sf(parsed.get("integridad", 0))
         m_claridad = sf(parsed.get("claridad", 0))
         m_correccion = sf(parsed.get("correccion", 0))
-        promedio = round(
-            (
-                    m_coherencia
-                    + m_fluidez
-                    + m_cumplimiento
-                    + m_integridad
-                    + m_claridad
-                    + m_correccion
-            )
-            / 6,
-            2,
-            )
-        score_total = sf(parsed.get("score_total", promedio))
-        resultado = "PASS" if score_total >= 0.80 else "FAIL"
+        score_total = m_cumplimiento
+        resultado = clasificar_cumplimiento(m_cumplimiento)["resultado"]
         result = {
             "m_coherencia": m_coherencia,
             "exp_coherencia": str(parsed.get("exp_coherencia", "")),
@@ -1498,9 +1528,12 @@ print(df.head())
 # Contadores escenarios PASS y FAIL y su porcentaje sobre el total
 total_cases = len(df)
 total_pass = df["status_prueba"].astype(str).str.upper().eq("PASS").sum()
+total_warning = df["status_prueba"].astype(str).str.upper().eq("WARNING").sum()
 total_fail = df["status_prueba"].astype(str).str.upper().eq("FAIL").sum()
 pass_percent = round((total_pass / total_cases) * 100) if total_cases else 0
+warning_percent = round((total_warning / total_cases) * 100) if total_cases else 0
 fail_percent = round((total_fail / total_cases) * 100) if total_cases else 0
+pass_warning_percent = min(100, pass_percent + warning_percent)
 
 
 # ======================================================================================================================
@@ -1580,6 +1613,8 @@ def badge_status(status):
     status = (status or "").strip().upper()
     if status == "PASS":
         return "<span class='badge-pass'>PASS</span>"
+    elif status == "WARNING":
+        return "<span class='badge-warning'>WARNING</span>"
     elif status == "FAIL":
         return "<span class='badge-fail'>FAIL</span>"
     return f"<span>{status}</span>"
@@ -1667,6 +1702,32 @@ def visualizar_modal(idx, tipo, titulo, icono="chat"):
    """
 
 
+def metric_score_html(value):
+    score = normalizar_score(value)
+    css_class = "metric-score-good" if score >= 0.80 else "metric-score-bad"
+    return f'<span class="metric-score {css_class}">{score:.2f}</span>'
+
+
+def cumplimiento_score_html(value):
+    score = normalizar_score(value)
+    info = clasificar_cumplimiento(score)
+    return f'<span class="metric-score metric-score-{info["css"]}">{score:.2f}</span>'
+
+
+def puntuacion_cumplimiento_html(value):
+    score = normalizar_score(value)
+    info = clasificar_cumplimiento(score)
+    score_pct = max(0, min(100, round(score * 100)))
+    return f"""
+<div class="score-wrap score-status-wrap">
+<span class="score-status score-status-{info["css"]}">{info["estado"]}</span>
+<div class="score-bar">
+<div class="score-fill {info["fill"]}" style="width:{score_pct}%"></div>
+</div>
+</div>
+   """
+
+
 html_tablerows = []
 modal_contents = []
 for i, (_, r) in enumerate(df.iterrows()):
@@ -1693,35 +1754,24 @@ for i, (_, r) in enumerate(df.iterrows()):
     except Exception:
         fila_modal["conversa"] = r.get("conversa", "") or ""
     modal_contents.append(fila_modal)
-    score = float(r.get("score_total", 0))
-    status = safe_str(r.get("status_prueba")).upper()
-    badge = (
-        "<span class='badge-pass'>PASS</span>"
-        if status == "PASS"
-        else "<span class='badge-fail'>FAIL</span>"
-    )
-    score_class = "score-pass" if status == "PASS" else "score-fail"
-    score_pct = max(0, min(100, round(score * 100)))
+    score = normalizar_score(r.get("m_cumplimiento", r.get("score_total", 0)))
+    cumplimiento_info = clasificar_cumplimiento(score)
+    status = cumplimiento_info["resultado"]
+    badge = f"<span class='{cumplimiento_info['badge']}'>{status}</span>"
+    puntuacion_html = puntuacion_cumplimiento_html(score)
     row_html = f"""
 <tr data-result="{status}">
 <td data-label="Cod. Test">{escape_cell(r.get("id_test"))}</td>
 <td data-label="Escenario" class="td-ellipsis" title="{escape_cell(r.get('caso_de_prueba'))}">
            {html.escape(resumir_texto(r.get("caso_de_prueba"), 42))}
 </td>
-<td data-label="Cumplimiento">{float(r.get("m_cumplimiento", 0)):.2f}</td>
-<td data-label="Coherencia">{float(r.get("m_coherencia", 0)):.2f}</td>
-<td data-label="Fluidez">{float(r.get("m_fluidez", 0)):.2f}</td>
-<td data-label="Integridad">{float(r.get("m_integridad", 0)):.2f}</td>
-<td data-label="Claridad">{float(r.get("m_claridad", 0)):.2f}</td>
-<td data-label="Correccion">{float(r.get("m_correccion", 0)):.2f}</td>
-<td data-label="Puntuacion">
-<div class="score-wrap">
-<div class="{score_class}">{score:.2f}</div>
-<div class="score-bar">
-<div class="score-fill {'fill-pass' if status == 'PASS' else 'fill-fail'}" style="width:{score_pct}%"></div>
-</div>
-</div>
-</td>
+<td data-label="Cumplimiento">{cumplimiento_score_html(score)}</td>
+<td data-label="Coherencia">{metric_score_html(r.get("m_coherencia", 0))}</td>
+<td data-label="Fluidez">{metric_score_html(r.get("m_fluidez", 0))}</td>
+<td data-label="Integridad">{metric_score_html(r.get("m_integridad", 0))}</td>
+<td data-label="Claridad">{metric_score_html(r.get("m_claridad", 0))}</td>
+<td data-label="Correccion">{metric_score_html(r.get("m_correccion", 0))}</td>
+<td data-label="Puntuacion">{puntuacion_html}</td>
 <td data-label="Tiempo Ejecucion" class="td-exec-time">{escape_cell(r.get("tiempo_ejecucion"))}</td>
 <td data-label="Resultado">{badge}</td>
 <td data-label="Acciones">
@@ -1732,11 +1782,106 @@ for i, (_, r) in enumerate(df.iterrows()):
 </div>
 </td>
 </tr>
-   """
+    """
     html_tablerows.append(row_html)
+
+
+def construir_detalle_cumplimiento_html():
+    grupos = [
+        ("FAIL", "NO CUMPLE", "fail", total_fail, fail_percent),
+        ("WARNING", "PARCIALMENTE", "warning", total_warning, warning_percent),
+        ("PASS", "SI CUMPLE", "pass", total_pass, pass_percent),
+    ]
+
+    resumen = f"""
+<table class="compliance-summary-table">
+<thead>
+<tr>
+<th colspan="2" class="summary-fail">NO CUMPLE</th>
+<th colspan="2" class="summary-warning">PARCIALMENTE</th>
+<th colspan="2" class="summary-pass">SI CUMPLE</th>
+<th rowspan="2">Total</th>
+</tr>
+<tr>
+<th>CANT</th><th>%</th>
+<th>CANT</th><th>%</th>
+<th>CANT</th><th>%</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{total_fail}</td><td>{fail_percent}%</td>
+<td>{total_warning}</td><td>{warning_percent}%</td>
+<td>{total_pass}</td><td>{pass_percent}%</td>
+<td>{total_cases}</td>
+</tr>
+</tbody>
+</table>
+   """
+
+    secciones = []
+    for resultado, titulo, css, _, _ in grupos:
+        filas = []
+        for _, r in df.iterrows():
+            score = normalizar_score(r.get("m_cumplimiento", r.get("score_total", 0)))
+            if clasificar_cumplimiento(score)["resultado"] != resultado:
+                continue
+            escenario = safe_str(r.get("caso_de_prueba"))
+            detalle = safe_str(r.get("exp_cumplimiento"))
+            filas.append(
+                f"""
+<tr class="compliance-row compliance-{css}">
+<td>{escape_cell(r.get("id_test"))}</td>
+<td class="compliance-text-cell" title="{escape_cell(escenario)}">{html.escape(resumir_texto(escenario, 90))}</td>
+<td class="compliance-text-cell" title="{escape_cell(detalle)}">{html.escape(resumir_texto(detalle, 130))}</td>
+<td class="compliance-score-cell">{cumplimiento_score_html(score)}</td>
+</tr>
+               """
+            )
+        if not filas:
+            filas.append(
+                f'<tr><td colspan="4" class="compliance-empty">Sin escenarios en {titulo}.</td></tr>'
+            )
+
+        secciones.append(
+            f"""
+<section class="compliance-section">
+<h4>ESCENARIOS DE PRUEBA: {titulo}</h4>
+<div class="compliance-table-wrap">
+<table class="compliance-detail-table">
+<thead>
+<tr>
+<th>COD. TEST</th>
+<th>ESCENARIO</th>
+<th>DETALLE DE LA METRICA</th>
+<th>Score</th>
+</tr>
+</thead>
+<tbody>
+{''.join(filas)}
+</tbody>
+</table>
+</div>
+</section>
+           """
+        )
+
+    return f"""
+<div class="compliance-detail-report">
+<div class="compliance-report-title">DETALLE CUMPLIMIENTO</div>
+{resumen}
+{''.join(secciones)}
+</div>
+   """
+
+
+detalle_cumplimiento_html = construir_detalle_cumplimiento_html()
+
 html_modal_contents = (
         "<script>\nwindow.__MODAL_CONTENTS__ = "
         + json.dumps(modal_contents, ensure_ascii=False)
+        + ";\nwindow.__CUMPLIMIENTO_DETAIL__ = "
+        + json.dumps(detalle_cumplimiento_html, ensure_ascii=False)
         + ";\n</script>"
 )
 
@@ -1745,9 +1890,21 @@ html_table = f"""
 <div class="table-card-header">
 <div class="table-title">Resultados por Escenario</div>
 <div class="result-filter" aria-label="Filtrar por resultado">
-<button type="button" class="filter-btn active" data-result-filter="TODOS">Todos</button>
-<button type="button" class="filter-btn" data-result-filter="SUCCESS">SUCCESS</button>
-<button type="button" class="filter-btn" data-result-filter="FAIL">FAIL</button>
+<button type="button" class="filter-btn filter-icon-btn active" data-result-filter="TODOS" title="TODOS" aria-label="TODOS">
+<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"></path></svg>
+</button>
+<button type="button" class="filter-btn filter-icon-btn" data-result-filter="PASS" title="PASS" aria-label="PASS">
+<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"></path></svg>
+</button>
+<button type="button" class="filter-btn filter-icon-btn" data-result-filter="WARNING" title="WARNING" aria-label="WARNING">
+<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg>
+</button>
+<button type="button" class="filter-btn filter-icon-btn" data-result-filter="FAIL" title="FAIL" aria-label="FAIL">
+<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+</button>
+<button type="button" class="filter-btn filter-icon-btn detail-filter-btn" onclick="showCumplimientoDetailModal(); openGlobalModal();" title="Detalle Cumplimiento" aria-label="Detalle Cumplimiento">
+<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"></path><path d="M7 14l3-3 3 2 5-6"></path></svg>
+</button>
 </div>
 </div>
 <div class="table-responsive">
@@ -1787,6 +1944,12 @@ tres_card_html = f"""
 <div class="premium-card-sub">{pass_percent}% del total</div>
 </div>
 <div class="premium-card">
+<div class="premium-card-icon icon-warning">!</div>
+<div class="premium-card-label">WARNING</div>
+<div class="premium-card-value value-warning">{total_warning}</div>
+<div class="premium-card-sub">{warning_percent}% del total</div>
+</div>
+<div class="premium-card">
 <div class="premium-card-icon icon-fail">❌</div>
 <div class="premium-card-label">FAIL</div>
 <div class="premium-card-value value-fail">{total_fail}</div>
@@ -1794,11 +1957,12 @@ tres_card_html = f"""
 </div>
 <div class="premium-card premium-card-donut">
 <div class="donut-wrap">
-<div class="donut-chart" style="background: conic-gradient(#16a34a 0 {pass_percent}%, #ef4444 {pass_percent}% 100%);">
+<div class="donut-chart" style="background: conic-gradient(#16a34a 0 {pass_percent}%, #f59e0b {pass_percent}% {pass_warning_percent}%, #ef4444 {pass_warning_percent}% 100%);">
 <div class="donut-center">{total_cases}</div>
 </div>
 <div class="donut-legend">
 <div><span class="dot dot-pass"></span> PASS: {total_pass}</div>
+<div><span class="dot dot-warning"></span> WARNING: {total_warning}</div>
 <div><span class="dot dot-fail"></span> FAIL: {total_fail}</div>
 <div>Éxito: {pass_percent}%</div>
 </div>
@@ -1847,6 +2011,8 @@ html_doc = f"""
        --blue-2: #3b82f6;
        --green-1: #16a34a;
        --green-2: #22c55e;
+       --yellow-1: #d97706;
+       --yellow-2: #f59e0b;
        --red-1: #dc2626;
        --red-2: #ef4444;
    }}
@@ -1938,6 +2104,11 @@ html_doc = f"""
    .icon-pass {{
        background: linear-gradient(135deg, #dcfce7, #86efac);
    }}
+   .icon-warning {{
+       background: linear-gradient(135deg, #fef3c7, #fbbf24);
+       color: #92400e;
+       font-weight: 900;
+   }}
    .icon-fail {{
        background: linear-gradient(135deg, #fee2e2, #fca5a5);
    }}
@@ -1964,6 +2135,9 @@ html_doc = f"""
    }}
    .value-pass {{
        color: #16a34a;
+   }}
+   .value-warning {{
+       color: #d97706;
    }}
    .value-fail {{
        color: #dc2626;
@@ -2030,6 +2204,9 @@ html_doc = f"""
    .dot-pass {{
        background: #16a34a;
    }}
+   .dot-warning {{
+       background: #f59e0b;
+   }}
    .dot-fail {{
        background: #ef4444;
    }}
@@ -2075,6 +2252,19 @@ html_doc = f"""
        padding: 11px 16px;
        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
        transition: all .18s ease;
+   }}
+   .filter-icon-btn {{
+       width: 42px;
+       height: 42px;
+       min-width: 42px;
+       padding: 0;
+       display: inline-flex;
+       align-items: center;
+       justify-content: center;
+   }}
+   .detail-filter-btn {{
+       color: #1e3a8a;
+       border-color: #bfd4ff;
    }}
    .filter-btn:hover,
    .filter-btn.active {{
@@ -2136,6 +2326,15 @@ html_doc = f"""
        font-weight: 800;
        font-size: 12px;
    }}
+   .badge-warning {{
+       display: inline-block;
+       padding: 7px 14px;
+       border-radius: 999px;
+       background: linear-gradient(135deg, #d97706, #f59e0b);
+       color: white;
+       font-weight: 800;
+       font-size: 12px;
+   }}
    .badge-fail {{
        display: inline-block;
        padding: 7px 14px;
@@ -2150,6 +2349,55 @@ html_doc = f"""
        flex-direction: column;
        gap: 6px;
        align-items: center;
+   }}
+   .score-status-wrap {{
+       min-width: 128px;
+   }}
+   .score-status {{
+       display: inline-flex;
+       align-items: center;
+       justify-content: center;
+       min-width: 118px;
+       border-radius: 999px;
+       padding: 7px 10px;
+       color: white;
+       font-size: 12px;
+       font-weight: 900;
+       line-height: 1;
+       text-align: center;
+       white-space: nowrap;
+   }}
+   .score-status-pass {{
+       background: linear-gradient(135deg, #16a34a, #22c55e);
+   }}
+   .score-status-warning {{
+       background: linear-gradient(135deg, #d97706, #f59e0b);
+   }}
+   .score-status-fail {{
+       background: linear-gradient(135deg, #dc2626, #ef4444);
+   }}
+   .metric-score {{
+       display: inline-flex;
+       min-width: 58px;
+       justify-content: center;
+       border-radius: 999px;
+       padding: 6px 10px;
+       font-weight: 900;
+       font-size: 13px;
+   }}
+   .metric-score-good,
+   .metric-score-pass {{
+       background: #dcfce7;
+       color: #15803d;
+   }}
+   .metric-score-warning {{
+       background: #fef3c7;
+       color: #b45309;
+   }}
+   .metric-score-bad,
+   .metric-score-fail {{
+       background: #fee2e2;
+       color: #b91c1c;
    }}
    .score-pass {{
        color: #15803d;
@@ -2174,6 +2422,9 @@ html_doc = f"""
    }}
    .fill-pass {{
        background: linear-gradient(135deg, #16a34a, #22c55e);
+   }}
+   .fill-warning {{
+       background: linear-gradient(135deg, #d97706, #f59e0b);
    }}
    .fill-fail {{
        background: linear-gradient(135deg, #dc2626, #ef4444);
@@ -2417,6 +2668,10 @@ html_doc = f"""
            flex: 1 1 92px;
            min-width: 0;
        }}
+       .filter-icon-btn {{
+           flex: 0 0 42px;
+           min-width: 42px;
+       }}
        .table-responsive {{
            overflow-x: visible;
            padding: 0 12px 12px;
@@ -2626,6 +2881,18 @@ html_doc = f"""
    font-size: 13px;
    font-weight: 800;
 }}
+.metric-card-score-good {{
+   background: #dcfce7;
+   color: #15803d;
+}}
+.metric-card-score-warning {{
+   background: #fef3c7;
+   color: #b45309;
+}}
+.metric-card-score-fail {{
+   background: #fee2e2;
+   color: #b91c1c;
+}}
 .metric-card-desc {{
    font-size: 14px;
    color: #475569;
@@ -2649,6 +2916,104 @@ html_doc = f"""
    color: #475569;
    line-height: 1.7;
 }}
+.compliance-detail-report {{
+   max-width: 1060px;
+   margin: 0 auto;
+   background: white;
+   border: 1px solid #dbe3ef;
+   border-radius: 16px;
+   padding: 22px;
+   box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+}}
+.compliance-report-title {{
+   color: #0f172a;
+   font-size: 15px;
+   font-weight: 900;
+   margin: 0 0 12px 0;
+   text-transform: uppercase;
+}}
+.compliance-summary-table,
+.compliance-detail-table {{
+   width: 100%;
+   border-collapse: collapse;
+   background: white;
+   font-size: 13px;
+}}
+.compliance-summary-table {{
+   max-width: 720px;
+   margin-bottom: 30px;
+}}
+.compliance-summary-table th,
+.compliance-summary-table td,
+.compliance-detail-table th,
+.compliance-detail-table td {{
+   border: 1px solid #cbd5e1;
+   padding: 9px 10px;
+   text-align: center;
+   vertical-align: middle;
+}}
+.compliance-summary-table th,
+.compliance-detail-table th {{
+   color: #0f172a;
+   font-size: 12px;
+   font-weight: 900;
+   text-transform: uppercase;
+}}
+.summary-fail {{
+   background: #fee2e2;
+   color: #991b1b !important;
+}}
+.summary-warning {{
+   background: #fef3c7;
+   color: #92400e !important;
+}}
+.summary-pass {{
+   background: #dcfce7;
+   color: #166534 !important;
+}}
+.compliance-section {{
+   margin-top: 24px;
+}}
+.compliance-section h4 {{
+   color: #0f172a;
+   font-size: 13px;
+   font-weight: 900;
+   margin: 0 0 10px 0;
+   text-transform: uppercase;
+}}
+.compliance-table-wrap {{
+   overflow-x: auto;
+   scrollbar-gutter: stable;
+}}
+.compliance-detail-table {{
+   min-width: 760px;
+}}
+.compliance-detail-table th {{
+   background: #f8fbff;
+}}
+.compliance-text-cell {{
+   max-width: 360px;
+   text-align: left !important;
+   color: #334155;
+   line-height: 1.45;
+}}
+.compliance-score-cell {{
+   width: 120px;
+}}
+.compliance-row.compliance-fail {{
+   background: #fff7f7;
+}}
+.compliance-row.compliance-warning {{
+   background: #fffbeb;
+}}
+.compliance-row.compliance-pass {{
+   background: #f7fff9;
+}}
+.compliance-empty {{
+   color: #64748b;
+   font-style: italic;
+   text-align: center;
+}}
 @media (max-width: 900px) {{
    .metric-cards-grid {{
        grid-template-columns: 1fr;
@@ -2664,7 +3029,8 @@ html_doc = f"""
    }}
    .conversation-text,
    .metric-card-desc,
-   .metric-summary-text {{
+   .metric-summary-text,
+   .compliance-text-cell {{
        overflow-wrap: anywhere;
    }}
    .data-pre {{
@@ -2731,12 +3097,23 @@ function escaparHtml(texto) {{
        .replace(/"/g, "&quot;")
        .replace(/'/g, "&#039;");
 }}
+function metricCardScoreClass(nombre, valor) {{
+   const n = Number(valor || 0);
+   const metricName = String(nombre || "").toUpperCase();
+   if (metricName.includes("CUMPLIMIENTO")) {{
+       if (n <= 0.35) return "metric-card-score-fail";
+       if (n <= 0.80) return "metric-card-score-warning";
+       return "metric-card-score-good";
+   }}
+   return n >= 0.80 ? "metric-card-score-good" : "metric-card-score-fail";
+}}
 function renderMetricCard(nombre, valor, descripcion){{
+   const scoreClass = metricCardScoreClass(nombre, valor);
    return `
 <div class="metric-card">
 <div class="metric-card-header">
 <div class="metric-card-title">${{escaparHtml(nombre)}}</div>
-<div class="metric-card-score">${{Number(valor || 0).toFixed(2)}}</div>
+<div class="metric-card-score ${{scoreClass}}">${{Number(valor || 0).toFixed(2)}}</div>
 </div>
 <div class="metric-card-desc">${{escaparHtml(descripcion || "")}}</div>
 </div>
@@ -2773,6 +3150,19 @@ function renderConversationContent(texto) {{
        messages += `<div class="conversation-message ${{cssClass}}"><div class="conversation-role">${{escaparHtml(roleUpper)}}</div><div class="conversation-text">${{escaparHtml(body.trim())}}</div></div>`;
    }});
    return `<div class="conversation-thread">${{messages}}</div>`;
+}}
+
+function showCumplimientoDetailModal() {{
+   let textContent = document.getElementById('uniqueModalTextContent');
+   let rich = document.getElementById('uniqueModalRichContent');
+   let lbl = document.getElementById('uniqueModalTitle');
+   if (!textContent || !rich || !lbl) return;
+   lbl.textContent = 'DETALLE CUMPLIMIENTO';
+   textContent.style.display = "none";
+   rich.style.display = "block";
+   textContent.textContent = "";
+   rich.innerHTML = window.__CUMPLIMIENTO_DETAIL__ || '<div class="compliance-detail-report">Sin contenido.</div>';
+   rich.scrollTop = 0;
 }}
 
 function showUniqueModalFromButton(btn) {{
@@ -2872,8 +3262,9 @@ document.addEventListener('DOMContentLoaded', function() {{
 
    function normalizeResult(value) {{
        const normalized = String(value || '').trim().toUpperCase();
-       if (normalized === 'PASS' || normalized === 'SUCCESS') return 'SUCCESS';
-       if (normalized === 'FAIL') return 'FAIL';
+       if (normalized === 'PASS' || normalized === 'SUCCESS' || normalized === 'CUMPLE') return 'PASS';
+       if (normalized === 'WARNING' || normalized === 'PARCIALMENTE') return 'WARNING';
+       if (normalized === 'FAIL' || normalized === 'NO CUMPLE') return 'FAIL';
        return normalized;
    }}
 
