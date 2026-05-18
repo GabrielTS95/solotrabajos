@@ -1810,9 +1810,9 @@ def construir_detalle_cumplimiento_html():
 </thead>
 <tbody>
 <tr>
-<td>{total_fail}</td><td>{fail_percent}%</td>
-<td>{total_warning}</td><td>{warning_percent}%</td>
-<td>{total_pass}</td><td>{pass_percent}%</td>
+<td><button type="button" class="compliance-count-btn compliance-count-fail" onclick="showCumplimientoStatusModal('FAIL')">{total_fail}</button></td><td>{fail_percent}%</td>
+<td><button type="button" class="compliance-count-btn compliance-count-warning" onclick="showCumplimientoStatusModal('WARNING')">{total_warning}</button></td><td>{warning_percent}%</td>
+<td><button type="button" class="compliance-count-btn compliance-count-pass" onclick="showCumplimientoStatusModal('PASS')">{total_pass}</button></td><td>{pass_percent}%</td>
 <td>{total_cases}</td>
 </tr>
 </tbody>
@@ -1877,11 +1877,81 @@ def construir_detalle_cumplimiento_html():
 
 detalle_cumplimiento_html = construir_detalle_cumplimiento_html()
 
+
+def construir_escenarios_cumplimiento_html(resultado, titulo, css, cantidad):
+    filas = []
+    for _, r in df.iterrows():
+        score = normalizar_score(r.get("m_cumplimiento", r.get("score_total", 0)))
+        if clasificar_cumplimiento(score)["resultado"] != resultado:
+            continue
+        escenario = safe_str(r.get("caso_de_prueba"))
+        detalle = safe_str(r.get("exp_cumplimiento"))
+        filas.append(
+            f"""
+<tr class="compliance-row compliance-{css}">
+<td>{escape_cell(r.get("id_test"))}</td>
+<td class="compliance-text-cell" title="{escape_cell(escenario)}">{html.escape(resumir_texto(escenario, 110))}</td>
+<td class="compliance-text-cell" title="{escape_cell(detalle)}">{html.escape(resumir_texto(detalle, 150))}</td>
+<td class="compliance-score-cell">{cumplimiento_score_html(score)}</td>
+</tr>
+           """
+        )
+
+    if not filas:
+        filas.append(
+            f'<tr><td colspan="4" class="compliance-empty">Sin escenarios en {titulo}.</td></tr>'
+        )
+
+    titulo_display = {
+        "NO CUMPLE": "No Cumple",
+        "PARCIALMENTE": "Parcialmente",
+        "SI CUMPLE": "Si Cumple",
+    }.get(titulo, titulo)
+
+    return f"""
+<div class="compliance-scenarios-report">
+<div class="compliance-scenarios-count">{titulo_display}: {cantidad} escenario(s)</div>
+<div class="compliance-table-wrap">
+<table class="compliance-detail-table compliance-scenarios-table">
+<thead>
+<tr>
+<th>COD. TEST</th>
+<th>ESCENARIO</th>
+<th>DETALLE DE LA METRICA</th>
+<th>Score</th>
+</tr>
+</thead>
+<tbody>
+{''.join(filas)}
+</tbody>
+</table>
+</div>
+</div>
+   """
+
+
+detalle_cumplimiento_por_estado = {
+    "FAIL": {
+        "titulo": "Escenarios Por Cumplimiento: No Cumple",
+        "html": construir_escenarios_cumplimiento_html("FAIL", "NO CUMPLE", "fail", total_fail),
+    },
+    "WARNING": {
+        "titulo": "Escenarios Por Cumplimiento: Parcialmente",
+        "html": construir_escenarios_cumplimiento_html("WARNING", "PARCIALMENTE", "warning", total_warning),
+    },
+    "PASS": {
+        "titulo": "Escenarios Por Cumplimiento: Si Cumple",
+        "html": construir_escenarios_cumplimiento_html("PASS", "SI CUMPLE", "pass", total_pass),
+    },
+}
+
 html_modal_contents = (
         "<script>\nwindow.__MODAL_CONTENTS__ = "
         + json.dumps(modal_contents, ensure_ascii=False)
         + ";\nwindow.__CUMPLIMIENTO_DETAIL__ = "
         + json.dumps(detalle_cumplimiento_html, ensure_ascii=False)
+        + ";\nwindow.__CUMPLIMIENTO_GROUP_DETAILS__ = "
+        + json.dumps(detalle_cumplimiento_por_estado, ensure_ascii=False)
         + ";\n</script>"
 )
 
@@ -2555,7 +2625,17 @@ html_doc = f"""
        background: white;
        padding: 14px 22px;
        display: flex;
+       gap: 12px;
        justify-content: flex-end;
+   }}
+   .modal-back-btn {{
+       border: 1px solid #dbe3ef;
+       border-radius: 10px;
+       background: white;
+       color: #174ea6;
+       cursor: pointer;
+       font-weight: 800;
+       padding: 10px 18px;
    }}
    .modal-close-btn {{
        border: 0;
@@ -2767,7 +2847,9 @@ html_doc = f"""
        }}
        .modal-footer {{
            padding: 12px 14px;
+           flex-direction: column-reverse;
        }}
+       .modal-back-btn,
        .modal-close-btn {{
            width: 100%;
        }}
@@ -2959,6 +3041,34 @@ html_doc = f"""
    font-weight: 900;
    text-transform: uppercase;
 }}
+.compliance-count-btn {{
+   min-width: 84px;
+   border: 0;
+   border-radius: 10px;
+   background: #eef4ff;
+   color: #174ea6;
+   cursor: pointer;
+   font-size: 16px;
+   font-weight: 900;
+   padding: 9px 16px;
+   transition: all .18s ease;
+}}
+.compliance-count-btn:hover {{
+   transform: translateY(-1px);
+   box-shadow: 0 8px 18px rgba(30, 64, 175, 0.14);
+}}
+.compliance-count-fail {{
+   color: #b91c1c;
+   background: #fee2e2;
+}}
+.compliance-count-warning {{
+   color: #b45309;
+   background: #fef3c7;
+}}
+.compliance-count-pass {{
+   color: #15803d;
+   background: #dcfce7;
+}}
 .summary-fail {{
    background: #fee2e2;
    color: #991b1b !important;
@@ -3013,6 +3123,21 @@ html_doc = f"""
    color: #64748b;
    font-style: italic;
    text-align: center;
+}}
+.compliance-scenarios-report {{
+   max-width: 1060px;
+   margin: 0 auto;
+}}
+.compliance-scenarios-count {{
+   color: #0f172a;
+   font-size: 18px;
+   font-weight: 900;
+   margin: 0 0 18px 0;
+}}
+.compliance-scenarios-table {{
+   background: white;
+   border-radius: 16px;
+   overflow: hidden;
 }}
 @media (max-width: 900px) {{
    .metric-cards-grid {{
@@ -3076,6 +3201,7 @@ html_doc = f"""
             <pre id="uniqueModalTextContent" class="modal-viewer"></pre>
          </div>
          <div class="modal-footer">
+            <button type="button" class="modal-back-btn" id="modalBackBtn" onclick="showCumplimientoDetailModal()" style="display:none;">Volver</button>
             <button type="button" class="modal-close-btn" onclick="closeGlobalModal()">Cerrar</button>
          </div>
       </div>
@@ -3152,16 +3278,39 @@ function renderConversationContent(texto) {{
    return `<div class="conversation-thread">${{messages}}</div>`;
 }}
 
+function setModalBackVisible(visible) {{
+   const backBtn = document.getElementById('modalBackBtn');
+   if (!backBtn) return;
+   backBtn.style.display = visible ? 'inline-flex' : 'none';
+}}
+
 function showCumplimientoDetailModal() {{
    let textContent = document.getElementById('uniqueModalTextContent');
    let rich = document.getElementById('uniqueModalRichContent');
    let lbl = document.getElementById('uniqueModalTitle');
    if (!textContent || !rich || !lbl) return;
    lbl.textContent = 'DETALLE CUMPLIMIENTO';
+   setModalBackVisible(false);
    textContent.style.display = "none";
    rich.style.display = "block";
    textContent.textContent = "";
    rich.innerHTML = window.__CUMPLIMIENTO_DETAIL__ || '<div class="compliance-detail-report">Sin contenido.</div>';
+   rich.scrollTop = 0;
+}}
+
+function showCumplimientoStatusModal(status) {{
+   let textContent = document.getElementById('uniqueModalTextContent');
+   let rich = document.getElementById('uniqueModalRichContent');
+   let lbl = document.getElementById('uniqueModalTitle');
+   if (!textContent || !rich || !lbl) return;
+   const key = String(status || '').toUpperCase();
+   const detail = window.__CUMPLIMIENTO_GROUP_DETAILS__ && window.__CUMPLIMIENTO_GROUP_DETAILS__[key];
+   lbl.textContent = detail && detail.titulo ? detail.titulo : 'Escenarios Por Cumplimiento';
+   setModalBackVisible(true);
+   textContent.style.display = "none";
+   rich.style.display = "block";
+   textContent.textContent = "";
+   rich.innerHTML = detail && detail.html ? detail.html : '<div class="compliance-scenarios-report">Sin contenido.</div>';
    rich.scrollTop = 0;
 }}
 
@@ -3182,6 +3331,7 @@ function showUniqueModalFromButton(btn) {{
        contenido = window.__MODAL_CONTENTS__[idx][tipo];
    }}
    // RESET
+   setModalBackVisible(false);
    textContent.style.display = "block";
    rich.style.display = "none";
    textContent.textContent = "";
@@ -3239,6 +3389,7 @@ function closeGlobalModal() {{
    if (!modal) return;
    modal.classList.remove('is-open');
    modal.setAttribute('aria-hidden', 'true');
+   setModalBackVisible(false);
    document.body.classList.remove('modal-open');
 }}
 
