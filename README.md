@@ -1,7 +1,6 @@
 # framework_base_agentes
 
-Version simple y plana de `user_final.py`, separada por responsabilidad sin crear una estructura grande.
-
+Version 1.0.0 de la base de framework para evaluacion de agentes conversacionales. Permite ejecutar escenarios definidos en CSV, evaluar funcionalidades y metricas, y generar reportes en HTML y CSV.
 ## Archivos
 
 ```text
@@ -50,7 +49,7 @@ framework_base_agentes/
 |-- data/
 |   |-- README.md
 |
-|-- reportes/
+|-- resultados/
 ```
 
 La raiz conserva solo el arranque, configuracion y metadatos del proyecto. La logica se agrupa por finalidad para evitar una estructura grande antes de necesitarla.
@@ -60,6 +59,12 @@ La raiz conserva solo el arranque, configuracion y metadatos del proyecto. La lo
 ```powershell
 pip install -r requirements.txt
 python main.py
+```
+
+Prueba de humo (sin llamadas externas) para validar que los prompts de evaluacion se construyen correctamente:
+
+```powershell
+python -m unittest tests.test_smoke_eval
 ```
 
 Si no defines `APP_ENV`, se usa `desa` automaticamente y se carga `.env.desa`.
@@ -109,17 +114,75 @@ Valores permitidos:
 
 ```text
 agentico
+hibrido
 no_agentico
 ```
 
-Para un agente `agentico`, el orquestador ejecuta:
+Flujo de conversacion por tipo:
+
+```text
+agentico      usa secuencia de CSV + user simulator
+hibrido       usa secuencia de CSV + user simulator
+no_agentico   usa solo secuencia de CSV (sin user simulator)
+```
+
+Pipeline de evaluacion (configurable) con `EVAL_PROFILE`:
+
+```text
+phoenix_cobranzas   juez de funcionalidades + metricas
+generic_agentic     juez de respuesta + metricas
+no_agentico_default juez de respuesta + metricas
+```
+
+Por defecto:
+
+```text
+TIPO_AGENTE=no_agentico    -> EVAL_PROFILE=no_agentico_default
+TIPO_AGENTE=agentico/hibrido -> EVAL_PROFILE=phoenix_cobranzas
+```
+
+### Matriz de combinaciones posibles
+
+| TIPO_AGENTE | EVAL_PROFILE | Permitido | Recomendado | Resultado esperado |
+|---|---|---|---|---|
+| `agentico` | `phoenix_cobranzas` | Si | Si | Flujo agentico + juez funcionalidades + metricas |
+| `agentico` | `generic_agentic` | Si | Si (agente no Phoenix) | Flujo agentico + juez respuesta + metricas |
+| `agentico` | `no_agentico_default` | Si | No | Flujo agentico + juez respuesta + metricas |
+| `hibrido` | `phoenix_cobranzas` | Si | Si | Flujo hibrido + juez funcionalidades + metricas |
+| `hibrido` | `generic_agentic` | Si | Si (agente no Phoenix) | Flujo hibrido + juez respuesta + metricas |
+| `hibrido` | `no_agentico_default` | Si | No | Flujo hibrido + juez respuesta + metricas |
+| `no_agentico` | `phoenix_cobranzas` | Si | No | Flujo no_agentico + juez funcionalidades + metricas |
+| `no_agentico` | `generic_agentic` | Si | Si | Flujo no_agentico + juez respuesta + metricas |
+| `no_agentico` | `no_agentico_default` | Si | Si | Flujo no_agentico + juez respuesta + metricas |
+
+Ejemplos recomendados de `.env`:
+
+```env
+# 1) Phoenix cobranzas (agentico)
+TIPO_AGENTE=agentico
+EVAL_PROFILE=phoenix_cobranzas
+
+# 2) Phoenix cobranzas (hibrido)
+TIPO_AGENTE=hibrido
+EVAL_PROFILE=phoenix_cobranzas
+
+# 3) No agentico estandar
+TIPO_AGENTE=no_agentico
+EVAL_PROFILE=no_agentico_default
+
+# 4) Agente no Phoenix (agentico/hibrido/no_agentico)
+TIPO_AGENTE=agentico
+EVAL_PROFILE=generic_agentic
+```
+
+Para el perfil `phoenix_cobranzas`, el orquestador de evaluacion ejecuta:
 
 ```text
 evaluation/juez_funcionalidades.py
 evaluation/juez_metricas.py
 ```
 
-Para un agente `no_agentico`, el orquestador ejecuta:
+Para los perfiles `generic_agentic` y `no_agentico_default`, ejecuta:
 
 ```text
 evaluation/juez_respuesta.py
@@ -143,11 +206,15 @@ CUSTOMER_PROC_URL
 CSV_PATH
 CSV_SEP
 OUTPUT_DIR
+REPORT_TITLE (opcional)
 MAX_TURNS_SAFE
 MAX_WORKERS
 DEBUG_HTTP
 TIPO_AGENTE
+EVAL_PROFILE
 ```
+
+`REPORT_TITLE` es opcional y permite personalizar el titulo visible del reporte HTML y de la pestana del navegador.
 
 Recomendacion por ambiente:
 

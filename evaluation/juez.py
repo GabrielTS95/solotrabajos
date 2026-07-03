@@ -1,4 +1,4 @@
-from config import MODEL_NAME, TIPO_AGENTE
+from config import EVAL_PROFILE, MODEL_NAME, TIPO_AGENTE
 from evaluation.juez_funcionalidades import (
     FUNCIONALIDADES_JUEZ,
     FUNCIONALIDADES_VISIBLES_REPORTE,
@@ -16,6 +16,17 @@ from evaluation.juez_respuesta import (
     build_error_juez_respuesta,
     llm_judge_respuesta,
 )
+
+__all__ = [
+    "FUNCIONALIDADES_JUEZ",
+    "FUNCIONALIDADES_VISIBLES_REPORTE",
+    "normalizar_score_funcionalidad",
+    "calcular_resumen_funcionalidades",
+    "_normalizar_score_01",
+    "build_error_juez_result_metricas",
+    "build_default_juez_result",
+    "llm_judge_metricas",
+]
 
 
 def _adjuntar_metricas(eval_juez, metricas_eval):
@@ -43,8 +54,20 @@ def _adjuntar_metricas(eval_juez, metricas_eval):
     return eval_juez
 
 
+EVAL_PROFILE_PIPELINE = {
+    "phoenix_cobranzas": "funcionalidades",
+    "generic_agentic": "respuesta",
+    "no_agentico_default": "respuesta",
+}
+
+
+def _resolver_pipeline() -> str:
+    return EVAL_PROFILE_PIPELINE.get(EVAL_PROFILE, "funcionalidades")
+
+
 def build_default_juez_result(motivo=""):
-    if TIPO_AGENTE == "no_agentico":
+    pipeline = _resolver_pipeline()
+    if pipeline == "respuesta":
         return build_error_juez_respuesta(
             motivo or "No se ejecuto el juez de respuesta."
         )
@@ -61,7 +84,8 @@ def llm_judge_metricas(
         reglas_juez: str = "",
         model=MODEL_NAME,
 ):
-    if TIPO_AGENTE == "agentico":
+    pipeline = _resolver_pipeline()
+    if pipeline == "funcionalidades":
         eval_juez = llm_judge_funcionalidades(
             question=question,
             perfil=perfil,
@@ -69,7 +93,7 @@ def llm_judge_metricas(
             reglas_juez=reglas_juez,
             model=model,
         )
-    elif TIPO_AGENTE == "no_agentico":
+    elif pipeline == "respuesta":
         eval_juez = llm_judge_respuesta(
             question=question,
             caso_de_prueba=caso_de_prueba,
@@ -78,7 +102,8 @@ def llm_judge_metricas(
         )
     else:
         eval_juez = build_error_juez_result(
-            f"TIPO_AGENTE no soportado para evaluacion: {TIPO_AGENTE}"
+            "Pipeline de evaluacion no soportado. "
+            f"EVAL_PROFILE={EVAL_PROFILE!r}, TIPO_AGENTE={TIPO_AGENTE!r}"
         )
 
     metricas_eval = ejecutar_juez_metricas(

@@ -1,0 +1,2376 @@
+
+    <!doctype html>
+    <html lang="es">
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Reporte de Evaluación del Agente Cobrador - Squad Phoenix</title>
+    <style>
+       :root {
+           --bg-1: #f4f7fc;
+           --bg-2: #e9eef8;
+           --ink: #0f172a;
+           --muted: #64748b;
+           --line: #e5e7eb;
+           --blue-1: #1d4ed8;
+           --blue-2: #3b82f6;
+           --green-1: #16a34a;
+           --green-2: #22c55e;
+           --red-1: #dc2626;
+           --red-2: #ef4444;
+       }
+       html, body {
+           min-height: 100%;
+           overflow-x: hidden;
+       }
+       *,
+       *::before,
+       *::after {
+           box-sizing: border-box;
+       }
+       body {
+           font-family: "Segoe UI", Arial, sans-serif;
+           margin: 0;
+           padding: 24px 24px 100px 24px;
+           background: linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 100%);
+           color: #1f2937;
+       }
+       .page-container {
+           width: min(100%, 1540px);
+           max-width: 1540px;
+           margin: auto;
+       }
+       .premium-header-wrap {
+           margin: 12px 0 26px 0;
+       }
+       .premium-header {
+           background: linear-gradient(90deg, #185A98 0%, #3269a8 100%);
+           border-radius: 24px;
+           padding: 28px 34px;
+           box-shadow: 0 14px 34px rgba(24, 90, 152, 0.20);
+       }
+       .premium-header-title {
+           color: white;
+           font-weight: 800;
+           font-size: 26px;
+           margin: 0 0 8px 0;
+       }
+       .premium-header-sub {
+           color: #e3eafd;
+           font-size: 14px;
+           overflow-wrap: anywhere;
+       }
+       .premium-stats-grid {
+           display: grid;
+           grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+           gap: 16px;
+           margin: 24px 0 26px 0;
+       }
+       .summary-switcher-wrap {
+           grid-column: span 2;
+           display: flex;
+           flex-direction: column;
+           gap: 12px;
+       }
+       .summary-switcher {
+           display: inline-flex;
+           gap: 8px;
+           background: #eef4ff;
+           border: 1px solid #dbe3ef;
+           border-radius: 12px;
+           padding: 6px;
+           width: fit-content;
+       }
+       .summary-switch-btn {
+           border: 0;
+           border-radius: 8px;
+           background: transparent;
+           color: #1e3a8a;
+           font-size: 13px;
+           font-weight: 800;
+           padding: 8px 12px;
+           cursor: pointer;
+       }
+       .summary-switch-btn.is-active {
+           background: white;
+           box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
+       }
+       .summary-group {
+           display: none;
+           gap: 16px;
+           grid-template-columns: repeat(3, minmax(180px, 1fr));
+       }
+       .summary-group.is-active {
+           display: grid;
+       }
+       .premium-card {
+           background: rgba(255,255,255,0.97);
+           border-radius: 22px;
+           padding: 22px;
+           min-height: 150px;
+           box-shadow: 0 10px 26px rgba(15, 23, 42, 0.08);
+           position: relative;
+           overflow: hidden;
+           border: 1px solid #edf1f7;
+           display: flex;
+           flex-direction: column;
+           justify-content: center;
+           min-width: 0;
+       }
+       .premium-card::after {
+           content: "";
+           position: absolute;
+           width: 86px;
+           height: 86px;
+           right: -20px;
+           bottom: -20px;
+           border-radius: 50%;
+           background: rgba(148, 163, 184, 0.08);
+       }
+       .premium-card-icon {
+           width: 54px;
+           height: 54px;
+           border-radius: 16px;
+           display: flex;
+           align-items: center;
+           justify-content: center;
+           font-size: 27px;
+           margin-bottom: 14px;
+       }
+       .icon-total {
+           background: linear-gradient(135deg, #fef3c7, #fde68a);
+       }
+       .icon-pass {
+           background: linear-gradient(135deg, #dcfce7, #86efac);
+       }
+       .icon-fail {
+           background: linear-gradient(135deg, #fee2e2, #fca5a5);
+       }
+       .icon-warning {
+           background: linear-gradient(135deg, #fef3c7, #f59e0b);
+       }
+       .icon-score {
+           background: rgba(255,255,255,0.18);
+           color: white;
+       }
+       .premium-card-label {
+           font-size: 17px;
+           color: #64748b;
+           margin-bottom: 8px;
+       }
+       .premium-card-value {
+           font-size: 46px;
+           font-weight: 800;
+           line-height: 1.05;
+           color: #0f172a;
+       }
+       .premium-card-sub {
+           margin-top: 8px;
+           font-size: 14px;
+           color: #64748b;
+       }
+       .value-pass {
+           color: #16a34a;
+       }
+       .value-fail {
+           color: #dc2626;
+       }
+       .value-warning {
+           color: #b45309;
+       }
+       .premium-card-score {
+           background: linear-gradient(135deg, #2563eb, #3b82f6);
+           color: white;
+       }
+       .premium-white {
+           color: white;
+       }
+       .premium-white-soft {
+           color: rgba(255,255,255,0.90);
+       }
+       .prom-label,
+       .prom-value,
+       .prom-sub {
+           display: none;
+       }
+       .prom-label.is-active,
+       .prom-value.is-active,
+       .prom-sub.is-active {
+           display: inline;
+       }
+       .premium-card-donut {
+           display: flex;
+           align-items: center;
+           justify-content: center;
+       }
+       .donut-wrap {
+           display: flex;
+           align-items: center;
+           gap: 18px;
+       }
+       .donut-chart {
+           width: 96px;
+           height: 96px;
+           border-radius: 50%;
+           position: relative;
+           flex-shrink: 0;
+       }
+       .donut-chart::after {
+           content: "";
+           position: absolute;
+           inset: 18px;
+           background: white;
+           border-radius: 50%;
+       }
+       .donut-center {
+           position: absolute;
+           inset: 0;
+           z-index: 2;
+           display: flex;
+           align-items: center;
+           justify-content: center;
+           font-weight: 800;
+           font-size: 18px;
+           color: #0f172a;
+       }
+       .donut-legend {
+           font-size: 14px;
+           color: #475569;
+           display: flex;
+           flex-direction: column;
+           gap: 8px;
+       }
+       .dot {
+           width: 11px;
+           height: 11px;
+           display: inline-block;
+           border-radius: 999px;
+           margin-right: 8px;
+       }
+       .dot-pass {
+           background: #16a34a;
+       }
+       .dot-fail {
+           background: #ef4444;
+       }
+       .table-card {
+           background: rgba(255,255,255,0.98);
+           border-radius: 24px;
+           overflow: hidden;
+           box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+           padding: 0;
+           margin-bottom: 32px;
+           max-width: 100%;
+       }
+       .table-title {
+           padding: 0;
+           font-size: 20px;
+           font-weight: 800;
+           color: #1e3a8a;
+       }
+       .table-card-header {
+           display: flex;
+           align-items: center;
+           justify-content: space-between;
+           gap: 16px;
+           padding: 18px 24px 12px 24px;
+       }
+       .table-header-actions {
+           display: flex;
+           align-items: center;
+           justify-content: flex-end;
+           gap: 12px;
+           flex-wrap: wrap;
+       }
+       .result-filter {
+           display: flex;
+           gap: 10px;
+           align-items: center;
+           justify-content: flex-end;
+           flex-wrap: wrap;
+       }
+       .summary-modal-btn {
+           border: 1px solid #dbe3ef;
+           border-radius: 12px;
+           background: white;
+           color: #174ea6;
+           cursor: pointer;
+           display: inline-flex;
+           align-items: center;
+           justify-content: center;
+           width: 48px;
+           height: 42px;
+           padding: 0;
+           box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+           transition: all .18s ease;
+       }
+       .summary-modal-btn svg,
+       .filter-btn svg {
+           pointer-events: none;
+       }
+       .summary-modal-btn:hover {
+           background: #f8fbff;
+           border-color: #b8c9e6;
+           box-shadow: 0 10px 24px rgba(30, 64, 175, 0.10);
+       }
+       .filter-btn {
+           border: 1px solid #dbe3ef;
+           border-radius: 12px;
+           background: white;
+           color: #0f172a;
+           cursor: pointer;
+           display: inline-flex;
+           align-items: center;
+           justify-content: center;
+           width: 48px;
+           height: 42px;
+           min-width: 0;
+           padding: 0;
+           box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+           transition: all .18s ease;
+       }
+       .filter-btn:hover,
+       .filter-btn.active {
+           background: #f8fbff;
+           border-color: #b8c9e6;
+           color: #174ea6;
+           box-shadow: 0 10px 24px rgba(30, 64, 175, 0.10);
+       }
+       .table-responsive {
+           width: 100%;
+           overflow-x: auto;
+           -webkit-overflow-scrolling: touch;
+           overscroll-behavior-x: contain;
+           scrollbar-gutter: stable;
+       }
+       #myTable {
+           width: 100% !important;
+           min-width: 1540px;
+           background: transparent;
+           border-collapse: separate;
+           border-spacing: 0;
+       }
+       #myTable thead th {
+           background: linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%);
+           color: #0f172a;
+           font-weight: 800;
+           font-size: 12px !important;
+           text-transform: uppercase;
+           border-bottom: 1px solid #e5e7eb !important;
+           border-top: none !important;
+       }
+       #myTable td {
+           font-size: 13px !important;
+           color: #334155;
+           vertical-align: middle;
+           border-bottom: 1px solid #eef2f7 !important;
+       }
+       #myTable th, #myTable td {
+           padding: 14px 12px !important;
+       }
+       #myTable.table-view-func .col-clas {
+           display: none;
+       }
+       #myTable.table-view-clas .col-func {
+           display: none;
+       }
+       .td-exec-time {
+           font-family: "Consolas", "Courier New", monospace;
+           font-weight: 700;
+           color: #0f172a;
+           white-space: nowrap;
+       }
+       .td-ellipsis {
+           max-width: 220px;
+           white-space: nowrap;
+           overflow: hidden;
+           text-overflow: ellipsis;
+       }
+       .badge-pass {
+           display: inline-block;
+           padding: 7px 14px;
+           border-radius: 999px;
+           background: linear-gradient(135deg, #16a34a, #22c55e);
+           color: white;
+           font-weight: 800;
+           font-size: 12px;
+       }
+       .badge-fail {
+           display: inline-block;
+           padding: 7px 14px;
+           border-radius: 999px;
+           background: linear-gradient(135deg, #dc2626, #ef4444);
+           color: white;
+           font-weight: 800;
+           font-size: 12px;
+       }
+       .badge-warning {
+           display: inline-block;
+           padding: 7px 14px;
+           border-radius: 999px;
+           background: linear-gradient(135deg, #d97706, #f59e0b);
+           color: white;
+           font-weight: 800;
+           font-size: 12px;
+       }
+       .score-wrap {
+           display: flex;
+           flex-direction: column;
+           gap: 6px;
+           align-items: center;
+       }
+       .score-pass {
+           color: #15803d;
+           font-weight: 800;
+           font-size: 28px;
+       }
+       .score-fail {
+           color: #b91c1c;
+           font-weight: 800;
+           font-size: 28px;
+       }
+       .score-warning {
+           color: #b45309;
+           font-weight: 800;
+           font-size: 28px;
+       }
+       .score-bar {
+           width: 74px;
+           height: 8px;
+           border-radius: 999px;
+           background: #e5e7eb;
+           overflow: hidden;
+       }
+       .score-fill {
+           height: 100%;
+           border-radius: 999px;
+       }
+       .fill-pass {
+           background: linear-gradient(135deg, #16a34a, #22c55e);
+       }
+       .fill-warning {
+           background: linear-gradient(135deg, #d97706, #f59e0b);
+       }
+       .fill-fail {
+           background: linear-gradient(135deg, #dc2626, #ef4444);
+       }
+       .action-group {
+           display: flex;
+           gap: 8px;
+           justify-content: center;
+           flex-wrap: wrap;
+       }
+       .icon-btn {
+           width: 38px;
+           height: 38px;
+           border-radius: 12px;
+           border: 1px solid #dbe3ef;
+           background: white;
+           color: #1e3a8a;
+           display: inline-flex;
+           align-items: center;
+           justify-content: center;
+           cursor: pointer;
+           transition: all .18s ease;
+           box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+       }
+       .icon-btn:hover {
+           transform: translateY(-1px);
+           background: #eef4ff;
+           border-color: #bfd4ff;
+       }
+       .modal {
+           position: fixed;
+           inset: 0;
+           display: none;
+           align-items: center;
+           justify-content: center;
+           padding: clamp(14px, 3vw, 32px);
+           z-index: 2000;
+       }
+       body.modal-open {
+           overflow: hidden;
+       }
+       .modal.is-open {
+           display: flex;
+       }
+       .modal-backdrop {
+           position: absolute;
+           inset: 0;
+           background: rgba(15, 23, 42, 0.55);
+       }
+       .modal-dialog {
+           position: relative;
+           z-index: 1;
+           width: min(1240px, 96vw);
+           height: min(820px, calc(100dvh - 64px));
+           max-height: calc(100dvh - 64px);
+           display: flex;
+       }
+       .modal-content {
+           width: 100%;
+           height: 100%;
+           max-height: 100%;
+           display: flex;
+           flex-direction: column;
+           border-radius: 22px;
+           border: none;
+           box-shadow: 0 22px 60px rgba(15, 23, 42, 0.18);
+           overflow: hidden;
+       }
+       .modal-header {
+           background: linear-gradient(90deg, #185A98 0%, #3269a8 100%);
+           color: white;
+           border-bottom: none;
+           padding: 18px 22px;
+           display: flex;
+           align-items: center;
+           justify-content: space-between;
+           gap: 16px;
+       }
+       .modal-title {
+           font-weight: 800;
+           font-size: 20px;
+       }
+       .btn-close {
+           width: 34px;
+           height: 34px;
+           border: 0;
+           border-radius: 10px;
+           background: rgba(255,255,255,0.18);
+           color: white;
+           cursor: pointer;
+           display: inline-flex;
+           align-items: center;
+           justify-content: center;
+           font-size: 24px;
+           line-height: 1;
+       }
+       .modal-body {
+           flex: 1;
+           min-height: 0;
+           padding: 0;
+           background: #f8fbff;
+           overflow: hidden;
+       }
+       .modal-viewer {
+           box-sizing: border-box;
+           display: block;
+           width: 100%;
+           height: 100%;
+           min-height: 0;
+           margin: 0;
+           border-radius: 0;
+           border: 0;
+           background: white;
+           color: #334155;
+           font-family: Consolas, Monaco, monospace;
+           font-size: 13px;
+           line-height: 1.65;
+           padding: 22px;
+           outline: none;
+           white-space: pre-wrap;
+           overflow: auto;
+           scrollbar-gutter: stable;
+           tab-size: 2;
+       }
+       .modal-footer {
+           border-top: 1px solid #e5e7eb;
+           background: white;
+           padding: 14px 22px;
+           display: flex;
+           gap: 10px;
+           justify-content: flex-end;
+       }
+       .modal-back-btn {
+           border: 1px solid #dbe3ef;
+           border-radius: 10px;
+           background: white;
+           color: #174ea6;
+           cursor: pointer;
+           display: none;
+           font-weight: 800;
+           padding: 10px 18px;
+       }
+       .modal-back-btn.is-visible {
+           display: inline-flex;
+           align-items: center;
+           justify-content: center;
+       }
+       .modal-back-btn:hover {
+           background: #eef4ff;
+           border-color: #b8c9e6;
+       }
+       .modal-close-btn {
+           border: 0;
+           border-radius: 10px;
+           background: #334155;
+           color: white;
+           cursor: pointer;
+           font-weight: 800;
+           padding: 10px 18px;
+       }
+       .footer-fixed {
+           position: fixed;
+           left: 24px;
+           right: 24px;
+           bottom: 12px;
+           background: rgba(255,255,255,0.98);
+           border: 1px solid #e5e7eb;
+           border-radius: 16px;
+           padding: 14px 18px;
+           text-align: center;
+           font-size: 13px;
+           color: #475569;
+           box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+           z-index: 999;
+       }
+       .footer-fixed strong {
+           color: #0f172a;
+       }
+       .table-controls {
+           display: flex;
+           align-items: center;
+           justify-content: space-between;
+           gap: 12px;
+           border-top: 1px solid #e5e7eb;
+           padding: 12px 18px 18px 18px;
+       }
+       .table-info {
+           font-size: 12px;
+           color: #64748b;
+       }
+       .table-pagination {
+           display: flex;
+           align-items: center;
+           justify-content: flex-end;
+           gap: 6px;
+           flex-wrap: wrap;
+       }
+       .table-page-btn {
+           border-radius: 10px;
+           border: 1px solid #dbe3ef;
+           background: white;
+           color: #334155;
+           cursor: pointer;
+           font-size: 12px;
+           font-weight: 700;
+           min-width: 36px;
+           padding: 8px 10px;
+       }
+       .table-page-btn.is-active {
+           background: linear-gradient(135deg, #2563eb, #3b82f6);
+           color: white;
+           border-color: transparent;
+       }
+       .table-page-btn:disabled {
+           cursor: not-allowed;
+           opacity: .45;
+       }
+       @media (max-width: 1300px) {
+           .premium-stats-grid {
+               grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+           }
+       }
+       @media (max-width: 768px) {
+           .premium-stats-grid {
+               grid-template-columns: 1fr;
+           }
+           .page-container {
+               width: 100%;
+           }
+           .premium-header-wrap {
+               margin: 6px 0 16px 0;
+           }
+           .premium-header {
+               border-radius: 18px;
+               padding: 20px 18px;
+           }
+           .premium-header-title {
+               font-size: 20px;
+               line-height: 1.25;
+           }
+           .premium-header-sub {
+               font-size: 12px;
+               line-height: 1.6;
+           }
+           .premium-card {
+               border-radius: 16px;
+               min-height: 118px;
+               padding: 18px;
+           }
+           .premium-card-icon {
+               width: 44px;
+               height: 44px;
+               border-radius: 12px;
+               font-size: 22px;
+               margin-bottom: 10px;
+           }
+           .premium-card-label {
+               font-size: 14px;
+           }
+           .premium-card-value {
+               font-size: 34px;
+           }
+           .donut-wrap {
+               flex-direction: column;
+               align-items: flex-start;
+           }
+           body {
+               padding: 12px 12px 24px 12px;
+           }
+           .table-card {
+               border-radius: 18px;
+           }
+           .table-title {
+               font-size: 18px;
+           }
+           .footer-fixed {
+               position: static;
+               margin-top: 18px;
+               border-radius: 14px;
+               padding: 12px;
+               line-height: 1.5;
+           }
+           .table-card-header,
+           .table-controls {
+               align-items: stretch;
+               flex-direction: column;
+           }
+           .table-header-actions {
+               align-items: center;
+               justify-content: flex-start;
+           }
+           .summary-modal-btn {
+               flex: 0 0 48px;
+               width: 48px;
+           }
+           .result-filter {
+               display: grid;
+               grid-template-columns: repeat(4, 48px);
+               width: auto;
+           }
+           .filter-btn {
+               width: 48px;
+               padding: 0;
+           }
+           .result-filter,
+           .table-pagination {
+               justify-content: flex-start;
+           }
+           .table-responsive {
+               overflow-x: visible;
+               padding: 0 12px 12px 12px;
+           }
+           #myTable {
+               min-width: 0;
+               border-collapse: separate;
+               border-spacing: 0 12px;
+           }
+           #myTable thead {
+               display: none;
+           }
+           #myTable tbody,
+           #myTable tr,
+           #myTable td {
+               display: block;
+               width: 100%;
+           }
+           #myTable tr {
+               background: white;
+               border: 1px solid #e5e7eb;
+               border-radius: 16px;
+               box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+               padding: 12px;
+           }
+           #myTable td {
+               display: grid;
+               grid-template-columns: minmax(118px, 42%) minmax(0, 1fr);
+               align-items: center;
+               gap: 10px;
+               min-height: 44px;
+               padding: 10px 0 !important;
+               text-align: right;
+               border-bottom: 1px solid #eef2f7 !important;
+           }
+           #myTable td:last-child {
+               border-bottom: 0 !important;
+           }
+           #myTable td::before {
+               content: attr(data-label);
+               color: #0f172a;
+               font-size: 12px;
+               font-weight: 900;
+               line-height: 1.3;
+               text-align: left;
+               text-transform: uppercase;
+           }
+           .td-ellipsis {
+               max-width: none;
+               white-space: normal;
+           }
+           .score-wrap {
+               align-items: flex-end;
+           }
+           .score-pass,
+           .score-fail {
+               font-size: 22px;
+           }
+           .action-group {
+               justify-content: flex-end;
+           }
+           .table-controls {
+               padding: 12px;
+           }
+           .table-pagination {
+               gap: 5px;
+           }
+           .table-page-btn {
+               flex: 1 1 auto;
+               min-width: 42px;
+           }
+           .modal {
+               align-items: stretch;
+               padding: 8px;
+           }
+           .modal-dialog {
+               width: 100%;
+               height: calc(100dvh - 16px);
+               max-height: calc(100dvh - 16px);
+           }
+           .modal-content {
+               border-radius: 16px;
+           }
+           .modal-header {
+               padding: 14px 16px;
+           }
+           .modal-title {
+               font-size: 17px;
+               line-height: 1.25;
+           }
+           .modal-viewer,
+           .modal-rich-content {
+               padding: 14px;
+           }
+           .modal-footer {
+               padding: 12px 14px;
+           }
+           .modal-back-btn,
+           .modal-close-btn {
+               flex: 1 1 0;
+               width: auto;
+           }
+           .conversation-thread {
+               max-width: none;
+           }
+           .conversation-text,
+           .metric-card-desc,
+           .metric-summary-text {
+               font-size: 13px;
+           }
+           .compliance-table {
+               min-width: 940px;
+           }
+           .scenario-functionality-table {
+               min-width: 680px;
+           }
+       }
+       @media (max-width: 420px) {
+           .premium-header {
+               padding: 18px 14px;
+           }
+           .result-filter {
+               grid-template-columns: repeat(4, 48px);
+           }
+           #myTable td {
+               grid-template-columns: 1fr;
+               text-align: left;
+           }
+           .score-wrap,
+           .action-group {
+               align-items: flex-start;
+               justify-content: flex-start;
+           }
+           .score-bar {
+               width: 100%;
+           }
+           .donut-chart {
+               width: 84px;
+               height: 84px;
+           }
+           .modal-header {
+               gap: 10px;
+           }
+           .btn-close {
+               flex: 0 0 auto;
+           }
+       }
+
+
+
+       .modal-rich-content {
+           box-sizing: border-box;
+           height: 100%;
+           overflow: auto;
+           padding: 22px;
+           background: #f8fbff;
+           scrollbar-gutter: stable;
+       }
+       .conversation-thread {
+           display: flex;
+           flex-direction: column;
+           gap: 14px;
+           max-width: 980px;
+           margin: 0 auto;
+       }
+       .conversation-message {
+           border: 1px solid #dbe3ef;
+           border-radius: 16px;
+           background: white;
+           box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+           padding: 14px 16px;
+       }
+       .conversation-message.client {
+           border-left: 5px solid #2563eb;
+       }
+       .conversation-message.bot {
+           border-left: 5px solid #16a34a;
+       }
+       .conversation-role {
+           color: #0f172a;
+           font-size: 12px;
+           font-weight: 900;
+           letter-spacing: .02em;
+           margin-bottom: 8px;
+           text-transform: uppercase;
+       }
+       .conversation-text {
+           color: #334155;
+           font-size: 14px;
+           line-height: 1.7;
+           white-space: pre-wrap;
+       }
+       .data-panel {
+           height: 100%;
+           background: white;
+           border: 1px solid #dbe3ef;
+           border-radius: 16px;
+           box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+           overflow: hidden;
+       }
+       .data-pre {
+           box-sizing: border-box;
+           height: 100%;
+           margin: 0;
+           overflow: auto;
+           padding: 20px;
+           color: #1f2937;
+           font-family: Consolas, Monaco, monospace;
+           font-size: 13px;
+           line-height: 1.65;
+           white-space: pre;
+           scrollbar-gutter: stable;
+       }
+    .compliance-panel {
+       background: white;
+       border: 1px solid #dbe3ef;
+       border-radius: 16px;
+       box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+       overflow: hidden;
+    }
+    .compliance-table-scroll {
+       width: 100%;
+       overflow: auto;
+    }
+    .compliance-table {
+       width: 100%;
+       min-width: 1040px;
+       border-collapse: collapse;
+       background: white;
+    }
+    .compliance-table th,
+    .compliance-table td {
+       border: 1px solid #e5e7eb;
+       padding: 11px 12px;
+       color: #334155;
+       font-size: 13px;
+       text-align: center;
+    }
+    .compliance-table th {
+       background: linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%);
+       color: #0f172a;
+       font-weight: 900;
+       text-transform: uppercase;
+    }
+    .compliance-table td:first-child {
+       color: #0f172a;
+       font-weight: 800;
+       text-align: left;
+    }
+    .compliance-table .compliance-count {
+       font-weight: 900;
+    }
+    .compliance-table .compliance-total {
+       background: #f8fafc;
+       color: #0f172a;
+       font-weight: 900;
+    }
+    .compliance-count-btn {
+       width: 100%;
+       min-width: 42px;
+       border: 0;
+       border-radius: 8px;
+       background: #eef4ff;
+       color: #174ea6;
+       cursor: pointer;
+       font-size: 13px;
+       font-weight: 900;
+       padding: 7px 8px;
+       transition: all .18s ease;
+    }
+    .compliance-count-btn:hover {
+       background: #dbeafe;
+       box-shadow: inset 0 0 0 1px #b8c9e6;
+    }
+    .scenario-functionality-head {
+       margin-bottom: 14px;
+       color: #0f172a;
+       font-size: 16px;
+       font-weight: 900;
+    }
+    .scenario-functionality-table {
+       min-width: 780px;
+       table-layout: fixed;
+    }
+    .scenario-functionality-table td {
+       vertical-align: top;
+       text-align: left;
+       line-height: 1.55;
+    }
+    .scenario-functionality-table td:first-child {
+       width: 120px;
+       white-space: nowrap;
+    }
+    .scenario-functionality-table td:nth-child(2) {
+       width: 34%;
+    }
+    .scenario-functionality-table th:first-child {
+       width: 120px;
+    }
+    .scenario-functionality-table th:nth-child(2) {
+       width: 34%;
+    }
+    .scenario-text-ellipsis {
+       cursor: help;
+       display: block;
+       max-width: 100%;
+       overflow: hidden;
+       text-overflow: ellipsis;
+       white-space: nowrap;
+    }
+    .metric-cards-grid {
+       display: grid;
+       grid-template-columns: repeat(2, 1fr);
+       gap: 14px;
+    }
+    .metric-tabs-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+    .metric-tabs {
+        display: inline-flex;
+        gap: 8px;
+        background: #eef4ff;
+        border: 1px solid #dbe3ef;
+        border-radius: 12px;
+        padding: 6px;
+        width: fit-content;
+    }
+    .metric-tab-btn {
+        border: 0;
+        border-radius: 8px;
+        background: transparent;
+        color: #1e3a8a;
+        font-size: 13px;
+        font-weight: 800;
+        padding: 8px 12px;
+        cursor: pointer;
+    }
+    .metric-tab-btn.is-active {
+        background: white;
+        box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
+    }
+    .metric-tab-panel {
+        display: none;
+    }
+    .metric-tab-panel.is-active {
+        display: block;
+    }
+    .metric-card {
+       background: white;
+       border: 1px solid #dbe3ef;
+       border-radius: 18px;
+       padding: 16px;
+       box-shadow: 0 8px 18px rgba(15, 23, 42, 0.05);
+    }
+    .metric-card-header {
+       display: flex;
+       justify-content: space-between;
+       align-items: center;
+       margin-bottom: 10px;
+    }
+    .metric-card-title {
+       font-size: 16px;
+       font-weight: 800;
+       color: #0f172a;
+    }
+    .metric-card-score {
+       background: #e0e7ff;
+       color: #1d4ed8;
+       border-radius: 999px;
+       padding: 5px 10px;
+       font-size: 13px;
+       font-weight: 800;
+    }
+    .metric-card-desc {
+       font-size: 14px;
+       color: #475569;
+       line-height: 1.6;
+    }
+    .metric-summary-box {
+       margin-top: 18px;
+       background: #f8fbff;
+       border: 1px solid #dbe3ef;
+       border-radius: 16px;
+       padding: 16px;
+    }
+    .metric-summary-title {
+       font-size: 15px;
+       font-weight: 800;
+       color: #0f172a;
+       margin-bottom: 8px;
+    }
+    .metric-summary-text {
+       font-size: 14px;
+       color: #475569;
+       line-height: 1.7;
+    }
+    @media (max-width: 900px) {
+       .metric-cards-grid {
+           grid-template-columns: 1fr;
+       }
+    }
+
+
+
+    .metric-score-line {
+        font-size: 14px;
+        color: #334155;
+        margin-bottom: 10px;
+    }
+
+
+
+    .metric-justification {
+        font-size: 13px;
+        line-height: 1.6;
+        color: #475569;
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 12px;
+        border: 1px solid #e5e7eb;
+    }
+
+
+
+    .badge-cumple {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #16a34a, #22c55e);
+        color: white;
+        font-weight: 800;
+        font-size: 10px;
+        white-space: nowrap;
+    }
+
+
+
+    .badge-no-cumple {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #dc2626, #ef4444);
+        color: white;
+        font-weight: 800;
+        font-size: 10px;
+        white-space: nowrap;
+    }
+
+
+
+    .badge-no-aplica {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #f59e0b, #fbbf24);
+        color: #78350f;
+        font-weight: 800;
+        font-size: 10px;
+        white-space: nowrap;
+    }
+
+    .badge-metrica {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 999px;
+        color: white;
+        font-weight: 800;
+        font-size: 11px;
+        white-space: nowrap;
+        min-width: 52px;
+        text-align: center;
+    }
+
+    .badge-metrica-pass {
+        background: linear-gradient(135deg, #16a34a, #22c55e);
+    }
+
+    .badge-metrica-warning {
+        background: linear-gradient(135deg, #d97706, #f59e0b);
+    }
+
+    .badge-metrica-fail {
+        background: linear-gradient(135deg, #dc2626, #ef4444);
+    }
+
+
+
+    .metric-card-score.badge-modal-cumple {
+        background: linear-gradient(135deg, #16a34a, #22c55e);
+        color: white;
+    }
+
+
+
+    .metric-card-score.badge-modal-no-cumple {
+        background: linear-gradient(135deg, #dc2626, #ef4444);
+        color: white;
+    }
+
+
+
+    .metric-card-score.badge-modal-no-aplica {
+        background: linear-gradient(135deg, #f59e0b, #fbbf24);
+        color: #78350f;
+    }
+
+    .metric-card-score.badge-modal-warning {
+        background: linear-gradient(135deg, #d97706, #f59e0b);
+        color: white;
+    }
+
+
+    @media (max-width: 768px) {
+       .modal-rich-content {
+           padding: 14px;
+       }
+       .modal-viewer,
+       .data-pre {
+           padding: 14px;
+           font-size: 12px;
+       }
+       .conversation-thread {
+           max-width: none;
+       }
+       .conversation-message {
+           border-radius: 14px;
+           padding: 12px;
+       }
+       .conversation-text,
+       .metric-card-desc,
+       .metric-summary-text {
+           font-size: 13px;
+       }
+       .metric-card {
+           border-radius: 14px;
+           padding: 14px;
+       }
+       .metric-card-header {
+           align-items: flex-start;
+           flex-direction: column;
+           gap: 8px;
+       }
+       .metric-card-score {
+           align-self: flex-start;
+       }
+       .metric-summary-box {
+           border-radius: 14px;
+           padding: 14px;
+       }
+       .compliance-table {
+           min-width: 940px;
+       }
+       .scenario-functionality-table {
+           min-width: 680px;
+       }
+       .compliance-table th,
+       .compliance-table td {
+           font-size: 12px;
+           padding: 9px 10px;
+       }
+    }
+
+    @media (max-width: 420px) {
+       .compliance-table {
+           min-width: 860px;
+       }
+       .scenario-functionality-table {
+           min-width: 620px;
+       }
+    }
+
+
+
+    </style>
+    <script>
+window.__MODAL_CONTENTS__ = [{"payload": "{\n  \"user_id\": \"28978668\",\n  \"customer_data\": {\n    \"user_name\": \"Arsenio Miró Vaquero\",\n    \"dni\": \"86784913\",\n    \"phone\": \"455300439\",\n    \"cic\": \"28978668\",\n    \"segments\": \"PERSONA 1-30\",\n    \"classification\": \"Intencionado\",\n    \"val_debt_amount_1\": 1104.91,\n    \"val_currency1\": \"Soles\",\n    \"account_number_1\": \"0162085806077674777\",\n    \"val_debt_amount_2\": 599.0,\n    \"val_currency2\": \"Dólares\",\n    \"account_number_2\": \"0152126908801310551\",\n    \"qty_overdue_days\": \"35\",\n    \"product\": \"Crédito Vehicular\",\n    \"last_pdp\": \"NO\",\n    \"active_pkg\": \"NO\",\n    \"client_statement_raw\": \"\",\n    \"profile_quadrant\": \"D\",\n    \"cod_customer_priority\": \"P5\",\n    \"customer_type\": \"PERSONAS\"\n  }\n}", "conversa": "[CLIENTE] no puedo pagar\n\n[AG. PHOENIX] Mi objetivo es conversar para llegar a un compromiso de pago que se adecúe a tu situación. Tienes una deuda vencida de tu Crédito Vehicular por S/ 1,104.91 y $599.00. ¿Crees posible regularizar el total de ambos montos en los próximos 7 días?\n\n[CLIENTE] No puedo pagar el total en 7 días. Necesito más plazo y opciones. ¿Puedo hacer pagos parciales? ¿Cuáles serían los montos mínimos y fechas?\n\n[AG. PHOENIX] Entiendo que es complicado cubrir el total en este momento. ¿Podrías contarme qué situación te impidió ponerte al día con tu Crédito Vehicular?\n\n[CLIENTE] Tuve una caída de ingresos y otras responsabilidades familiares. Mi intención es pagar, pero ahora solo puedo asumir pagos pequeños y necesito fechas flexibles. ¿Qué opciones exactas me pueden dar para reprogramar o dividir la deuda?\n\n[AG. PHOENIX] Te entiendo, la caída de ingresos y las responsabilidades pueden afectar bastante. Si logras pagar el total de tu Crédito Vehicular en los próximos días, evitarías generar más intereses y afectar tu calificación crediticia. ¿Hay alguna posibilidad de que regularices la deuda completa en soles y dólares antes del 9 de julio?\n\n[CLIENTE] No puedo pagar el total antes del 9 de julio. Pido que me den opciones de pagos parciales, montos mínimos y fechas posibles. Necesito que se adapte a mi situación actual. ¿Cuáles serían las alternativas?\n\n[AG. PHOENIX] Puedo ayudarte a dividir el pago en partes, pero debes completar la deuda total de tu Crédito Vehicular en soles y dólares antes del 9 de julio. ¿Te comprometes a pagar ambas monedas por partes y terminar de cancelar toda la deuda dentro de ese plazo?\n\n[CLIENTE] No puedo comprometerme a cancelar todo antes del 9 de julio. Solo puedo pagos parciales en fechas flexibles. Por favor, indícame montos mínimos y opciones realistas según mi capacidad. Necesito claridad simple para decidir.\n\n[AG. PHOENIX] Gracias por explicar tu situación. Dime, ¿cuánto es lo máximo que puedes abonar en soles y en dólares hasta el 9 de julio?\n\n[CLIENTE] Hasta el 9 de julio puedo abonar máximo S/ 200 y $100. Si pueden aceptar esos montos parciales, por favor confirmen fechas y pasos.\n\n[AG. PHOENIX] En soles, para poder avanzar más rápido, podrías abonar S/ 331.00 hasta el 9 de julio. En dólares, tu propuesta de $100 para esa fecha sí cumple el mínimo. ¿Puedes considerar ese monto en soles, o prefieres mantener el de S/200?\n\n[CLIENTE] Por ahora solo puedo abonar S/ 200 y $100 hasta el 9 de julio. No puedo subir el monto en soles. Si pueden aceptar esa opción, por favor confirmen y expliquen el siguiente paso.\n\n[AG. PHOENIX] En soles, para tu Crédito Vehicular, el monto de S/ 200 hasta el 9 de julio es menor al recomendado para regularizarte más rápido. ¿Te animas a subirlo a S/ 331 para avanzar mejor, o prefieres mantener los S/ 200? En dólares, tu propuesta de $100 hasta el 9 de julio sí se puede registrar, ¿la confirmas para proceder?\n\n[CLIENTE] Confirmo pago parcial de S/ 200 y $100 hasta el 9 de julio. No puedo subir el monto en soles. Por favor, confirmen registro y pasos para pagar.\n\n[AG. PHOENIX] Listo, registro tu compromiso de pago parcial por $100 y S/200 de tu Crédito Vehicular, ambos hasta el 9 de julio. Recuerda que para abonar S/200 en soles, debes acercarte a agencias BCP; el pago en dólares también puedes hacerlo en agencias. ¿Hay algo más relacionado a tu deuda que quieras resolver ahora?\n\n[CLIENTE] Gracias por confirmar el registro. Solo necesito que me indiquen los pasos exactos y el código o referencia para pagar en agencia BCP, tanto en soles como en dólares.\n\n[AG. PHOENIX] Para abonar el pago parcial en soles y dólares, solo debes acercarte a cualquier agencia BCP y solicitar pagar tu Crédito Vehicular. No es necesario un código especial; solo indica que harás un pago a tu préstamo y lleva tu documento de identidad. Si necesitas continuar con algún tema sobre tu deuda o tienes dudas, dime cómo puedo ayudarte.\n\n[CLIENTE] Gracias por la información. Confirmo que haré los pagos parciales de S/ 200 y $100 en agencia BCP hasta el 9 de julio. Si hay algún cambio o recomendación, por favor avísenme.\n\n[AG. PHOENIX] Tomo nota de tu compromiso por S/ 200 y $100 en agencia BCP hasta el 9 de julio. Si luego tienes opción de abonar un monto mayor, como S/ 331.47 y $179.70, ayudaría a regularizar tu Crédito Vehicular más rápido. ¿Te gustaría evaluar si es posible aumentar alguno de los pagos antes del plazo?\n\n[CLIENTE] Por ahora mantengo el compromiso de S/ 200 y $100 hasta el 9 de julio. Si puedo aumentar el monto, les aviso antes. Por favor, confirmen que este acuerdo parcial es el único vigente y queda registrado.\n\n[AG. PHOENIX] Queda registrado tu compromiso parcial por S/ 200 y $100 para tu Crédito Vehicular, ambos a pagar hasta el 9 de julio en agencia BCP. Ese es el acuerdo vigente por ahora. Si decides aumentar algún monto, avísame para ayudarte.\n\n[CLIENTE] Gracias por confirmar. Mantengo el acuerdo parcial por S/ 200 y $100 hasta el 9 de julio en agencia BCP. Si puedo aumentar el monto, les aviso antes.\n\n[AG. PHOENIX] Queda vigente tu compromiso parcial de S/ 200 y $100 para tu Crédito Vehicular, ambos hasta el 9 de julio en agencia BCP. Si estás listo para abonar un monto mayor, solo avísame y te ayudo a modificar el acuerdo.\n\n[CLIENTE] Gracias por la confirmación. Por ahora mantengo el acuerdo vigente por S/ 200 y $100 hasta el 9 de julio. Si surge algún cambio, les aviso.\n\n[AG. PHOENIX] Tu compromiso parcial de S/ 200 y $100 hasta el 9 de julio para tu Crédito Vehicular sigue registrado, sin cambios. Si decides ajustar el monto, solo infórmame y te apoyo con el registro.\n\n[CLIENTE] Gracias por confirmar. Mantengo el acuerdo parcial de S/ 200 y $100 hasta el 9 de julio. Si decido modificar el monto, les aviso antes.\n\n[AG. PHOENIX] Tu compromiso parcial de S/ 200 y $100 hasta el 9 de julio para tu Crédito Vehicular sigue vigente y registrado. Si surge alguna modificación en el monto antes del plazo, solo avísame y actualizo tu acuerdo.\n\n[CLIENTE] Gracias por la confirmación. Mantengo el acuerdo parcial de S/ 200 y $100 hasta el 9 de julio. Si necesito modificar el monto, les aviso antes.\n\n[AG. PHOENIX] Si luego necesitas atención personalizada, puedo agendar una llamada con un asesor para el 3 o 6 de julio, según lo que prefieras. Si no deseas continuar ahora, te deseo un buen día.\n\n[CLIENTE] Gracias por la opción de agendar. Por ahora no necesito la llamada. Mantengo el acuerdo parcial vigente. Si surge algún cambio, les aviso.\n\n[AG. PHOENIX] Recuerda que puedes pagar el total de tu deuda vencida por Banca Móvil, web ViaBCP, Agentes o Agencias. Para pagos parciales, acércate a cualquiera de nuestras agencias. Es importante regularizar para evitar intereses y cuidar tu historial crediticio. Que tengas un buen día.", "detalle_metricas": {"metricas_funcionalidades": [{"mode": "funcionalidad", "key": "persuasion_total", "label": "PersuasiÃ³n total", "score": 1, "estado": "CUMPLE", "justification": "El agente solicitó explícitamente el pago total en varias ocasiones: '¿Crees posible regularizar el total de ambos montos en los próximos 7 días?' y '¿Hay alguna posibilidad de que regularices la deuda completa en soles y dólares antes del 9 de julio?'. También intentó persuadir para el pago total en partes: 'Puedo ayudarte a dividir el pago en partes, pero debes completar la deuda total de tu Crédito Vehicular en soles y dólares antes del 9 de julio.'"}, {"mode": "funcionalidad", "key": "persuasion_parcial", "label": "PersuasiÃ³n parcial", "score": 1, "estado": "CUMPLE", "justification": "El agente ofreció y aceptó pagos parciales, consultando montos mínimos y fechas: 'Dime, ¿cuánto es lo máximo que puedes abonar en soles y en dólares hasta el 9 de julio?', y luego aceptó la propuesta del cliente de S/ 200 y $100. Además, propuso un monto recomendado (S/ 331) y aceptó el mínimo ofrecido por el cliente, cumpliendo con la regla de aceptar pagos parciales según la capacidad del cliente."}, {"mode": "funcionalidad", "key": "motivos_no_pago", "label": "Motivos no pago", "score": 1, "estado": "CUMPLE", "justification": "El agente preguntó explícitamente el motivo de no pago tras el rechazo inicial: '¿Podrías contarme qué situación te impidió ponerte al día con tu Crédito Vehicular?'. El cliente respondió: 'Tuve una caída de ingresos y otras responsabilidades familiares.'"}, {"mode": "funcionalidad", "key": "registro_pdp", "label": "Registro pdp", "score": 1, "estado": "CUMPLE", "justification": "El cliente aceptó explícitamente monto y fecha: 'Confirmo pago parcial de S/ 200 y $100 hasta el 9 de julio.' El agente afirmó el registro: 'Listo, registro tu compromiso de pago parcial por $100 y S/200 de tu Crédito Vehicular, ambos hasta el 9 de julio.' Además, reforzó medios de pago: 'Recuerda que para abonar S/200 en soles, debes acercarte a agencias BCP; el pago en dólares también puedes hacerlo en agencias.'"}, {"mode": "funcionalidad", "key": "canales_atencion", "label": "Canales atenciÃ³n", "score": 1, "estado": "CUMPLE", "justification": "El cliente preguntó: 'Solo necesito que me indiquen los pasos exactos y el código o referencia para pagar en agencia BCP, tanto en soles como en dólares.' El agente respondió correctamente: 'Para abonar el pago parcial en soles y dólares, solo debes acercarte a cualquier agencia BCP y solicitar pagar tu Crédito Vehicular. No es necesario un código especial; solo indica que harás un pago a tu préstamo y lleva tu documento de identidad.'"}, {"mode": "funcionalidad", "key": "registro_nps", "label": "Registro nps", "score": -1, "estado": "NO APLICA", "justification": "No se observa que el agente haya solicitado NPS tras el registro exitoso del compromiso de pago. Por lo tanto, no aplica."}, {"mode": "funcionalidad", "key": "derivacion_asesor", "label": "Ofrecer asesor", "score": -1, "estado": "NO APLICA", "justification": "El agente ofreció agendar una llamada con un asesor: 'puedo agendar una llamada con un asesor para el 3 o 6 de julio', pero el cliente no aceptó ni solicitó atención humana. Hubo acuerdo de pago, por lo que no aplica la obligación de derivar."}, {"mode": "funcionalidad", "key": "registro_cita", "label": "Registro cita", "score": -1, "estado": "NO APLICA", "justification": "El agente ofreció agendar una llamada, pero el cliente no aceptó: 'Por ahora no necesito la llamada.' No hubo aceptación explícita de cita, por lo que no aplica."}, {"mode": "funcionalidad", "key": "consecuencias_no_pago", "label": "Consecuencias no pago", "score": -1, "estado": "NO APLICA", "justification": "Hubo acuerdo de pago parcial registrado, por lo que no corresponde mencionar consecuencias como último recurso."}, {"mode": "funcionalidad", "key": "preguntas_frecuentes", "label": "Preguntas frecuentes", "score": 1, "estado": "CUMPLE", "justification": "El cliente hizo una pregunta informativa: 'Solo necesito que me indiquen los pasos exactos y el código o referencia para pagar en agencia BCP, tanto en soles como en dólares.' El agente respondió correctamente y reencauzó: 'Para abonar el pago parcial en soles y dólares, solo debes acercarte a cualquier agencia BCP... Si necesitas continuar con algún tema sobre tu deuda o tienes dudas, dime cómo puedo ayudarte.'"}], "metricas": [{"mode": "metricas", "key": "cumplimiento", "label": "Cumplimiento", "score": 0.8, "justification": "El agente registra una promesa de pago parcial y no registra más promesas, pero sigue sugiriendo aumentos de monto y opciones, lo que puede interpretarse como una negociación adicional."}, {"mode": "metricas", "key": "coherencia", "label": "Coherencia", "score": 0.95, "justification": "La conversación mantiene coherencia en el seguimiento del acuerdo parcial y en las respuestas del agente."}, {"mode": "metricas", "key": "fluidez", "label": "Fluidez", "score": 0.95, "justification": "El intercambio es fluido, sin interrupciones ni confusiones, y el agente responde de manera natural."}, {"mode": "metricas", "key": "integridad", "label": "Integridad", "score": 0.9, "justification": "La información sobre el acuerdo parcial, pasos para pagar y confirmaciones es completa y clara."}, {"mode": "metricas", "key": "claridad", "label": "Claridad", "score": 0.95, "justification": "Las instrucciones y confirmaciones del agente son claras y comprensibles para el cliente."}, {"mode": "metricas", "key": "correccion", "label": "Corrección", "score": 0.95, "justification": "No se detectan errores de redacción ni de información relevante en la conversación."}], "resumen_funcionalidades": "Funcionalidades aplicables evaluadas: 6. Cumple: 6. No cumple: 0. No aplica: 4. Score calculado solo sobre funcionalidades aplicables.", "resumen_metricas": "La conversación cumple con el caso de prueba al no registrar más promesas de pago tras el acuerdo parcial, aunque el agente continúa sugiriendo aumentos de monto, lo que puede considerarse una negociación adicional pero no un registro de nuevas promesas."}}, {"payload": "{\n  \"user_id\": \"87097083\",\n  \"customer_data\": {\n    \"user_name\": \"Cristian Sales Palacio\",\n    \"dni\": \"82457877\",\n    \"phone\": \"786525289\",\n    \"cic\": \"87097083\",\n    \"segments\": \"PERSONA 1-30\",\n    \"classification\": \"Intencionado\",\n    \"val_debt_amount_1\": 1104.91,\n    \"val_currency1\": \"Soles\",\n    \"account_number_1\": \"0161431349746717154\",\n    \"val_debt_amount_2\": 0.0,\n    \"val_currency2\": \"Dólares\",\n    \"account_number_2\": \"\",\n    \"qty_overdue_days\": \"46\",\n    \"product\": \"Cuotéalo\",\n    \"last_pdp\": \"NO\",\n    \"active_pkg\": \"NO\",\n    \"client_statement_raw\": \"\",\n    \"profile_quadrant\": \"C\",\n    \"cod_customer_priority\": \"P5\",\n    \"customer_type\": \"PERSONAS\"\n  }\n}", "conversa": "[CLIENTE] no puedo pagar\n\n[AG. PHOENIX] Mi objetivo es ayudarte a coordinar el pago de tu deuda pendiente. Tienes una deuda vencida de S/ 1,104.91 de tu Cuotéalo. ¿Crees posible que puedas realizar el pago total por cualquiera de nuestros canales dentro de los próximos 7 días?\n\n[CLIENTE] Si\n\n[AG. PHOENIX] Entonces, ¿puedo registrar tu compromiso de pagar S/ 1,104.91 el jueves 9 de julio del 2026 por tu Cuotéalo? Por favor, confirma si es correcto.\n\n[CLIENTE] A más tardar estoy cancelando dentro de 7 días\n\n[AG. PHOENIX] Para confirmar: te comprometes a pagar S/ 1,104.91 de tu Cuotéalo el jueves 9 de julio del 2026. ¿Es correcto?\n\n[CLIENTE] El 10 de junio estaré pagando mi crédito\n\n[AG. PHOENIX] Te entiendo, pero mencionaste el 10 de junio y esa fecha ya pasó. ¿Podrías confirmarme la fecha exacta en la que harás el pago?\n\n[CLIENTE] Puedo ir abonando la mitad de mi crédito?\n\n[AG. PHOENIX] Claro, puedo ayudarte a registrar un abono. ¿Me confirmas el monto exacto que piensas pagar hasta el 9 de julio?\n\n[CLIENTE] Hoy día\n\n[AG. PHOENIX] ¿Te refieres a que puedes pagar la mitad de tu crédito hoy mismo? ¿Me confirmas el monto exacto que piensas abonar hoy?\n\n[CLIENTE] Si, confirmo\n\n[AG. PHOENIX] Solo para confirmar, registraré tu compromiso de abonar S/ 552.45 hoy 2 de julio del 2026 a tu Cuotéalo. ¿Es correcto?\n\n[CLIENTE] Es necesario acercarme a ventanilla?\n\n[AG. PHOENIX] Si quieres abonar solo una parte de tu crédito, sí necesitas acercarte a una agencia del BCP. ¿Deseas que sigamos con tu compromiso de abonar S/ 552.45 hoy?\n\n[CLIENTE] Porque por mi app no me permite\n\n[AG. PHOENIX] Por la app solo podrás hacer el pago total de la deuda vencida. Si quieres abonar solo una parte, debes acercarte a una agencia del BCP. ¿Te ayudo a registrar tu compromiso de abono en agencia hoy?\n\n[CLIENTE] Si, me gustaría saber\n\n[AG. PHOENIX] Para abonar solo una parte, necesitas acercarte a una agencia del BCP y hacerlo en ventanilla. ¿Quieres que deje registrado tu compromiso de abono por S/ 552.45 hoy?\n\n[CLIENTE] Si tengo el Mondo de 800 también puedo pagar?\n\n[AG. PHOENIX] Sí, puedes abonar S/ 800 hoy a tu Cuotéalo en una agencia del BCP. ¿Confirmas que registraré tu compromiso por ese monto y fecha?\n\n[CLIENTE] Hoy día\n\n[AG. PHOENIX] Registraré tu compromiso de abonar S/ 800 hoy 2 de julio a tu Cuotéalo en agencia BCP. ¿Confirmas que es correcto para dejarlo registrado?\n\n[CLIENTE] Si, confirmo\n\n[AG. PHOENIX] Listo, tu compromiso de abonar S/ 800 hoy a tu Cuotéalo quedó registrado. Recuerda que puedes hacerlo en una agencia del BCP. ¿Hay algo más en lo que te pueda apoyar?\n\n[CLIENTE] No, gracias\n\n[AG. PHOENIX] Gracias por conversar y confiar en mí para ayudarte. ¿Podrías evaluar mi atención con un número del 0 al 10?\n\n[CLIENTE] 10\n\n[AG. PHOENIX] Me alegra saber que te sentiste bien atendido. Que tengas un excelente día.", "detalle_metricas": {"metricas_funcionalidades": [{"mode": "funcionalidad", "key": "persuasion_total", "label": "PersuasiÃ³n total", "score": 1, "estado": "CUMPLE", "justification": "El agente solicita explícitamente el pago total: '¿Crees posible que puedas realizar el pago total por cualquiera de nuestros canales dentro de los próximos 7 días?'."}, {"mode": "funcionalidad", "key": "persuasion_parcial", "label": "PersuasiÃ³n parcial", "score": 1, "estado": "CUMPLE", "justification": "El agente ofrece y gestiona la opción de pago parcial: 'Claro, puedo ayudarte a registrar un abono. ¿Me confirmas el monto exacto que piensas pagar hasta el 9 de julio?'. Luego acepta y registra el compromiso por S/ 800, que es un monto parcial."}, {"mode": "funcionalidad", "key": "motivos_no_pago", "label": "Motivos no pago", "score": -1, "estado": "NO APLICA", "justification": "El cliente nunca rechaza explícitamente el pago ni da un motivo de no pago; más bien, busca alternativas y acepta abonar. No se activa la necesidad de indagar motivos de no pago."}, {"mode": "funcionalidad", "key": "registro_pdp", "label": "Registro pdp", "score": 1, "estado": "CUMPLE", "justification": "El cliente acepta explícitamente un monto (S/ 800) y una fecha (hoy 2 de julio), y el agente afirma registro: 'Registraré tu compromiso de abonar S/ 800 hoy 2 de julio a tu Cuotéalo en agencia BCP. ¿Confirmas que es correcto para dejarlo registrado?' y luego 'Listo, tu compromiso de abonar S/ 800 hoy a tu Cuotéalo quedó registrado.'"}, {"mode": "funcionalidad", "key": "canales_atencion", "label": "Canales atenciÃ³n", "score": 1, "estado": "CUMPLE", "justification": "El cliente pregunta: 'Es necesario acercarme a ventanilla?' y 'Porque por mi app no me permite'. El agente responde correctamente: 'Si quieres abonar solo una parte de tu crédito, sí necesitas acercarte a una agencia del BCP.' y 'Por la app solo podrás hacer el pago total de la deuda vencida. Si quieres abonar solo una parte, debes acercarte a una agencia del BCP.'"}, {"mode": "funcionalidad", "key": "registro_nps", "label": "Registro nps", "score": 1, "estado": "CUMPLE", "justification": "Tras el registro exitoso del compromiso, el agente solicita NPS: '¿Podrías evaluar mi atención con un número del 0 al 10?' y el cliente responde '10'."}, {"mode": "funcionalidad", "key": "derivacion_asesor", "label": "Ofrecer asesor", "score": -1, "estado": "NO APLICA", "justification": "No aplica porque hubo acuerdo explícito de compromiso de pago (S/ 800 hoy). El cliente nunca solicita asesor humano ni se requiere derivación."}, {"mode": "funcionalidad", "key": "registro_cita", "label": "Registro cita", "score": -1, "estado": "NO APLICA", "justification": "No aplica porque no hay solicitud ni aceptación explícita de agendar cita con asesor, ni se menciona fecha y hora para cita."}, {"mode": "funcionalidad", "key": "consecuencias_no_pago", "label": "Consecuencias no pago", "score": -1, "estado": "NO APLICA", "justification": "No aplica porque hubo acuerdo de pago (compromiso registrado), por lo que no corresponde mencionar consecuencias."}, {"mode": "funcionalidad", "key": "preguntas_frecuentes", "label": "Preguntas frecuentes", "score": 1, "estado": "CUMPLE", "justification": "El cliente hace preguntas informativas: 'Es necesario acercarme a ventanilla?' y 'Porque por mi app no me permite'. El agente responde correctamente y reencauza a la gestión de la deuda."}], "metricas": [{"mode": "metricas", "key": "cumplimiento", "label": "Cumplimiento", "score": 0.4, "justification": "El agente no cumple el caso de prueba, ya que tras registrar una promesa de pago por el total de la deuda, continúa negociando y registrando más compromisos parciales."}, {"mode": "metricas", "key": "coherencia", "label": "Coherencia", "score": 0.6, "justification": "La conversación mantiene coherencia en el seguimiento de las respuestas del cliente, pero el agente sigue negociando y registrando promesas de pago tras un compromiso por el total de la deuda."}, {"mode": "metricas", "key": "fluidez", "label": "Fluidez", "score": 0.7, "justification": "La interacción es fluida y el agente responde de manera natural, aunque la insistencia en registrar más promesas genera redundancia."}, {"mode": "metricas", "key": "integridad", "label": "Integridad", "score": 0.6, "justification": "La conversación cubre los aspectos de registro de promesas y aclaraciones sobre canales de pago, pero no respeta el límite de una sola promesa por el total."}, {"mode": "metricas", "key": "claridad", "label": "Claridad", "score": 0.7, "justification": "Las respuestas del agente son claras y explican los procedimientos, aunque la reiteración de registros puede confundir al cliente."}, {"mode": "metricas", "key": "correccion", "label": "Corrección", "score": 0.7, "justification": "El agente utiliza un lenguaje correcto y adecuado, pero comete el error de seguir registrando promesas tras el compromiso total."}], "resumen_funcionalidades": "Funcionalidades aplicables evaluadas: 6. Cumple: 6. No cumple: 0. No aplica: 4. Score calculado solo sobre funcionalidades aplicables.", "resumen_metricas": "El agente no cumple el objetivo del caso de prueba, ya que tras registrar una promesa de pago por el total de la deuda, continúa negociando y registrando más promesas, lo que va en contra de la métrica de cumplimiento requerida."}}, {"payload": "{\n  \"user_id\": \"36917568\",\n  \"customer_data\": {\n    \"user_name\": \"Candelario Fito Castro Quintero\",\n    \"dni\": \"52991161\",\n    \"phone\": \"140725112\",\n    \"cic\": \"36917568\",\n    \"segments\": \"PERSONA 31 - 60\",\n    \"classification\": \"Intencionado\",\n    \"val_debt_amount_1\": 369.9,\n    \"val_currency1\": \"Soles\",\n    \"account_number_1\": \"0161069354156327600\",\n    \"val_debt_amount_2\": 0.0,\n    \"val_currency2\": \"Dólares\",\n    \"account_number_2\": \"\",\n    \"qty_overdue_days\": \"41\",\n    \"product\": \"Capital de Trabajo\",\n    \"last_pdp\": \"NO\",\n    \"active_pkg\": \"NO\",\n    \"client_statement_raw\": \"\",\n    \"profile_quadrant\": \"D\",\n    \"cod_customer_priority\": \"P5\",\n    \"customer_type\": \"PERSONAS\"\n  }\n}", "conversa": "[CLIENTE] no puedo pagar\n\n[AG. PHOENIX] Mi objetivo es conversar contigo para que encuentres una forma de ponerte al día con tu deuda de S/ 369.90 pendiente por tu Capital de Trabajo. ¿Crees posible realizar el pago total antes del 9 de julio?\n\n[CLIENTE] Disculpe en la actualidad eztoy pagando todos los 18 de cada mes en esta oportunidad lo pagare ezte 18 de jun\n\n[AG. PHOENIX] ¿Podrías confirmar si te refieres al 18 de julio para realizar el pago? Ayúdame indicando la fecha exacta, por favor.\n\n[CLIENTE] Disculpe si observa en el SISTEMA eztoy pagando los 18 de cada mes.\n\n[AG. PHOENIX] Entiendo que prefieres cumplir tus pagos cada 18, lo respeto. Para comprender mejor y ayudarte, ¿puedes contarme qué situación te impidió pagar en la fecha pactada esta vez?\n\n[CLIENTE] No tendría una repuesta clara en cuanto al límite que usted indica ya que en los 18 de cada mes recién puedo cubrirlo, porque son dias de pagos de mis haberes... Disculpe. Gracias\n\n[AG. PHOENIX] Gracias por explicarlo. Para evitar intereses y cuidar tu historial, te recomiendo que busques opciones para pagar antes del 9 de julio, aunque sea un esfuerzo. ¿Ves posible hacer el pago total de S/ 369.90 en estos días?\n\n[CLIENTE] Este préstamo termino de pagar en Diciembre y todo el tiempo que pague en esa fecha no se me presentó ningún problema como el de hoy..\n\n[AG. PHOENIX] Para poder ayudarte mejor, ¿realizaste algún pago recientemente por tu deuda de Capital de Trabajo? Solo quisiera aclarar ese punto.\n\n[CLIENTE] Pensé que era una línea de sol6cion ya le explique que porque ese cambio rotundo si en casi 5 años no tuve problemas .\n\n[AG. PHOENIX] Gracias por tu comentario. ¿Podrías contarme si realizaste algún pago reciente o si tienes otro comprobante sobre tu deuda de Capital de Trabajo?\n\n[CLIENTE] Ok\n\n[AG. PHOENIX] ¿Te ayudaría poder cubrir la deuda en partes y terminar de pagar todo antes del 9 de julio? Si es así, dime y te explico cómo hacerlo.\n\n[CLIENTE] Ok\n\n[AG. PHOENIX] El monto total a cancelar de tu deuda por Capital de Trabajo es S/ 369.90 y el plazo máximo para terminar de pagar es hasta el jueves 9 de julio. ¿Confirmas que podrás cubrir el total antes de esa fecha?\n\n[CLIENTE] No puedo cubrir el total antes del 9 de julio, solo puedo pagar el 18. ¿Es posible hacer un pago parcial antes y completar el resto el 18? Si es así, indíqueme el monto mínimo y los pasos.\n\n[AG. PHOENIX] Aún puedes hacer un pago parcial antes del 9 de julio y cubrir el resto después, si deseas acercándote a una agencia. ¿Cuánto exacto podrías abonar antes del 9 de julio?\n\n[CLIENTE] Antes del 9 de julio podría pagar 100 soles. El resto lo haría el 18. Por favor, indíqueme los pasos y si con eso se evita penalidad.\n\n[AG. PHOENIX] Te sugiero abonar S/ 111.00 antes del 9 de julio para regularizar tu deuda de Capital de Trabajo de forma más rápida. ¿Estarías de acuerdo en hacer ese pago parcial dentro de ese plazo y así podemos registrarlo?\n\n[CLIENTE] Sí, puedo abonar S/ 111.00 antes del 9 de julio. ¿Me puede indicar los pasos y cómo registrar el pago? El resto lo cubriría el 18 de julio.\n\n[AG. PHOENIX] Solo debes acercarte a una agencia del BCP y pagar S/ 111.00 por tu deuda de Capital de Trabajo antes del 9 de julio. ¿Confirmas que registraré tu compromiso así y te ayudo con el resto luego?\n\n[CLIENTE] Sí, confirmo. Haré el pago de S/ 111.00 antes del 9 de julio en la agencia. El resto lo pago el 18 de julio. Por favor, ayúdeme a registrar este acuerdo y avíseme los pasos para el segundo pago.\n\n[AG. PHOENIX] Listo, tu compromiso de pago parcial de S/ 111.00 antes del 9 de julio ya quedó registrado. Recuerda que para montos parciales como este, debes hacer el pago en una agencia BCP. El saldo pendiente podrás pagarlo en la agencia cuando te sea posible. ¿Necesitas ayuda extra con tu deuda de Capital de Trabajo o alguna otra consulta?\n\n[CLIENTE] Gracias por la información. Solo confírmeme por favor que el saldo pendiente lo puedo pagar el 18 de julio sin problemas y si debo avisar antes o solo acercarme a la agencia ese día.\n\n[AG. PHOENIX] Puedes acercarte directamente a la agencia el 18 de julio para pagar el saldo pendiente, no es necesario avisar antes. Si deseas consultar más detalles puntuales, puedes llamar a la línea 3119400 de lunes a viernes de 7 am a 5 pm.\n\n[CLIENTE] Gracias por la aclaración. Confirmo que haré el pago pendiente el 18 de julio en la agencia. Si hay alguna novedad o cambio, ¿me pueden avisar por este medio?\n\n[AG. PHOENIX] Gracias por conversar conmigo. Del 0 al 10, ¿qué calificación le darías a la atención recibida hoy?\n\n[CLIENTE] Le doy un 9, gracias.\n\n[AG. PHOENIX] Tomaré en cuenta tu calificación, gracias por tu confianza y tu tiempo. Te deseo un buen día.", "detalle_metricas": {"metricas_funcionalidades": [{"mode": "funcionalidad", "key": "persuasion_total", "label": "PersuasiÃ³n total", "score": 1, "estado": "CUMPLE", "justification": "El agente solicita explícitamente el pago total en varias ocasiones: '¿Crees posible realizar el pago total antes del 9 de julio?' y '¿Ves posible hacer el pago total de S/ 369.90 en estos días?'. El objetivo del agente es el pago total, aunque luego acepta pagos parciales."}, {"mode": "funcionalidad", "key": "persuasion_parcial", "label": "PersuasiÃ³n parcial", "score": 1, "estado": "CUMPLE", "justification": "El agente ofrece explícitamente la opción de pago parcial: '¿Te ayudaría poder cubrir la deuda en partes y terminar de pagar todo antes del 9 de julio?'. Además, sugiere un monto parcial de S/ 111.00, que es mayor al 10% de la deuda (S/ 36.99), cumpliendo con el mínimo aceptable."}, {"mode": "funcionalidad", "key": "motivos_no_pago", "label": "Motivos no pago", "score": 1, "estado": "CUMPLE", "justification": "El agente pregunta explícitamente por el motivo de no pago tras el rechazo inicial: '¿puedes contarme qué situación te impidió pagar en la fecha pactada esta vez?'. El cliente explica que solo puede pagar los 18 de cada mes por sus haberes."}, {"mode": "funcionalidad", "key": "registro_pdp", "label": "Registro pdp", "score": 1, "estado": "CUMPLE", "justification": "El cliente acepta explícitamente un monto (S/ 111.00) y una fecha concreta (antes del 9 de julio). El agente afirma el registro: 'Listo, tu compromiso de pago parcial de S/ 111.00 antes del 9 de julio ya quedó registrado.' Además, refuerza el medio de pago: 'debes hacer el pago en una agencia BCP.'"}, {"mode": "funcionalidad", "key": "canales_atencion", "label": "Canales atenciÃ³n", "score": 1, "estado": "CUMPLE", "justification": "El cliente pregunta: 'si debo avisar antes o solo acercarme a la agencia ese día.' y '¿me pueden avisar por este medio?'. El agente responde correctamente: 'Puedes acercarte directamente a la agencia el 18 de julio para pagar el saldo pendiente, no es necesario avisar antes.' y proporciona el número de la línea telefónica y horario: 'puedes llamar a la línea 3119400 de lunes a viernes de 7 am a 5 pm.'"}, {"mode": "funcionalidad", "key": "registro_nps", "label": "Registro nps", "score": 1, "estado": "CUMPLE", "justification": "Hubo registro exitoso de PDP y el agente solicita NPS: 'Del 0 al 10, ¿qué calificación le darías a la atención recibida hoy?'. El cliente responde con un 9, y el agente lo toma en cuenta: 'Tomaré en cuenta tu calificación, gracias por tu confianza y tu tiempo.'"}, {"mode": "funcionalidad", "key": "derivacion_asesor", "label": "Ofrecer asesor", "score": -1, "estado": "NO APLICA", "justification": "No aplica porque hubo acuerdo explícito de compromiso de pago con monto y fecha entre el agente y el cliente."}, {"mode": "funcionalidad", "key": "registro_cita", "label": "Registro cita", "score": -1, "estado": "NO APLICA", "justification": "No aplica porque no hubo solicitud ni aceptación explícita de agendar una cita con fecha y hora concretas."}, {"mode": "funcionalidad", "key": "consecuencias_no_pago", "label": "Consecuencias no pago", "score": -1, "estado": "NO APLICA", "justification": "No aplica porque hubo acuerdo de PDP."}, {"mode": "funcionalidad", "key": "preguntas_frecuentes", "label": "Preguntas frecuentes", "score": 1, "estado": "CUMPLE", "justification": "El cliente hace preguntas informativas: 'si debo avisar antes o solo acercarme a la agencia ese día.' y '¿me pueden avisar por este medio?'. El agente responde y reencauza correctamente, proporcionando información sobre el proceso y los canales."}], "metricas": [{"mode": "metricas", "key": "cumplimiento", "label": "Cumplimiento", "score": 1.0, "justification": "El agente ofrece explícitamente opciones de pago (total, parcial, fechas alternativas), responde a cada inquietud y finaliza la conversación de manera cordial tras el 'OK' y cierre del cliente."}, {"mode": "metricas", "key": "coherencia", "label": "Coherencia", "score": 1.0, "justification": "La conversación mantiene un hilo lógico y consistente en todo momento."}, {"mode": "metricas", "key": "fluidez", "label": "Fluidez", "score": 1.0, "justification": "El intercambio es natural, sin interrupciones abruptas ni confusiones."}, {"mode": "metricas", "key": "integridad", "label": "Integridad", "score": 1.0, "justification": "Se cubren todas las alternativas relevantes de pago y se da seguimiento a cada solicitud del cliente."}, {"mode": "metricas", "key": "claridad", "label": "Claridad", "score": 1.0, "justification": "Las instrucciones y respuestas del agente son claras y comprensibles."}, {"mode": "metricas", "key": "correccion", "label": "Corrección", "score": 1.0, "justification": "No se detectan errores de información ni de procedimiento en las respuestas."}], "resumen_funcionalidades": "Funcionalidades aplicables evaluadas: 7. Cumple: 7. No cumple: 0. No aplica: 3. Score calculado solo sobre funcionalidades aplicables.", "resumen_metricas": "La conversación cumple completamente con el caso de prueba: se ofrecen alternativas de pago, se explica el proceso, se responde a todas las dudas y se cierra la conversación de forma adecuada y no brusca."}}];
+window.__DETALLE_CUMPLIMIENTO__ = {"total_escenarios": 3, "filas": [{"key": "persuasion_total", "funcionalidad": "PersuasiÃ³n total", "cumple": 3, "cumple_pct": 100.0, "no_cumple": 0, "no_cumple_pct": 0.0, "no_aplica": 0, "no_aplica_pct": 0.0, "aplica": 3, "aplica_pct": 100.0, "escenarios": 3, "total_escenarios": 3}, {"key": "persuasion_parcial", "funcionalidad": "PersuasiÃ³n parcial", "cumple": 3, "cumple_pct": 100.0, "no_cumple": 0, "no_cumple_pct": 0.0, "no_aplica": 0, "no_aplica_pct": 0.0, "aplica": 3, "aplica_pct": 100.0, "escenarios": 3, "total_escenarios": 3}, {"key": "motivos_no_pago", "funcionalidad": "Motivos no pago", "cumple": 2, "cumple_pct": 100.0, "no_cumple": 0, "no_cumple_pct": 0.0, "no_aplica": 1, "no_aplica_pct": 33.33, "aplica": 2, "aplica_pct": 66.67, "escenarios": 3, "total_escenarios": 3}, {"key": "registro_pdp", "funcionalidad": "Registro pdp", "cumple": 3, "cumple_pct": 100.0, "no_cumple": 0, "no_cumple_pct": 0.0, "no_aplica": 0, "no_aplica_pct": 0.0, "aplica": 3, "aplica_pct": 100.0, "escenarios": 3, "total_escenarios": 3}, {"key": "canales_atencion", "funcionalidad": "Canales atenciÃ³n", "cumple": 3, "cumple_pct": 100.0, "no_cumple": 0, "no_cumple_pct": 0.0, "no_aplica": 0, "no_aplica_pct": 0.0, "aplica": 3, "aplica_pct": 100.0, "escenarios": 3, "total_escenarios": 3}, {"key": "registro_nps", "funcionalidad": "Registro nps", "cumple": 2, "cumple_pct": 100.0, "no_cumple": 0, "no_cumple_pct": 0.0, "no_aplica": 1, "no_aplica_pct": 33.33, "aplica": 2, "aplica_pct": 66.67, "escenarios": 3, "total_escenarios": 3}, {"key": "derivacion_asesor", "funcionalidad": "Ofrecer asesor", "cumple": 0, "cumple_pct": 0, "no_cumple": 0, "no_cumple_pct": 0, "no_aplica": 3, "no_aplica_pct": 100.0, "aplica": 0, "aplica_pct": 0.0, "escenarios": 3, "total_escenarios": 3}, {"key": "registro_cita", "funcionalidad": "Registro cita", "cumple": 0, "cumple_pct": 0, "no_cumple": 0, "no_cumple_pct": 0, "no_aplica": 3, "no_aplica_pct": 100.0, "aplica": 0, "aplica_pct": 0.0, "escenarios": 3, "total_escenarios": 3}, {"key": "consecuencias_no_pago", "funcionalidad": "Consecuencias no pago", "cumple": 0, "cumple_pct": 0, "no_cumple": 0, "no_cumple_pct": 0, "no_aplica": 3, "no_aplica_pct": 100.0, "aplica": 0, "aplica_pct": 0.0, "escenarios": 3, "total_escenarios": 3}, {"key": "preguntas_frecuentes", "funcionalidad": "Preguntas frecuentes", "cumple": 3, "cumple_pct": 100.0, "no_cumple": 0, "no_cumple_pct": 0.0, "no_aplica": 0, "no_aplica_pct": 0.0, "aplica": 3, "aplica_pct": 100.0, "escenarios": 3, "total_escenarios": 3}]};
+window.__ESCENARIOS_FUNCIONALIDAD__ = {"persuasion_total": {"label": "PersuasiÃ³n total", "estados": {"cumple": {"label": "Cumple", "escenarios": [{"id_test": "CP001", "escenario": "Validar que el bot o agente, tras registrar una promesa de pago o pdp por el importe total de la deuda, no continúe negociando y “registrando” más promesas de pagos.", "justificacion": "El agente solicitó explícitamente el pago total en varias ocasiones: '¿Crees posible regularizar el total de ambos montos en los próximos 7 días?' y '¿Hay alguna posibilidad de que regularices la deuda completa en soles y dólares antes del 9 de julio?'. También intentó persuadir para el pago total en partes: 'Puedo ayudarte a dividir el pago en partes, pero debes completar la deuda total de tu Crédito Vehicular en soles y dólares antes del 9 de julio.'"}, {"id_test": "CP001", "escenario": "Validar que el bot o agente, tras registrar una promesa de pago o pdp por el importe total de la deuda, no continúe negociando y “registrando” más promesas de pagos.", "justificacion": "El agente solicita explícitamente el pago total: '¿Crees posible que puedas realizar el pago total por cualquiera de nuestros canales dentro de los próximos 7 días?'."}, {"id_test": "CP002", "escenario": "Validar que el bot o agente,  ofrezca o brinde explícitamente opciones o alternativas de pago (pago total, pago parcial, pago en 7 días, agendar llamada con asesor, etc ) y que finalice la conversación de manera oportuna y no brusca ante un -OK- que envia el cliente. \n", "justificacion": "El agente solicita explícitamente el pago total en varias ocasiones: '¿Crees posible realizar el pago total antes del 9 de julio?' y '¿Ves posible hacer el pago total de S/ 369.90 en estos días?'. El objetivo del agente es el pago total, aunque luego acepta pagos parciales."}]}, "no_cumple": {"label": "No Cumple", "escenarios": []}, "no_aplica": {"label": "No Aplica", "escenarios": []}, "aplica": {"label": "Aplica", "escenarios": [{"id_test": "CP001", "escenario": "Validar que el bot o agente, tras registrar una promesa de pago o pdp por el importe total de la deuda, no continúe negociando y “registrando” más promesas de pagos.", "justificacion": "El agente solicitó explícitamente el pago total en varias ocasiones: '¿Crees posible regularizar el total de ambos montos en los próximos 7 días?' y '¿Hay alguna posibilidad de que regularices la deuda completa en soles y dólares antes del 9 de julio?'. También intentó persuadir para el pago total en partes: 'Puedo ayudarte a dividir el pago en partes, pero debes completar la deuda total de tu Crédito Vehicular en soles y dólares antes del 9 de julio.'"}, {"id_test": "CP001", "escenario": "Validar que el bot o agente, tras registrar una promesa de pago o pdp por el importe total de la deuda, no continúe negociando y “registrando” más promesas de pagos.", "justificacion": "El agente solicita explícitamente el pago total: '¿Crees posible que puedas realizar el pago total por cualquiera de nuestros canales dentro de los próximos 7 días?'."}, {"id_test": "CP002", "escenario": "Validar que el bot o agente,  ofrezca o brinde explícitamente opciones o alternativas de pago (pago total, pago parcial, pago en 7 días, agendar llamada con asesor, etc ) y que finalice la conversación de manera oportuna y no brusca ante un -OK- que envia el cliente. \n", "justificacion": "El agente solicita explícitamente el pago total en varias ocasiones: '¿Crees posible realizar el pago total antes del 9 de julio?' y '¿Ves posible hacer el pago total de S/ 369.90 en estos días?'. El objetivo del agente es el pago total, aunque luego acepta pagos parciales."}]}}}, "persuasion_parcial": {"label": "PersuasiÃ³n parcial", "estados": {"cumple": {"label": "Cumple", "escenarios": [{"id_test": "CP001", "escenario": "Validar que el bot o agente, tras registrar una promesa de pago o pdp por el importe total de la deuda, no continúe negociando y “registrando” más promesas de pagos.", "justificacion": "El agente ofreció y aceptó pagos parciales, consultando montos mínimos y fechas: 'Dime, ¿cuánto es lo máximo que puedes abonar en soles y en dólares hasta el 9 de julio?', y luego aceptó la propuesta del cliente de S/ 200 y $100. Además, propuso un monto recomendado (S/ 331) y aceptó el mínimo ofrecido por el cliente, cumpliendo con la regla de aceptar pagos parciales según la capacidad del cliente."}, {"id_test": "CP001", "escenario": "Validar que el bot o agente, tras registrar una promesa de pago o pdp por el importe total de la deuda, no continúe negociando y “registrando” más promesas de pagos.", "justificacion": "El agente ofrece y gestiona la opción de pago parcial: 'Claro, puedo ayudarte a registrar un abono. ¿Me confirmas el monto exacto que piensas pagar hasta el 9 de julio?'. Luego acepta y registra el compromiso por S/ 800, que es un monto parcial."}, {"id_test": "CP002", "escenario": "Validar que el bot o agente,  ofrezca o brinde explícitamente opciones o alternativas de pago (pago total, pago parcial, pago en 7 días, agendar llamada con asesor, etc ) y que finalice la conversación de manera oportuna y no brusca ante un -OK- que envia el cliente. \n", "justificacion": "El agente ofrece explícitamente la opción de pago parcial: '¿Te ayudaría poder cubrir la deuda en partes y terminar de pagar todo antes del 9 de julio?'. Además, sugiere un monto parcial de S/ 111.00, que es mayor al 10% de la deuda (S/ 36.99), cumpliendo con el mínimo aceptable."}]}, "no_cumple": {"label": "No Cumple", "escenarios": []}, "no_aplica": {"label": "No Aplica", "escenarios": []}, "aplica": {"label": "Aplica", "escenarios": [{"id_test": "CP001", "escenario": "Validar que el bot o agente, tras registrar una promesa de pago o pdp por el importe total de la deuda, no continúe negociando y “registrando” más promesas de pagos.", "justificacion": "El agente ofreció y aceptó pagos parciales, consultando montos mínimos y fechas: 'Dime, ¿cuánto es lo máximo que puedes abonar en soles y en dólares hasta el 9 de julio?', y luego aceptó la propuesta del cliente de S/ 200 y $100. Además, propuso un monto recomendado (S/ 331) y aceptó el mínimo ofrecido por el cliente, cumpliendo con la regla de aceptar pagos parciales según la capacidad del cliente."}, {"id_test": "CP001", "escenario": "Validar que el bot o agente, tras registrar una promesa de pago o pdp por el importe total de la deuda, no continúe negociando y “registrando” más promesas de pagos.", "justificacion": "El agente ofrece y gestiona la opción de pago parcial: 'Claro, puedo ayudarte a registrar un abono. ¿Me confirmas el monto exacto que piensas pagar hasta el 9 de julio?'. Luego acepta y registra el compromiso por S/ 800, que es un monto parcial."}, {"id_test": "CP002", "escenario": "Validar que el bot o agente,  ofrezca o brinde explícitamente opciones o alternativas de pago (pago total, pago parcial, pago en 7 días, agendar llamada con asesor, etc ) y que finalice la conversación de manera oportuna y no brusca ante un -OK- que envia el cliente. \n", "justificacion": "El agente ofrece explícitamente la opción de pago parcial: '¿Te ayudaría poder cubrir la deuda en partes y terminar de pagar todo antes del 9 de julio?'. Además, sugiere un monto parcial de S/ 111.00, que es mayor al 10% de la deuda (S/ 36.99), cumpliendo con el mínimo aceptable."}]}}}, "motivos_no_pago": {"label": "Motivos no pago", "estados": {"cumple": {"label": "Cumple", "escenarios": [{"id_test": "CP001", "escenario": "Validar que el bot o agente, tras registrar una promesa de pago o pdp por el importe total de la deuda, no continúe negociando y “registrando” más promesas de pagos.", "justificacion": "El agente preguntó explícitamente el motivo de no pago tras el rechazo inicial: '¿Podrías contarme qué situación te impidió ponerte al día con tu Crédito Vehicular?'. El cliente respondió: 'Tuve una caída de ingresos y otras responsabilidades familiares.'"}, {"id_test": "CP002", "escenario": "Validar que el bot o agente,  ofrezca o brinde explícitamente opciones o alternativas de pago (pago total, pago parcial, pago en 7 días, agendar llamada con asesor, etc ) y que finalice la conversación de manera oportuna y no brusca ante un -OK- que envia el cliente. \n", "justificacion": "El agente pregunta explícitamente por el motivo de no pago tras el rechazo inicial: '¿puedes contarme qué situación te impidió pagar en la fecha pactada esta vez?'. El cliente explica que solo puede pagar los 18 de cada mes por sus haberes."}]}, "no_cumple": {"label": "No Cumple", "escenarios": []}, "no_aplica": {"label": "No Aplica", "escenarios": [{"id_test": "CP001", "escenario": "Validar que el bot o agente, tras registrar una promesa de pago o pdp por el importe total de la deuda, no continúe negociando y “registrando” más promesas de pagos.", "justificacion": "El cliente nunca rechaza explícitamente el pago ni da un motivo de no pago; más bien, busca alternativas y acepta abonar. No se activa la necesidad de indagar motivos de no pago."}]}, "aplica": {"label": "Aplica", "escenarios": [{"id_test": "CP001", "escenario": "Validar que el bot o agente, tras registrar una promesa de pago o pdp por el importe total de la deuda, no continúe negociando y “registrando” más promesas de pagos.", "justificacion": "El agente preguntó explícitamente el motivo de no pago tras el rechazo inicial: '¿Podrías contarme qué situación te impidió ponerte al día con tu Crédito Vehicular?'. El cliente respondió: 'Tuve una caída de ingresos y otras responsabilidades familiares.'"}, {"id_test": "CP002", "escenario": "Validar que el bot o agente,  ofrezca o brinde explícitamente opciones o alternativas de pago (pago total, pago parcial, pago en 7 días, agendar llamada con asesor, etc ) y que finalice la conversación de manera oportuna y no brusca ante un -OK- que envia el cliente. \n", "justificacion": "El agente pregunta explícitamente por el motivo de no pago tras el rechazo inicial: '¿puedes contarme qué situación te impidió pagar en la fecha pactada esta vez?'. El cliente explica que solo puede pagar los 18 de cada mes por sus haberes."}]}}}, "registro_pdp": {"label": "Registro pdp", "estados": {"cumple": {"label": "Cumple", "escenarios": [{"id_test": "CP001", "escenario": "Validar que el bot o agente, tras registrar una promesa de pago o pdp por el importe total de la deuda, no continúe negociando y “registrando” más promesas de pagos.", "justificacion": "El cliente aceptó explícitamente monto y fecha: 'Confirmo pago parcial de S/ 200 y $100 hasta el 9 de julio.' El agente afirmó el registro: 'Listo, registro tu compromiso de pago parcial por $100 y S/200 de tu Crédito Vehicular, ambos hasta el 9 de julio.' Además, reforzó medios de pago: 'Recuerda que para abonar S/200 en soles, debes acercarte a agencias BCP; el pago en dólares también puedes hacerlo en agencias.'"}, {"id_test": "CP001", "escenario": "Validar que el bot o agente, tras registrar una promesa de pago o pdp por el importe total de la deuda, no continúe negociando y “registrando” más promesas de pagos.", "justificacion": "El cliente acepta explícitamente un monto (S/ 800) y una fecha (hoy 2 de julio), y el agente afirma registro: 'Registraré tu compromiso de abonar S/ 800 hoy 2 de julio a tu Cuotéalo en agencia BCP. ¿Confirmas que es correcto para dejarlo registrado?' y luego 'Listo, tu compromiso de abonar S/ 800 hoy a tu Cuotéalo quedó registrado.'"}, {"id_test": "CP002", "escenario": "Validar que el bot o agente,  ofrezca o brinde explícitamente opciones o alternativas de pago (pago total, pago parcial, pago en 7 días, agendar llamada con asesor, etc ) y que finalice la conversación de manera oportuna y no brusca ante un -OK- que envia el cliente. \n", "justificacion": "El cliente acepta explícitamente un monto (S/ 111.00) y una fecha concreta (antes del 9 de julio). El agente afirma el registro: 'Listo, tu compromiso de pago parcial de S/ 111.00 antes del 9 de julio ya quedó registrado.' Además, refuerza el medio de pago: 'debes hacer el pago en una agencia BCP.'"}]}, "no_cumple": {"label": "No Cumple", "escenarios": []}, "no_aplica": {"label": "No Aplica", "escenarios": []}, "aplica": {"label": "Aplica", "escenarios": [{"id_test": "CP001", "escenario": "Validar que el bot o agente, tras registrar una promesa de pago o pdp por el importe total de la deuda, no continúe negociando y “registrando” más promesas de pagos.", "justificacion": "El cliente aceptó explícitamente monto y fecha: 'Confirmo pago parcial de S/ 200 y $100 hasta el 9 de julio.' El agente afirmó el registro: 'Listo, registro tu compromiso de pago parcial por $100 y S/200 de tu Crédito Vehicular, ambos hasta el 9 de julio.' Además, reforzó medios de pago: 'Recuerda que para abonar S/200 en soles, debes acercarte a agencias BCP; el pago en dólares también puedes hacerlo en agencias.'"}, {"id_test": "CP001", "escenario": "Validar que el bot o agente, tras registrar una promesa de pago o pdp por el importe total de la deuda, no continúe negociando y “registrando” más promesas de pagos.", "justificacion": "El cliente acepta explícitamente un monto (S/ 800) y una fecha (hoy 2 de julio), y el agente afirma registro: 'Registraré tu compromiso de abonar S/ 800 hoy 2 de julio a tu Cuotéalo en agencia BCP. ¿Confirmas que es correcto para dejarlo registrado?' y luego 'Listo, tu compromiso de abonar S/ 800 hoy a tu Cuotéalo quedó registrado.'"}, {"id_test": "CP002", "escenario": "Validar que el bot o agente,  ofrezca o brinde explícitamente opciones o alternativas de pago (pago total, pago parcial, pago en 7 días, agendar llamada con asesor, etc ) y que finalice la conversación de manera oportuna y no brusca ante un -OK- que envia el cliente. \n", "justificacion": "El cliente acepta explícitamente un monto (S/ 111.00) y una fecha concreta (antes del 9 de julio). El agente afirma el registro: 'Listo, tu compromiso de pago parcial de S/ 111.00 antes del 9 de julio ya quedó registrado.' Además, refuerza el medio de pago: 'debes hacer el pago en una agencia BCP.'"}]}}}, "canales_atencion": {"label": "Canales atenciÃ³n", "estados": {"cumple": {"label": "Cumple", "escenarios": [{"id_test": "CP001", "escenario": "Validar que el bot o agente, tras registrar una promesa de pago o pdp por el importe total de la deuda, no continúe negociando y “registrando” más promesas de pagos.", "justificacion": "El cliente preguntó: 'Solo necesito que me indiquen los pasos exactos y el código o referencia para pagar en agencia BCP, tanto en soles como en dólares.' El agente respondió correctamente: 'Para abonar el pago parcial en soles y dólares, solo debes acercarte a cualquier agencia BCP y solicitar pagar tu Crédito Vehicular. No es necesario un código especial; solo indica que harás un pago a tu préstamo y lleva tu documento de identidad.'"}, {"id_test": "CP001", "escenario": "Validar que el bot o agente, tras registrar una promesa de pago o pdp por el importe total de la deuda, no continúe negociando y “registrando” más promesas de pagos.", "justificacion": "El cliente pregunta: 'Es necesario acercarme a ventanilla?' y 'Porque por mi app no me permite'. El agente responde correctamente: 'Si quieres abonar solo una parte de tu crédito, sí necesitas acercarte a una agencia del BCP.' y 'Por la app solo podrás hacer el pago total de la deuda vencida. Si quieres abonar solo una parte, debes acercarte a una agencia del BCP.'"}, {"id_test": "CP002", "escenario": "Validar que el bot o agente,  ofrezca o brinde explícitamente opciones o alternativas de pago (pago total, pago parcial, pago en 7 días, agendar llamada con asesor, etc ) y que finalice la conversación de manera oportuna y no brusca ante un -OK- que envia el cliente. \n", "justificacion": "El cliente pregunta: 'si debo avisar antes o solo acercarme a la agencia ese día.' y '¿me pueden avisar por este medio?'. El agente responde correctamente: 'Puedes acercarte directamente a la agencia el 18 de julio para pagar el saldo pendiente, no es necesario avisar antes.' y proporciona el número de la línea telefónica y horario: 'puedes llamar a la línea 3119400 de lunes a viernes de 7 am a 5 pm.'"}]}, "no_cumple": {"label": "No Cumple", "escenarios": []}, "no_aplica": {"label": "No Aplica", "escenarios": []}, "aplica": {"label": "Aplica", "escenarios": [{"id_test": "CP001", "escenario": "Validar que el bot o agente, tras registrar una promesa de pago o pdp por el importe total de la deuda, no continúe negociando y “registrando” más promesas de pagos.", "justificacion": "El cliente preguntó: 'Solo necesito que me indiquen los pasos exactos y el código o referencia para pagar en agencia BCP, tanto en soles como en dólares.' El agente respondió correctamente: 'Para abonar el pago parcial en soles y dólares, solo debes acercarte a cualquier agencia BCP y solicitar pagar tu Crédito Vehicular. No es necesario un código especial; solo indica que harás un pago a tu préstamo y lleva tu documento de identidad.'"}, {"id_test": "CP001", "escenario": "Validar que el bot o agente, tras registrar una promesa de pago o pdp por el importe total de la deuda, no continúe negociando y “registrando” más promesas de pagos.", "justificacion": "El cliente pregunta: 'Es necesario acercarme a ventanilla?' y 'Porque por mi app no me permite'. El agente responde correctamente: 'Si quieres abonar solo una parte de tu crédito, sí necesitas acercarte a una agencia del BCP.' y 'Por la app solo podrás hacer el pago total de la deuda vencida. Si quieres abonar solo una parte, debes acercarte a una agencia del BCP.'"}, {"id_test": "CP002", "escenario": "Validar que el bot o agente,  ofrezca o brinde explícitamente opciones o alternativas de pago (pago total, pago parcial, pago en 7 días, agendar llamada con asesor, etc ) y que finalice la conversación de manera oportuna y no brusca ante un -OK- que envia el cliente. \n", "justificacion": "El cliente pregunta: 'si debo avisar antes o solo acercarme a la agencia ese día.' y '¿me pueden avisar por este medio?'. El agente responde correctamente: 'Puedes acercarte directamente a la agencia el 18 de julio para pagar el saldo pendiente, no es necesario avisar antes.' y proporciona el número de la línea telefónica y horario: 'puedes llamar a la línea 3119400 de lunes a viernes de 7 am a 5 pm.'"}]}}}, "registro_nps": {"label": "Registro nps", "estados": {"cumple": {"label": "Cumple", "escenarios": [{"id_test": "CP001", "escenario": "Validar que el bot o agente, tras registrar una promesa de pago o pdp por el importe total de la deuda, no continúe negociando y “registrando” más promesas de pagos.", "justificacion": "Tras el registro exitoso del compromiso, el agente solicita NPS: '¿Podrías evaluar mi atención con un número del 0 al 10?' y el cliente responde '10'."}, {"id_test": "CP002", "escenario": "Validar que el bot o agente,  ofrezca o brinde explícitamente opciones o alternativas de pago (pago total, pago parcial, pago en 7 días, agendar llamada con asesor, etc ) y que finalice la conversación de manera oportuna y no brusca ante un -OK- que envia el cliente. \n", "justificacion": "Hubo registro exitoso de PDP y el agente solicita NPS: 'Del 0 al 10, ¿qué calificación le darías a la atención recibida hoy?'. El cliente responde con un 9, y el agente lo toma en cuenta: 'Tomaré en cuenta tu calificación, gracias por tu confianza y tu tiempo.'"}]}, "no_cumple": {"label": "No Cumple", "escenarios": []}, "no_aplica": {"label": "No Aplica", "escenarios": [{"id_test": "CP001", "escenario": "Validar que el bot o agente, tras registrar una promesa de pago o pdp por el importe total de la deuda, no continúe negociando y “registrando” más promesas de pagos.", "justificacion": "No se observa que el agente haya solicitado NPS tras el registro exitoso del compromiso de pago. Por lo tanto, no aplica."}]}, "aplica": {"label": "Aplica", "escenarios": [{"id_test": "CP001", "escenario": "Validar que el bot o agente, tras registrar una promesa de pago o pdp por el importe total de la deuda, no continúe negociando y “registrando” más promesas de pagos.", "justificacion": "Tras el registro exitoso del compromiso, el agente solicita NPS: '¿Podrías evaluar mi atención con un número del 0 al 10?' y el cliente responde '10'."}, {"id_test": "CP002", "escenario": "Validar que el bot o agente,  ofrezca o brinde explícitamente opciones o alternativas de pago (pago total, pago parcial, pago en 7 días, agendar llamada con asesor, etc ) y que finalice la conversación de manera oportuna y no brusca ante un -OK- que envia el cliente. \n", "justificacion": "Hubo registro exitoso de PDP y el agente solicita NPS: 'Del 0 al 10, ¿qué calificación le darías a la atención recibida hoy?'. El cliente responde con un 9, y el agente lo toma en cuenta: 'Tomaré en cuenta tu calificación, gracias por tu confianza y tu tiempo.'"}]}}}, "derivacion_asesor": {"label": "Ofrecer asesor", "estados": {"cumple": {"label": "Cumple", "escenarios": []}, "no_cumple": {"label": "No Cumple", "escenarios": []}, "no_aplica": {"label": "No Aplica", "escenarios": [{"id_test": "CP001", "escenario": "Validar que el bot o agente, tras registrar una promesa de pago o pdp por el importe total de la deuda, no continúe negociando y “registrando” más promesas de pagos.", "justificacion": "El agente ofreció agendar una llamada con un asesor: 'puedo agendar una llamada con un asesor para el 3 o 6 de julio', pero el cliente no aceptó ni solicitó atención humana. Hubo acuerdo de pago, por lo que no aplica la obligación de derivar."}, {"id_test": "CP001", "escenario": "Validar que el bot o agente, tras registrar una promesa de pago o pdp por el importe total de la deuda, no continúe negociando y “registrando” más promesas de pagos.", "justificacion": "No aplica porque hubo acuerdo explícito de compromiso de pago (S/ 800 hoy). El cliente nunca solicita asesor humano ni se requiere derivación."}, {"id_test": "CP002", "escenario": "Validar que el bot o agente,  ofrezca o brinde explícitamente opciones o alternativas de pago (pago total, pago parcial, pago en 7 días, agendar llamada con asesor, etc ) y que finalice la conversación de manera oportuna y no brusca ante un -OK- que envia el cliente. \n", "justificacion": "No aplica porque hubo acuerdo explícito de compromiso de pago con monto y fecha entre el agente y el cliente."}]}, "aplica": {"label": "Aplica", "escenarios": []}}}, "registro_cita": {"label": "Registro cita", "estados": {"cumple": {"label": "Cumple", "escenarios": []}, "no_cumple": {"label": "No Cumple", "escenarios": []}, "no_aplica": {"label": "No Aplica", "escenarios": [{"id_test": "CP001", "escenario": "Validar que el bot o agente, tras registrar una promesa de pago o pdp por el importe total de la deuda, no continúe negociando y “registrando” más promesas de pagos.", "justificacion": "El agente ofreció agendar una llamada, pero el cliente no aceptó: 'Por ahora no necesito la llamada.' No hubo aceptación explícita de cita, por lo que no aplica."}, {"id_test": "CP001", "escenario": "Validar que el bot o agente, tras registrar una promesa de pago o pdp por el importe total de la deuda, no continúe negociando y “registrando” más promesas de pagos.", "justificacion": "No aplica porque no hay solicitud ni aceptación explícita de agendar cita con asesor, ni se menciona fecha y hora para cita."}, {"id_test": "CP002", "escenario": "Validar que el bot o agente,  ofrezca o brinde explícitamente opciones o alternativas de pago (pago total, pago parcial, pago en 7 días, agendar llamada con asesor, etc ) y que finalice la conversación de manera oportuna y no brusca ante un -OK- que envia el cliente. \n", "justificacion": "No aplica porque no hubo solicitud ni aceptación explícita de agendar una cita con fecha y hora concretas."}]}, "aplica": {"label": "Aplica", "escenarios": []}}}, "consecuencias_no_pago": {"label": "Consecuencias no pago", "estados": {"cumple": {"label": "Cumple", "escenarios": []}, "no_cumple": {"label": "No Cumple", "escenarios": []}, "no_aplica": {"label": "No Aplica", "escenarios": [{"id_test": "CP001", "escenario": "Validar que el bot o agente, tras registrar una promesa de pago o pdp por el importe total de la deuda, no continúe negociando y “registrando” más promesas de pagos.", "justificacion": "Hubo acuerdo de pago parcial registrado, por lo que no corresponde mencionar consecuencias como último recurso."}, {"id_test": "CP001", "escenario": "Validar que el bot o agente, tras registrar una promesa de pago o pdp por el importe total de la deuda, no continúe negociando y “registrando” más promesas de pagos.", "justificacion": "No aplica porque hubo acuerdo de pago (compromiso registrado), por lo que no corresponde mencionar consecuencias."}, {"id_test": "CP002", "escenario": "Validar que el bot o agente,  ofrezca o brinde explícitamente opciones o alternativas de pago (pago total, pago parcial, pago en 7 días, agendar llamada con asesor, etc ) y que finalice la conversación de manera oportuna y no brusca ante un -OK- que envia el cliente. \n", "justificacion": "No aplica porque hubo acuerdo de PDP."}]}, "aplica": {"label": "Aplica", "escenarios": []}}}, "preguntas_frecuentes": {"label": "Preguntas frecuentes", "estados": {"cumple": {"label": "Cumple", "escenarios": [{"id_test": "CP001", "escenario": "Validar que el bot o agente, tras registrar una promesa de pago o pdp por el importe total de la deuda, no continúe negociando y “registrando” más promesas de pagos.", "justificacion": "El cliente hizo una pregunta informativa: 'Solo necesito que me indiquen los pasos exactos y el código o referencia para pagar en agencia BCP, tanto en soles como en dólares.' El agente respondió correctamente y reencauzó: 'Para abonar el pago parcial en soles y dólares, solo debes acercarte a cualquier agencia BCP... Si necesitas continuar con algún tema sobre tu deuda o tienes dudas, dime cómo puedo ayudarte.'"}, {"id_test": "CP001", "escenario": "Validar que el bot o agente, tras registrar una promesa de pago o pdp por el importe total de la deuda, no continúe negociando y “registrando” más promesas de pagos.", "justificacion": "El cliente hace preguntas informativas: 'Es necesario acercarme a ventanilla?' y 'Porque por mi app no me permite'. El agente responde correctamente y reencauza a la gestión de la deuda."}, {"id_test": "CP002", "escenario": "Validar que el bot o agente,  ofrezca o brinde explícitamente opciones o alternativas de pago (pago total, pago parcial, pago en 7 días, agendar llamada con asesor, etc ) y que finalice la conversación de manera oportuna y no brusca ante un -OK- que envia el cliente. \n", "justificacion": "El cliente hace preguntas informativas: 'si debo avisar antes o solo acercarme a la agencia ese día.' y '¿me pueden avisar por este medio?'. El agente responde y reencauza correctamente, proporcionando información sobre el proceso y los canales."}]}, "no_cumple": {"label": "No Cumple", "escenarios": []}, "no_aplica": {"label": "No Aplica", "escenarios": []}, "aplica": {"label": "Aplica", "escenarios": [{"id_test": "CP001", "escenario": "Validar que el bot o agente, tras registrar una promesa de pago o pdp por el importe total de la deuda, no continúe negociando y “registrando” más promesas de pagos.", "justificacion": "El cliente hizo una pregunta informativa: 'Solo necesito que me indiquen los pasos exactos y el código o referencia para pagar en agencia BCP, tanto en soles como en dólares.' El agente respondió correctamente y reencauzó: 'Para abonar el pago parcial en soles y dólares, solo debes acercarte a cualquier agencia BCP... Si necesitas continuar con algún tema sobre tu deuda o tienes dudas, dime cómo puedo ayudarte.'"}, {"id_test": "CP001", "escenario": "Validar que el bot o agente, tras registrar una promesa de pago o pdp por el importe total de la deuda, no continúe negociando y “registrando” más promesas de pagos.", "justificacion": "El cliente hace preguntas informativas: 'Es necesario acercarme a ventanilla?' y 'Porque por mi app no me permite'. El agente responde correctamente y reencauza a la gestión de la deuda."}, {"id_test": "CP002", "escenario": "Validar que el bot o agente,  ofrezca o brinde explícitamente opciones o alternativas de pago (pago total, pago parcial, pago en 7 días, agendar llamada con asesor, etc ) y que finalice la conversación de manera oportuna y no brusca ante un -OK- que envia el cliente. \n", "justificacion": "El cliente hace preguntas informativas: 'si debo avisar antes o solo acercarme a la agencia ese día.' y '¿me pueden avisar por este medio?'. El agente responde y reencauza correctamente, proporcionando información sobre el proceso y los canales."}]}}}};
+</script>
+    </head>
+    <body>
+    <div class="page-container">
+       
+    <div class="premium-header-wrap">
+    <div class="premium-header">
+    <div>
+    <h2 class="premium-header-title">Reporte de Evaluación del Agente Cobrador - Squad Phoenix</h2>
+    <div class="premium-header-sub">
+                   Generado: 02-07-2026 17:07:04 &nbsp;|&nbsp; Umbral Global: 80% &nbsp;|&nbsp; Casos De Prueba: 3 &nbsp;|&nbsp; Tiempo de Ejecución: 00:01:26.53
+    </div>
+    </div>
+    </div>
+    </div>
+    
+       
+    <div class="premium-stats-grid">
+    <div class="premium-card">
+    <div class="premium-card-icon icon-total">🪄</div>
+    <div class="premium-card-label">Total Casos</div>
+    <div class="premium-card-value">3</div>
+    <div class="premium-card-sub">Escenarios evaluados</div>
+    </div>
+    <div class="summary-switcher-wrap">
+    <div class="summary-switcher">
+    <button type="button" class="summary-switch-btn is-active" data-summary-target="funcionalidades">Funcionalidades</button>
+    <button type="button" class="summary-switch-btn" data-summary-target="metricas">Métricas</button>
+    </div>
+
+    <div class="summary-group is-active" data-summary-panel="funcionalidades">
+    <div class="premium-card">
+    <div class="premium-card-icon icon-pass">✅</div>
+    <div class="premium-card-label">PASS</div>
+    <div class="premium-card-value value-pass">3</div>
+    <div class="premium-card-sub">100% del total</div>
+    </div>
+    <div class="premium-card">
+    <div class="premium-card-icon icon-warning">⚠️</div>
+    <div class="premium-card-label">WARNING</div>
+    <div class="premium-card-value value-warning">0</div>
+    <div class="premium-card-sub">0% del total</div>
+    </div>
+    <div class="premium-card">
+    <div class="premium-card-icon icon-fail">❌</div>
+    <div class="premium-card-label">FAIL</div>
+    <div class="premium-card-value value-fail">0</div>
+    <div class="premium-card-sub">0% del total</div>
+    </div>
+    </div>
+
+    <div class="summary-group" data-summary-panel="metricas">
+    <div class="premium-card">
+    <div class="premium-card-icon icon-pass">✅</div>
+    <div class="premium-card-label">PASS</div>
+    <div class="premium-card-value value-pass">2</div>
+    <div class="premium-card-sub">67% del total</div>
+    </div>
+    <div class="premium-card">
+    <div class="premium-card-icon icon-warning">⚠️</div>
+    <div class="premium-card-label">WARNING</div>
+    <div class="premium-card-value value-warning">0</div>
+    <div class="premium-card-sub">0% del total</div>
+    </div>
+    <div class="premium-card">
+    <div class="premium-card-icon icon-fail">❌</div>
+    <div class="premium-card-label">FAIL</div>
+    <div class="premium-card-value value-fail">1</div>
+    <div class="premium-card-sub">33% del total</div>
+    </div>
+    </div>
+    </div>
+
+    <div class="premium-card premium-card-score">
+    <div class="premium-card-icon icon-score">📊</div>
+    <div class="premium-card-label premium-white">
+    <span class="prom-label" data-prom-panel="funcionalidades">Promedio Funcionalidades</span>
+    <span class="prom-label" data-prom-panel="metricas">Promedio métricas</span>
+    </div>
+    <div class="premium-card-value premium-white">
+    <span class="prom-value" data-prom-panel="funcionalidades">1.00</span>
+    <span class="prom-value" data-prom-panel="metricas">0.73</span>
+    </div>
+    <div class="premium-card-sub premium-white-soft">
+    <span class="prom-sub" data-prom-panel="funcionalidades">Puntuación promedio de funcionalidades</span>
+    <span class="prom-sub" data-prom-panel="metricas">Puntuación promedio de métricas</span>
+    </div>
+    </div>
+    </div>
+    
+       
+    <div class="table-card">
+    <div class="table-card-header">
+    <div class="table-title">Resultados por Escenario</div>
+    <div class="table-header-actions">
+    
+    <button type="button" class="summary-modal-btn"
+        data-content-tipo="detalle_cumplimiento"
+        data-title="DETALLE CUMPLIMIENTO"
+        aria-label="Detalle Cumplimiento"
+        title="Detalle Cumplimiento"
+        onclick="showUniqueModalFromButton(this); openGlobalModal();">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M3 3v18h18"></path>
+    <path d="M7 15l3-3 3 2 5-6"></path>
+    </svg>
+    </button>
+    
+    <div class="result-filter" aria-label="Filtrar por resultado">
+    <button type="button" class="filter-btn active" data-result-filter="TODOS" aria-label="Todos" title="Todos">
+    <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M4 6h16"></path>
+    <path d="M4 12h16"></path>
+    <path d="M4 18h16"></path>
+    </svg>
+    </button>
+    <button type="button" class="filter-btn" data-result-filter="SUCCESS" aria-label="SUCCESS" title="SUCCESS">
+    <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M20 6 9 17l-5-5"></path>
+    </svg>
+    </button>
+    <button type="button" class="filter-btn" data-result-filter="WARNING" aria-label="WARNING" title="WARNING">
+    <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M12 9v4"></path>
+    <path d="M12 17h.01"></path>
+    <path d="m10.29 3.86-7.1 12.29A2 2 0 0 0 4.92 19h14.16a2 2 0 0 0 1.73-2.85l-7.1-12.29a2 2 0 0 0-3.42 0z"></path>
+    </svg>
+    </button>
+    <button type="button" class="filter-btn" data-result-filter="FAIL" aria-label="FAIL" title="FAIL">
+    <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M18 6 6 18"></path>
+    <path d="m6 6 12 12"></path>
+    </svg>
+    </button>
+    </div>
+    </div>
+    </div>
+    <div class="table-responsive">
+    <table id="myTable" class="report-table table-view-func">
+    <thead>
+    <tr>
+    <th>Cod. Test</th>
+    <th>Escenario</th>
+    <th class='col-func'>Persuasión total</th><th class='col-func'>Persuasión parcial</th><th class='col-func'>Motivos no pago</th><th class='col-func'>Registro pdp</th><th class='col-func'>Canales atención</th><th class='col-func'>Registro nps</th><th class='col-func'>Ofrecer asesor</th><th class='col-func'>Registro cita</th><th class='col-func'>Consecuencias no pago</th><th class='col-func'>Preguntas frecuentes</th>
+    <th class='col-clas'>Cumplimiento</th><th class='col-clas'>Coherencia</th><th class='col-clas'>Fluidez</th><th class='col-clas'>Integridad</th><th class='col-clas'>Claridad</th><th class='col-clas'>Corrección</th>
+    <th class='col-clas'>Puntuación</th>
+    <th>Tiempo Ejecución</th>
+    <th class='col-func'>Resultado</th>
+    <th class='col-clas'>Resultado</th>
+    <th>Acciones</th>
+    </tr>
+    </thead>
+    <tbody>
+                   
+    <tr data-result-func="PASS" data-result-clas="PASS">
+    <td data-label="Cod. Test">CP001</td>
+    <td data-label="Escenario" class="td-ellipsis" title="Validar que el bot o agente, tras registrar una promesa de pago o pdp por el importe total de la deuda, no continúe negociando y “registrando” más promesas de pagos.">
+        Validar que el bot o agente, tras...
+    </td>
+
+
+
+    <td class="col-func" data-label="PersuasiÃ³n total"><span class='badge-cumple'>CUMPLE</span></td><td class="col-func" data-label="PersuasiÃ³n parcial"><span class='badge-cumple'>CUMPLE</span></td><td class="col-func" data-label="Motivos no pago"><span class='badge-cumple'>CUMPLE</span></td><td class="col-func" data-label="Registro pdp"><span class='badge-cumple'>CUMPLE</span></td><td class="col-func" data-label="Canales atenciÃ³n"><span class='badge-cumple'>CUMPLE</span></td><td class="col-func" data-label="Registro nps"><span class='badge-no-aplica'>NO APLICA</span></td><td class="col-func" data-label="Ofrecer asesor"><span class='badge-no-aplica'>NO APLICA</span></td><td class="col-func" data-label="Registro cita"><span class='badge-no-aplica'>NO APLICA</span></td><td class="col-func" data-label="Consecuencias no pago"><span class='badge-no-aplica'>NO APLICA</span></td><td class="col-func" data-label="Preguntas frecuentes"><span class='badge-cumple'>CUMPLE</span></td>
+
+
+
+    <td class="col-clas" data-label="Cumplimiento"><span class='badge-metrica badge-metrica-pass'>0.80</span></td><td class="col-clas" data-label="Coherencia"><span class='badge-metrica badge-metrica-pass'>0.95</span></td><td class="col-clas" data-label="Fluidez"><span class='badge-metrica badge-metrica-pass'>0.95</span></td><td class="col-clas" data-label="Integridad"><span class='badge-metrica badge-metrica-pass'>0.90</span></td><td class="col-clas" data-label="Claridad"><span class='badge-metrica badge-metrica-pass'>0.95</span></td><td class="col-clas" data-label="Corrección"><span class='badge-metrica badge-metrica-pass'>0.95</span></td>
+
+
+
+    <td class="col-clas" data-label="Puntuacion">
+    <div class="score-wrap">
+    <div class="score-pass">0.80</div>
+    <div class="score-bar">
+    <div class="score-fill fill-pass" style="width:80%"></div>
+    </div>
+    </div>
+    </td>
+    <td data-label="Tiempo Ejecucion" class="td-exec-time">00:01:16.01</td>
+    <td class="col-func" data-label="Resultado"><span class='badge-pass'>PASS</span></td>
+    <td class="col-clas" data-label="Resultado"><span class='badge-pass'>PASS</span></td>
+    <td data-label="Acciones">
+    <div class="action-group">
+            
+    <button type="button" class="icon-btn"
+           data-content-idx="0"
+           data-content-tipo="conversa"
+           data-title="CONVERSACIÓN"
+           onclick="showUniqueModalFromButton(this); openGlobalModal();"
+           title="CONVERSACIÓN">
+           
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+    </svg>
+           
+    </button>
+       
+            
+    <button type="button" class="icon-btn"
+           data-content-idx="0"
+           data-content-tipo="payload"
+           data-title="DATA"
+           onclick="showUniqueModalFromButton(this); openGlobalModal();"
+           title="DATA">
+           
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M4 6h16M4 12h16M4 18h16"></path>
+    </svg>
+           
+    </button>
+       
+            
+    <button type="button" class="icon-btn"
+           data-content-idx="0"
+           data-content-tipo="detalle_metricas"
+           data-title="DETALLE MÉTRICAS"
+           onclick="showUniqueModalFromButton(this); openGlobalModal();"
+           title="DETALLE MÉTRICAS">
+           
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M12 20h9"></path>
+    <path d="M16.5 3.5a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4Z"></path>
+    </svg>
+           
+    </button>
+       
+    </div>
+    </td>
+    </tr>
+    
+    <tr data-result-func="PASS" data-result-clas="FAIL">
+    <td data-label="Cod. Test">CP001</td>
+    <td data-label="Escenario" class="td-ellipsis" title="Validar que el bot o agente, tras registrar una promesa de pago o pdp por el importe total de la deuda, no continúe negociando y “registrando” más promesas de pagos.">
+        Validar que el bot o agente, tras...
+    </td>
+
+
+
+    <td class="col-func" data-label="PersuasiÃ³n total"><span class='badge-cumple'>CUMPLE</span></td><td class="col-func" data-label="PersuasiÃ³n parcial"><span class='badge-cumple'>CUMPLE</span></td><td class="col-func" data-label="Motivos no pago"><span class='badge-no-aplica'>NO APLICA</span></td><td class="col-func" data-label="Registro pdp"><span class='badge-cumple'>CUMPLE</span></td><td class="col-func" data-label="Canales atenciÃ³n"><span class='badge-cumple'>CUMPLE</span></td><td class="col-func" data-label="Registro nps"><span class='badge-cumple'>CUMPLE</span></td><td class="col-func" data-label="Ofrecer asesor"><span class='badge-no-aplica'>NO APLICA</span></td><td class="col-func" data-label="Registro cita"><span class='badge-no-aplica'>NO APLICA</span></td><td class="col-func" data-label="Consecuencias no pago"><span class='badge-no-aplica'>NO APLICA</span></td><td class="col-func" data-label="Preguntas frecuentes"><span class='badge-cumple'>CUMPLE</span></td>
+
+
+
+    <td class="col-clas" data-label="Cumplimiento"><span class='badge-metrica badge-metrica-fail'>0.40</span></td><td class="col-clas" data-label="Coherencia"><span class='badge-metrica badge-metrica-warning'>0.60</span></td><td class="col-clas" data-label="Fluidez"><span class='badge-metrica badge-metrica-warning'>0.70</span></td><td class="col-clas" data-label="Integridad"><span class='badge-metrica badge-metrica-warning'>0.60</span></td><td class="col-clas" data-label="Claridad"><span class='badge-metrica badge-metrica-warning'>0.70</span></td><td class="col-clas" data-label="Corrección"><span class='badge-metrica badge-metrica-warning'>0.70</span></td>
+
+
+
+    <td class="col-clas" data-label="Puntuacion">
+    <div class="score-wrap">
+    <div class="score-fail">0.40</div>
+    <div class="score-bar">
+    <div class="score-fill fill-fail" style="width:40%"></div>
+    </div>
+    </div>
+    </td>
+    <td data-label="Tiempo Ejecucion" class="td-exec-time">00:00:57.24</td>
+    <td class="col-func" data-label="Resultado"><span class='badge-pass'>PASS</span></td>
+    <td class="col-clas" data-label="Resultado"><span class='badge-fail'>FAIL</span></td>
+    <td data-label="Acciones">
+    <div class="action-group">
+            
+    <button type="button" class="icon-btn"
+           data-content-idx="1"
+           data-content-tipo="conversa"
+           data-title="CONVERSACIÓN"
+           onclick="showUniqueModalFromButton(this); openGlobalModal();"
+           title="CONVERSACIÓN">
+           
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+    </svg>
+           
+    </button>
+       
+            
+    <button type="button" class="icon-btn"
+           data-content-idx="1"
+           data-content-tipo="payload"
+           data-title="DATA"
+           onclick="showUniqueModalFromButton(this); openGlobalModal();"
+           title="DATA">
+           
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M4 6h16M4 12h16M4 18h16"></path>
+    </svg>
+           
+    </button>
+       
+            
+    <button type="button" class="icon-btn"
+           data-content-idx="1"
+           data-content-tipo="detalle_metricas"
+           data-title="DETALLE MÉTRICAS"
+           onclick="showUniqueModalFromButton(this); openGlobalModal();"
+           title="DETALLE MÉTRICAS">
+           
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M12 20h9"></path>
+    <path d="M16.5 3.5a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4Z"></path>
+    </svg>
+           
+    </button>
+       
+    </div>
+    </td>
+    </tr>
+    
+    <tr data-result-func="PASS" data-result-clas="PASS">
+    <td data-label="Cod. Test">CP002</td>
+    <td data-label="Escenario" class="td-ellipsis" title="Validar que el bot o agente,  ofrezca o brinde explícitamente opciones o alternativas de pago (pago total, pago parcial, pago en 7 días, agendar llamada con asesor, etc ) y que finalice la conversación de manera oportuna y no brusca ante un -OK- que envia el cliente. 
+">
+        Validar que el bot o agente, ofrezca o...
+    </td>
+
+
+
+    <td class="col-func" data-label="PersuasiÃ³n total"><span class='badge-cumple'>CUMPLE</span></td><td class="col-func" data-label="PersuasiÃ³n parcial"><span class='badge-cumple'>CUMPLE</span></td><td class="col-func" data-label="Motivos no pago"><span class='badge-cumple'>CUMPLE</span></td><td class="col-func" data-label="Registro pdp"><span class='badge-cumple'>CUMPLE</span></td><td class="col-func" data-label="Canales atenciÃ³n"><span class='badge-cumple'>CUMPLE</span></td><td class="col-func" data-label="Registro nps"><span class='badge-cumple'>CUMPLE</span></td><td class="col-func" data-label="Ofrecer asesor"><span class='badge-no-aplica'>NO APLICA</span></td><td class="col-func" data-label="Registro cita"><span class='badge-no-aplica'>NO APLICA</span></td><td class="col-func" data-label="Consecuencias no pago"><span class='badge-no-aplica'>NO APLICA</span></td><td class="col-func" data-label="Preguntas frecuentes"><span class='badge-cumple'>CUMPLE</span></td>
+
+
+
+    <td class="col-clas" data-label="Cumplimiento"><span class='badge-metrica badge-metrica-pass'>1.00</span></td><td class="col-clas" data-label="Coherencia"><span class='badge-metrica badge-metrica-pass'>1.00</span></td><td class="col-clas" data-label="Fluidez"><span class='badge-metrica badge-metrica-pass'>1.00</span></td><td class="col-clas" data-label="Integridad"><span class='badge-metrica badge-metrica-pass'>1.00</span></td><td class="col-clas" data-label="Claridad"><span class='badge-metrica badge-metrica-pass'>1.00</span></td><td class="col-clas" data-label="Corrección"><span class='badge-metrica badge-metrica-pass'>1.00</span></td>
+
+
+
+    <td class="col-clas" data-label="Puntuacion">
+    <div class="score-wrap">
+    <div class="score-pass">1.00</div>
+    <div class="score-bar">
+    <div class="score-fill fill-pass" style="width:100%"></div>
+    </div>
+    </div>
+    </td>
+    <td data-label="Tiempo Ejecucion" class="td-exec-time">00:01:05.28</td>
+    <td class="col-func" data-label="Resultado"><span class='badge-pass'>PASS</span></td>
+    <td class="col-clas" data-label="Resultado"><span class='badge-pass'>PASS</span></td>
+    <td data-label="Acciones">
+    <div class="action-group">
+            
+    <button type="button" class="icon-btn"
+           data-content-idx="2"
+           data-content-tipo="conversa"
+           data-title="CONVERSACIÓN"
+           onclick="showUniqueModalFromButton(this); openGlobalModal();"
+           title="CONVERSACIÓN">
+           
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+    </svg>
+           
+    </button>
+       
+            
+    <button type="button" class="icon-btn"
+           data-content-idx="2"
+           data-content-tipo="payload"
+           data-title="DATA"
+           onclick="showUniqueModalFromButton(this); openGlobalModal();"
+           title="DATA">
+           
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M4 6h16M4 12h16M4 18h16"></path>
+    </svg>
+           
+    </button>
+       
+            
+    <button type="button" class="icon-btn"
+           data-content-idx="2"
+           data-content-tipo="detalle_metricas"
+           data-title="DETALLE MÉTRICAS"
+           onclick="showUniqueModalFromButton(this); openGlobalModal();"
+           title="DETALLE MÉTRICAS">
+           
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M12 20h9"></path>
+    <path d="M16.5 3.5a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4Z"></path>
+    </svg>
+           
+    </button>
+       
+    </div>
+    </td>
+    </tr>
+    
+    </tbody>
+    </table>
+    </div>
+    <div class="table-controls">
+    <div id="tableInfo" class="table-info">Mostrando 0 de 0</div>
+    <div id="tablePagination" class="table-pagination" aria-label="Paginacion"></div>
+    </div>
+    </div>
+    
+    </div>
+
+    <div class="modal" id="uniqueGlobalModal" role="dialog" aria-modal="true" aria-labelledby="uniqueModalTitle" aria-hidden="true">
+       <div class="modal-backdrop" onclick="closeGlobalModal()"></div>
+       <div class="modal-dialog">
+          <div class="modal-content">
+             <div class="modal-header">
+                <h5 class="modal-title" id="uniqueModalTitle">Detalle</h5>
+                <button type="button" class="btn-close" onclick="closeGlobalModal()" aria-label="Cerrar">&times;</button>
+             </div>
+             <div class="modal-body">
+                <div id="uniqueModalRichContent" class="modal-rich-content" style="display:none;"></div>
+                <pre id="uniqueModalTextContent" class="modal-viewer"></pre>
+             </div>
+             <div class="modal-footer">
+                <button type="button" class="modal-back-btn" id="modalBackToComplianceBtn" onclick="volverDetalleCumplimiento()">Volver</button>
+                <button type="button" class="modal-close-btn" onclick="closeGlobalModal()">Cerrar</button>
+             </div>
+          </div>
+       </div>
+    </div>
+
+    <div class="footer-fixed">
+       Programa IA Credicorp | Área de Quality Engineer | Squad de Agente |
+    <strong>© 2026 Todos los Derechos Reservados.</strong>
+    </div>
+
+    <script>
+    function escaparHtml(texto) {
+       if (texto === null || texto === undefined) return "";
+       return String(texto)
+           .replace(/&/g, "&amp;")
+           .replace(/</g, "&lt;")
+           .replace(/>/g, "&gt;")
+           .replace(/"/g, "&quot;")
+           .replace(/'/g, "&#039;");
+    }
+
+
+    function getTextoScore(valor) {
+       valor = Number(valor);
+
+        if (valor >= 0.8) return "PASS";
+        if (valor >= 0.5) return "WARNING";
+        return "FAIL";
+    }
+
+    function getClaseScore(valor) {
+       valor = Number(valor);
+
+        if (valor >= 0.8) return "badge-modal-cumple";
+        if (valor >= 0.5) return "badge-modal-warning";
+        return "badge-modal-no-cumple";
+    }
+
+    function formatearPorcentaje(valor) {
+       const numero = Number(valor);
+       if (!Number.isFinite(numero)) return "0%";
+       return new Intl.NumberFormat('es-PE', {
+           minimumFractionDigits: 0,
+           maximumFractionDigits: 2
+       }).format(numero) + "%";
+    }
+
+    function renderComplianceCountButton(item, estadoKey, valor, estadoLabel) {
+       const count = Number(valor || 0);
+       const key = item.key || "";
+       const funcionalidad = item.funcionalidad || "";
+
+       return `
+    <button type="button" class="compliance-count-btn"
+            data-funcionalidad-key="${escaparHtml(key)}"
+            data-estado-key="${escaparHtml(estadoKey)}"
+            onclick="abrirEscenariosDesdeBoton(this)"
+            title="Ver escenarios ${escaparHtml(estadoLabel)} de ${escaparHtml(funcionalidad)}">
+        ${count}
+    </button>
+    `;
+    }
+
+    function abrirEscenariosDesdeBoton(btn) {
+       abrirEscenariosPorFuncionalidad(
+           btn.getAttribute("data-funcionalidad-key") || "",
+           btn.getAttribute("data-estado-key") || ""
+       );
+    }
+
+    function setModalBackButtonVisible(visible) {
+       const backBtn = document.getElementById('modalBackToComplianceBtn');
+       if (!backBtn) return;
+       backBtn.classList.toggle('is-visible', Boolean(visible));
+    }
+
+    function volverDetalleCumplimiento() {
+       const textContent = document.getElementById('uniqueModalTextContent');
+       const rich = document.getElementById('uniqueModalRichContent');
+       const lbl = document.getElementById('uniqueModalTitle');
+
+       if (!textContent || !rich || !lbl) return;
+
+       lbl.textContent = "DETALLE CUMPLIMIENTO";
+       textContent.style.display = "none";
+       rich.style.display = "block";
+       textContent.textContent = "";
+       rich.innerHTML = renderDetalleCumplimiento(window.__DETALLE_CUMPLIMIENTO__);
+       rich.scrollTop = 0;
+       setModalBackButtonVisible(false);
+    }
+
+    function abrirEscenariosPorFuncionalidad(funcionalidadKey, estadoKey) {
+       const textContent = document.getElementById('uniqueModalTextContent');
+       const rich = document.getElementById('uniqueModalRichContent');
+       const lbl = document.getElementById('uniqueModalTitle');
+
+       if (!textContent || !rich || !lbl) return;
+
+       const data = window.__ESCENARIOS_FUNCIONALIDAD__ || {};
+       const funcionalidad = data[funcionalidadKey] || {};
+       const nombreFuncionalidad = funcionalidad.label || funcionalidadKey || "Funcionalidad";
+
+       lbl.textContent = "Escenarios Por Funcionalidad: " + nombreFuncionalidad;
+       textContent.style.display = "none";
+       rich.style.display = "block";
+       textContent.textContent = "";
+       rich.innerHTML = renderEscenariosPorFuncionalidad(funcionalidadKey, estadoKey);
+       rich.scrollTop = 0;
+       setModalBackButtonVisible(true);
+    }
+
+    function renderEscenariosPorFuncionalidad(funcionalidadKey, estadoKey) {
+       const data = window.__ESCENARIOS_FUNCIONALIDAD__ || {};
+       const funcionalidad = data[funcionalidadKey] || {};
+       const estados = funcionalidad.estados || {};
+       const estado = estados[estadoKey] || {};
+       const escenarios = Array.isArray(estado.escenarios) ? estado.escenarios : [];
+       const estadoLabel = estado.label || estadoKey || "";
+
+       if (!escenarios.length) {
+           return `
+    <div class="metric-summary-box">
+        <div class="metric-summary-title">Sin escenarios ${escaparHtml(estadoLabel)}</div>
+        <div class="metric-summary-text">No se encontraron escenarios para esta funcionalidad y estado.</div>
+    </div>
+    `;
+       }
+
+       let rows = "";
+       escenarios.forEach(function(item) {
+           rows += `
+    <tr>
+        <td>${escaparHtml(item.id_test || "")}</td>
+        <td><span class="scenario-text-ellipsis" title="${escaparHtml(item.escenario || "")}">${escaparHtml(item.escenario || "")}</span></td>
+        <td><span class="scenario-text-ellipsis" title="${escaparHtml(item.justificacion || "")}">${escaparHtml(item.justificacion || "")}</span></td>
+    </tr>
+    `;
+       });
+
+       return `
+    <div class="scenario-functionality-head">${escaparHtml(estadoLabel)}: ${escenarios.length} escenario(s)</div>
+    <div class="compliance-panel">
+        <div class="compliance-table-scroll">
+            <table class="compliance-table scenario-functionality-table">
+                <thead>
+                    <tr>
+                        <th>Cod. Test</th>
+                        <th>Escenario</th>
+                        <th>Detalle de las métricas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rows}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    `;
+    }
+
+    function renderDetalleCumplimiento(data) {
+       const filas = data && Array.isArray(data.filas) ? data.filas : [];
+
+       if (!filas.length) {
+           return `
+    <div class="metric-summary-box">
+        <div class="metric-summary-title">Sin detalle de cumplimiento</div>
+        <div class="metric-summary-text">No se encontraron escenarios ejecutados para visualizar.</div>
+    </div>
+    `;
+       }
+
+       let rows = "";
+       filas.forEach(function(item) {
+           rows += `
+    <tr>
+        <td>${escaparHtml(item.funcionalidad || "")}</td>
+        <td class="compliance-count">${renderComplianceCountButton(item, "cumple", item.cumple, "Cumple")}</td>
+        <td>${formatearPorcentaje(item.cumple_pct)}</td>
+        <td class="compliance-count">${renderComplianceCountButton(item, "no_cumple", item.no_cumple, "No Cumple")}</td>
+        <td>${formatearPorcentaje(item.no_cumple_pct)}</td>
+        <td class="compliance-total">${Number(item.aplica || 0)}</td>
+        <td class="compliance-count">${renderComplianceCountButton(item, "no_aplica", item.no_aplica, "No Aplica")}</td>
+        <td>${formatearPorcentaje(item.no_aplica_pct)}</td>
+        <td class="compliance-count">${renderComplianceCountButton(item, "aplica", item.aplica, "Aplica")}</td>
+        <td>${formatearPorcentaje(item.aplica_pct)}</td>
+        <td class="compliance-total">${Number(item.escenarios || 0)}</td>
+    </tr>
+    `;
+       });
+
+       return `
+    <div class="compliance-panel">
+        <div class="compliance-table-scroll">
+            <table class="compliance-table">
+                <thead>
+                    <tr>
+                        <th rowspan="3">Funcionalidad</th>
+                        <th colspan="5">Aplica</th>
+                        <th colspan="5">Total Casos</th>
+                    </tr>
+                    <tr>
+                        <th colspan="2">Cumple</th>
+                        <th colspan="2">No Cumple</th>
+                        <th rowspan="2">Total</th>
+                        <th colspan="2">No Aplica</th>
+                        <th colspan="2">Aplica</th>
+                        <th rowspan="2">Esc.</th>
+                    </tr>
+                    <tr>
+                        <th>Cant.</th>
+                        <th>%</th>
+                        <th>Cant.</th>
+                        <th>%</th>
+                        <th>Cant.</th>
+                        <th>%</th>
+                        <th>Cant.</th>
+                        <th>%</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rows}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    `;
+    }
+
+
+    function renderMetricCard(item) {
+
+       let nombre = item.label || item.key || "";
+
+       let valor = Number(item.score);
+
+       let estado = item.estado || getTextoScore(valor);
+
+       let claseScore = "";
+       if (item.mode === "funcionalidad") {
+           if (valor === 1) claseScore = "badge-modal-cumple";
+           else if (valor === 0) claseScore = "badge-modal-no-cumple";
+           else claseScore = "badge-modal-no-aplica";
+       } else {
+           claseScore = getClaseScore(valor);
+       }
+
+       let puntajeTexto = item.mode === "funcionalidad" ? String(valor) : valor.toFixed(2);
+
+       let descripcion = item.justification || "";
+
+       return `
+    <div class="metric-card">
+    <div class="metric-card-header">
+    <div class="metric-card-title">${escaparHtml(nombre)}</div>
+    <div class="metric-card-score ${claseScore}">${escaparHtml(estado)}</div>
+    </div>
+
+        <div class="metric-score-line">
+    <strong>Puntaje:</strong> ${puntajeTexto}
+    </div>
+
+        <div class="metric-justification">
+    <strong>Justificación:</strong><br>
+
+            ${escaparHtml(descripcion)}
+    </div>
+    </div>
+
+    `;
+
+    }
+
+    function switchMetricTab(btn) {
+       const wrapper = btn.closest('.metric-tabs-wrapper');
+       if (!wrapper) return;
+
+       const target = btn.getAttribute('data-tab-target') || '';
+       const tabs = wrapper.querySelectorAll('.metric-tab-btn');
+       const panels = wrapper.querySelectorAll('.metric-tab-panel');
+
+       tabs.forEach(function(tab) {
+           tab.classList.toggle('is-active', tab === btn);
+       });
+
+       panels.forEach(function(panel) {
+           panel.classList.toggle('is-active', panel.getAttribute('data-tab-panel') === target);
+       });
+    }
+
+    function renderDataContent(contenido) {
+       let texto = contenido;
+       if (typeof texto === "object" && texto !== null) {
+           texto = JSON.stringify(texto, null, 2);
+       }
+       try {
+           const parsed = JSON.parse(String(texto));
+           texto = JSON.stringify(parsed, null, 2);
+       } catch (e) {}
+       return `<div class="data-panel"><pre class="data-pre">${escaparHtml(texto || "")}</pre></div>`;
+    }
+
+    function renderConversationContent(texto) {
+       const raw = String(texto || "").trim();
+       if (!raw) {
+           return `<div class="conversation-thread"><div class="conversation-message neutral"><div class="conversation-text">Sin contenido.</div></div></div>`;
+       }
+       const blocks = raw.split(/\n\s*\n/).filter(Boolean);
+       let messages = "";
+       blocks.forEach(function(block) {
+           const match = block.match(/^\[([^\]]+)\]\s*([\s\S]*)$/);
+           const role = match ? match[1] : "DETALLE";
+           const body = match ? match[2] : block;
+           const roleUpper = role.toUpperCase();
+           const cssClass = roleUpper.includes("CLIENTE")
+               ? "client"
+               : (roleUpper.includes("AG.") || roleUpper.includes("BOT") || roleUpper.includes("PHOENIX") ? "bot" : "neutral");
+           messages += `<div class="conversation-message ${cssClass}"><div class="conversation-role">${escaparHtml(roleUpper)}</div><div class="conversation-text">${escaparHtml(body.trim())}</div></div>`;
+       });
+       return `<div class="conversation-thread">${messages}</div>`;
+    }
+
+
+
+    function showUniqueModalFromButton(btn) {
+       let textContent = document.getElementById('uniqueModalTextContent');
+       let rich = document.getElementById('uniqueModalRichContent');
+       let lbl = document.getElementById('uniqueModalTitle');
+       let idx = Number(btn.getAttribute('data-content-idx'));
+       let tipo = btn.getAttribute('data-content-tipo');
+       let titulo = btn.getAttribute('data-title') || 'Detalle';
+       let contenido = '';
+       lbl.textContent = titulo;
+       if (
+           window.__MODAL_CONTENTS__ &&
+           window.__MODAL_CONTENTS__[idx] &&
+           window.__MODAL_CONTENTS__[idx][tipo] !== undefined
+       ) {
+           contenido = window.__MODAL_CONTENTS__[idx][tipo];
+       }
+       // RESET
+       textContent.style.display = "block";
+       rich.style.display = "none";
+       textContent.textContent = "";
+       rich.innerHTML = "";
+       setModalBackButtonVisible(false);
+
+       if (tipo === "detalle_cumplimiento") {
+           textContent.style.display = "none";
+           rich.style.display = "block";
+           rich.innerHTML = renderDetalleCumplimiento(window.__DETALLE_CUMPLIMIENTO__);
+           rich.scrollTop = 0;
+           return;
+       }
+
+       if (tipo === "conversa") {
+           textContent.style.display = "none";
+           rich.style.display = "block";
+           rich.innerHTML = renderConversationContent(contenido);
+           rich.scrollTop = 0;
+           return;
+       }
+
+       if (tipo === "payload") {
+           textContent.style.display = "none";
+           rich.style.display = "block";
+           rich.innerHTML = renderDataContent(contenido);
+           rich.scrollTop = 0;
+           return;
+       }
+
+       if (tipo === 'detalle_metricas') {
+
+       textContent.style.display = 'none';
+       rich.style.display = 'block';
+
+       let metricasFuncionales = contenido.metricas_funcionalidades || [];
+       let metricas = contenido.metricas || [];
+       let resumenFuncionalidades = contenido.resumen_funcionalidades || "";
+       let resumenmetricas = contenido.resumen_metricas || "";
+
+       if ((!Array.isArray(metricasFuncionales) || metricasFuncionales.length === 0) &&
+           (!Array.isArray(metricas) || metricas.length === 0)) {
+           rich.innerHTML = `
+    <div class="metric-summary-box">
+        <div class="metric-summary-title">Sin detalle de métricas</div>
+        <div class="metric-summary-text">No se encontraron métricas para visualizar.</div>
+    </div>
+    `;
+           return;
+       }
+
+       let cardsFuncionales = "";
+       metricasFuncionales.forEach(function(item) {
+           cardsFuncionales += renderMetricCard(item);
+       });
+
+       let cardsMetricas = "";
+       metricas.forEach(function(item) {
+           cardsMetricas += renderMetricCard(item);
+       });
+
+       if (false) {
+           rich.innerHTML = `
+    <div class="metric-cards-grid">
+        ${cardsMetricas}
+    </div>
+    <div class="metric-summary-box">
+        <div class="metric-summary-title">Resumen métricas</div>
+        <div class="metric-summary-text">${escaparHtml(resumenmetricas)}</div>
+    </div>
+    `;
+           return;
+       }
+
+       let htmlMetricas = `
+    <div class="metric-tabs-wrapper">
+        <div class="metric-tabs">
+            <button type="button" class="metric-tab-btn is-active" data-tab-target="funcionalidades" onclick="switchMetricTab(this)">Funcionalidades</button>
+            <button type="button" class="metric-tab-btn" data-tab-target="metricas" onclick="switchMetricTab(this)">Métricas</button>
+        </div>
+
+        <div class="metric-tab-panel is-active" data-tab-panel="funcionalidades">
+            <div class="metric-cards-grid">
+                ${cardsFuncionales}
+            </div>
+            <div class="metric-summary-box">
+                <div class="metric-summary-title">Resumen funcionalidades</div>
+                <div class="metric-summary-text">${escaparHtml(resumenFuncionalidades)}</div>
+            </div>
+        </div>
+
+        <div class="metric-tab-panel" data-tab-panel="metricas">
+            <div class="metric-cards-grid">
+                ${cardsMetricas}
+            </div>
+            <div class="metric-summary-box">
+                <div class="metric-summary-title">Resumen métricas</div>
+                <div class="metric-summary-text">${escaparHtml(resumenmetricas)}</div>
+            </div>
+        </div>
+    </div>
+    `;
+
+       rich.innerHTML = htmlMetricas;
+       return;
+    }
+
+
+       if (typeof contenido === "object" && contenido !== null) {
+           contenido = JSON.stringify(contenido, null, 2);
+       }
+       textContent.textContent = contenido || '';
+    }
+
+    function openGlobalModal() {
+       const modal = document.getElementById('uniqueGlobalModal');
+       if (!modal) return;
+       modal.classList.add('is-open');
+       modal.setAttribute('aria-hidden', 'false');
+       document.body.classList.add('modal-open');
+    }
+
+    function closeGlobalModal() {
+       const modal = document.getElementById('uniqueGlobalModal');
+       if (!modal) return;
+       modal.classList.remove('is-open');
+       modal.setAttribute('aria-hidden', 'true');
+       document.body.classList.remove('modal-open');
+       setModalBackButtonVisible(false);
+    }
+
+    document.addEventListener('keydown', function(event) {
+       if (event.key === 'Escape') {
+           closeGlobalModal();
+       }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+       const soloMetricas = false;
+       const pageSize = 6;
+       const table = document.getElementById('myTable');
+       if (!table) return;
+
+        const detalleCumplimientoBtn = document.querySelector('.summary-modal-btn');
+       const summaryButtons = Array.from(document.querySelectorAll('.summary-switch-btn'));
+       const summaryPanels = Array.from(document.querySelectorAll('[data-summary-panel]'));
+        const promLabels = Array.from(document.querySelectorAll('.prom-label'));
+        const promValues = Array.from(document.querySelectorAll('.prom-value'));
+        const promSubs = Array.from(document.querySelectorAll('.prom-sub'));
+
+       const rows = Array.from(table.querySelectorAll('tbody tr'));
+       const filterButtons = Array.from(document.querySelectorAll('[data-result-filter]'));
+       const tableInfo = document.getElementById('tableInfo');
+       const pagination = document.getElementById('tablePagination');
+       let activeFilter = 'TODOS';
+       let currentPage = 1;
+       let currentView = soloMetricas ? 'metricas' : 'funcionalidades';
+
+       function normalizeResult(value) {
+           const normalized = String(value || '').trim().toUpperCase();
+           if (normalized === 'SUCCESS') return 'PASS';
+           if (normalized === 'PASS') return 'PASS';
+           if (normalized === 'FAIL') return 'FAIL';
+           if (normalized === 'WARNING') return 'WARNING';
+           return normalized;
+       }
+
+       function getRowResultByView(row) {
+           const attr = currentView === 'funcionalidades' ? 'data-result-func' : 'data-result-clas';
+           return normalizeResult(row.getAttribute(attr));
+       }
+
+       function getFilteredRows() {
+           return rows.filter(function(row) {
+               if (activeFilter === 'TODOS') return true;
+               return getRowResultByView(row) === activeFilter;
+           });
+       }
+
+       function switchSummary(target) {
+           if (soloMetricas) {
+               target = 'metricas';
+           }
+           currentView = target === 'metricas' ? 'metricas' : 'funcionalidades';
+
+           summaryButtons.forEach(function(btn) {
+               btn.classList.toggle('is-active', btn.getAttribute('data-summary-target') === currentView);
+           });
+
+           summaryPanels.forEach(function(panel) {
+               panel.classList.toggle('is-active', panel.getAttribute('data-summary-panel') === currentView);
+           });
+
+           promLabels.forEach(function(item) {
+               item.classList.toggle('is-active', item.getAttribute('data-prom-panel') === currentView);
+           });
+           promValues.forEach(function(item) {
+               item.classList.toggle('is-active', item.getAttribute('data-prom-panel') === currentView);
+           });
+           promSubs.forEach(function(item) {
+               item.classList.toggle('is-active', item.getAttribute('data-prom-panel') === currentView);
+           });
+
+           if (detalleCumplimientoBtn) {
+               detalleCumplimientoBtn.style.display = currentView === 'funcionalidades' ? 'inline-flex' : 'none';
+           }
+
+           table.classList.toggle('table-view-func', currentView === 'funcionalidades');
+           table.classList.toggle('table-view-clas', currentView === 'metricas');
+
+           currentPage = 1;
+           renderTable();
+       }
+
+       function createPageButton(label, page, disabled, active) {
+           const btn = document.createElement('button');
+           btn.type = 'button';
+           btn.className = 'table-page-btn' + (active ? ' is-active' : '');
+           btn.textContent = label;
+           btn.disabled = disabled;
+           btn.addEventListener('click', function() {
+               currentPage = page;
+               renderTable();
+           });
+           return btn;
+       }
+
+       function renderPagination(totalPages) {
+           if (!pagination) return;
+           pagination.innerHTML = '';
+           pagination.appendChild(createPageButton('Anterior', Math.max(1, currentPage - 1), currentPage === 1, false));
+           for (let page = 1; page <= totalPages; page++) {
+               pagination.appendChild(createPageButton(String(page), page, false, page === currentPage));
+           }
+           pagination.appendChild(createPageButton('Siguiente', Math.min(totalPages, currentPage + 1), currentPage === totalPages, false));
+       }
+
+       function renderTable() {
+           const filteredRows = getFilteredRows();
+           const total = filteredRows.length;
+           const totalPages = Math.max(1, Math.ceil(total / pageSize));
+           if (currentPage > totalPages) currentPage = totalPages;
+
+           const startIndex = (currentPage - 1) * pageSize;
+           const endIndex = Math.min(startIndex + pageSize, total);
+           rows.forEach(function(row) {
+               row.style.display = 'none';
+           });
+           filteredRows.slice(startIndex, endIndex).forEach(function(row) {
+               row.style.display = '';
+           });
+
+           const visibleRows = total === 0 ? 0 : endIndex - startIndex;
+           if (tableInfo) {
+               tableInfo.textContent = 'Mostrando ' + visibleRows + ' de ' + total;
+           }
+           renderPagination(totalPages);
+       }
+
+       filterButtons.forEach(function(btn) {
+           btn.addEventListener('click', function() {
+               const rawFilter = btn.getAttribute('data-result-filter') || 'TODOS';
+               activeFilter = normalizeResult(rawFilter);
+               currentPage = 1;
+               filterButtons.forEach(function(item) {
+                   item.classList.remove('active');
+               });
+               btn.classList.add('active');
+               renderTable();
+           });
+       });
+
+       summaryButtons.forEach(function(btn) {
+           btn.addEventListener('click', function() {
+               switchSummary(btn.getAttribute('data-summary-target') || 'funcionalidades');
+           });
+       });
+
+       switchSummary(soloMetricas ? 'metricas' : 'funcionalidades');
+    });
+
+    </script>
+    </body>
+    </html>
+    

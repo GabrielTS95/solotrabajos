@@ -89,7 +89,7 @@ def _post_customer_proc(correct_payload, headers_create):
 
 def add_new_cic_to_customer_proc(request_cliente_json):
     print("INSERTANDO NUEVOS REGISTROS EN DH_CUSTOMER_PROC")
-    headers_create = {"Content-Type": "application/json"}
+    headers_create = {"X-API-key": API_KEY, "Content-Type": "application/json"}
     payload = {
         "_id": request_cliente_json["customer_data"]["cic"],
         "user_name": request_cliente_json["customer_data"]["user_name"],

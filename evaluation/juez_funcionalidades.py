@@ -1,9 +1,10 @@
 ﻿import json
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from integrations.clients import obtener_cliente_azure
 from config import MODEL_NAME
 from core.utils import safe_str
+from evaluation.juez_metricas import construir_contexto_fecha_base_juez_metricas
 
 FUNCIONALIDADES_JUEZ = [
     ("persuasion_total", "PersuasiÃ³n total"),

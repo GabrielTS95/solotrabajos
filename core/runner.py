@@ -9,7 +9,7 @@ from integrations.clients import (
     create_chat_and_headers,
     send_bot_message,
 )
-from config import MAX_TURNS_SAFE, obtener_max_workers
+from config import MAX_TURNS_SAFE, TIPO_AGENTE, obtener_max_workers
 from evaluation.juez import (
     FUNCIONALIDADES_JUEZ,
     build_default_juez_result,
@@ -436,6 +436,8 @@ def ejecutar_escenario_phoenix(orden_csv, user):
         }
     )
 
+    usar_user_simulator = TIPO_AGENTE in {"agentico", "hibrido"}
+
     try:
         request_cliente_json = generar_payload(user)
         datos_prompt = obtener_datos_prompt_desde_payload(request_cliente_json)
@@ -449,20 +451,22 @@ def ejecutar_escenario_phoenix(orden_csv, user):
         perfil_juez = safe_str(
             request_cliente_json.get("customer_data", {}).get("classification", "")
         )
-        prompt_cliente = get_prompt_por_tipo(
-            tipo_cliente,
-            nombre_completo,
-            deuda_soles,
-            deuda_dolares,
-            identidad_del_cliente,
-            voluntad_de_pago,
-            capacidad_pago,
-            estilo_respuesta,
-            actitud_comportamiento,
-            barreras_whatssapp,
-            frases_comunes,
-            reglas_muy_importante,
-        )
+        prompt_cliente = ""
+        if usar_user_simulator:
+            prompt_cliente = get_prompt_por_tipo(
+                tipo_cliente,
+                nombre_completo,
+                deuda_soles,
+                deuda_dolares,
+                identidad_del_cliente,
+                voluntad_de_pago,
+                capacidad_pago,
+                estilo_respuesta,
+                actitud_comportamiento,
+                barreras_whatssapp,
+                frases_comunes,
+                reglas_muy_importante,
+            )
 
         print(f"[INICIO] Escenario {orden_csv + 1}: {id_test}")
         add_new_cic_to_customer_proc(request_cliente_json)
@@ -499,40 +503,43 @@ def ejecutar_escenario_phoenix(orden_csv, user):
             last_bot = bot_text
             conversa.append(("bot", bot_text))
         # ==========================================================
-        # SI LA SECUENCIA TERMINÓ Y EL BOT NO CERRÓ, ENTRA USER-SIMULATOR
+        # SI APLICA, AL TERMINAR LA SECUENCIA ENTRA USER-SIMULATOR
         # ==========================================================
-        turn_count = 0
-        while True:
-            if exit_status == 1:
-                status = "BOT indicó fin de conversación (exit_status=1)"
-                print(f"[EXIT_STATUS=1] Último mensaje del BOT: {bot_text}")
-                ultimate_response = data
-                break
-            if turn_count >= MAX_TURNS_SAFE:
-                status = "CORTADO: Exceso de turnos (posible bucle infinito)"
-                break
-            t0 = datetime.now()
-            sim_text = llamada_user_simulator(prompt_cliente, conversa)
-            sim_lat = round((datetime.now() - t0).total_seconds(), 2)
-            total_sim_latency_s += sim_lat
-            turn_count += 1
-            print(
-                f"[{id_test} | {nombre_completo} | {tipo_cliente}] CLIENTE => {repr(sim_text)}"
-            )
-            if not sim_text:
-                status = "ERROR: USER-SIMULATOR devolvió vacío"
-                break
-            if sim_text.strip().lower() in ["fin", "adios", "adiós"]:
-                status = "OK (simulador terminó)"
-                break
-            conversa.append(("usuario", sim_text))
-            bot_text, bot_lat, exit_status, data = send_bot_message(
-                url_msg, headers_msg, sim_text
-            )
-            total_bot_latency_s += bot_lat
-            bot_turns += 1
-            last_bot = bot_text
-            conversa.append(("bot", bot_text))
+        if usar_user_simulator:
+            turn_count = 0
+            while True:
+                if exit_status == 1:
+                    status = "BOT indicó fin de conversación (exit_status=1)"
+                    print(f"[EXIT_STATUS=1] Último mensaje del BOT: {bot_text}")
+                    ultimate_response = data
+                    break
+                if turn_count >= MAX_TURNS_SAFE:
+                    status = "CORTADO: Exceso de turnos (posible bucle infinito)"
+                    break
+                t0 = datetime.now()
+                sim_text = llamada_user_simulator(prompt_cliente, conversa)
+                sim_lat = round((datetime.now() - t0).total_seconds(), 2)
+                total_sim_latency_s += sim_lat
+                turn_count += 1
+                print(
+                    f"[{id_test} | {nombre_completo} | {tipo_cliente}] CLIENTE => {repr(sim_text)}"
+                )
+                if not sim_text:
+                    status = "ERROR: USER-SIMULATOR devolvió vacío"
+                    break
+                if sim_text.strip().lower() in ["fin", "adios", "adiós"]:
+                    status = "OK (simulador terminó)"
+                    break
+                conversa.append(("usuario", sim_text))
+                bot_text, bot_lat, exit_status, data = send_bot_message(
+                    url_msg, headers_msg, sim_text
+                )
+                total_bot_latency_s += bot_lat
+                bot_turns += 1
+                last_bot = bot_text
+                conversa.append(("bot", bot_text))
+        elif status == "OK" and exit_status != 1:
+            status = "OK (flujo sin user simulator)"
 
     except Exception as e:
         status = f"ERROR {type(e).__name__}: {e}"

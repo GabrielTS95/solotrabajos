@@ -11,9 +11,11 @@ from evaluation.juez import (
     normalizar_score_funcionalidad,
 )
 from core.utils import format_chat_id_log, format_td_hms, safe_str
+from config import EVAL_PROFILE, REPORT_TITLE
 
 
 def generar_reporte(rows, total_exec_time, wall_exec_time, output_dir):
+    solo_metricas = EVAL_PROFILE in {"no_agentico_default", "generic_agentic"}
     os.makedirs(output_dir, exist_ok=True)
     total_exec_time_formatted = format_td_hms(total_exec_time)
     wall_exec_time_formatted = format_td_hms(wall_exec_time)
@@ -551,11 +553,7 @@ def generar_reporte(rows, total_exec_time, wall_exec_time, output_dir):
             + ";\n</script>"
     )
 
-    html_table = f"""
-    <div class="table-card">
-    <div class="table-card-header">
-    <div class="table-title">Resultados por Escenario</div>
-    <div class="table-header-actions">
+    detalle_btn_html = "" if solo_metricas else """
     <button type="button" class="summary-modal-btn"
         data-content-tipo="detalle_cumplimiento"
         data-title="DETALLE CUMPLIMIENTO"
@@ -567,6 +565,16 @@ def generar_reporte(rows, total_exec_time, wall_exec_time, output_dir):
     <path d="M7 15l3-3 3 2 5-6"></path>
     </svg>
     </button>
+    """
+    table_view_class = "table-view-clas" if solo_metricas else "table-view-func"
+    resultado_func_th = "" if solo_metricas else "<th class='col-func'>Resultado</th>"
+
+    html_table = f"""
+    <div class="table-card">
+    <div class="table-card-header">
+    <div class="table-title">Resultados por Escenario</div>
+    <div class="table-header-actions">
+    {detalle_btn_html}
     <div class="result-filter" aria-label="Filtrar por resultado">
     <button type="button" class="filter-btn active" data-result-filter="TODOS" aria-label="Todos" title="Todos">
     <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2">
@@ -597,7 +605,7 @@ def generar_reporte(rows, total_exec_time, wall_exec_time, output_dir):
     </div>
     </div>
     <div class="table-responsive">
-    <table id="myTable" class="report-table table-view-func">
+    <table id="myTable" class="report-table {table_view_class}">
     <thead>
     <tr>
     <th>Cod. Test</th>
@@ -606,7 +614,7 @@ def generar_reporte(rows, total_exec_time, wall_exec_time, output_dir):
     {"".join([f"<th class='col-clas'>{html.escape(c)}</th>" for c in metricas_COLUMNAS_REPORTE])}
     <th class='col-clas'>Puntuación</th>
     <th>Tiempo Ejecución</th>
-    <th class='col-func'>Resultado</th>
+    {resultado_func_th}
     <th class='col-clas'>Resultado</th>
     <th>Acciones</th>
     </tr>
@@ -635,7 +643,43 @@ def generar_reporte(rows, total_exec_time, wall_exec_time, output_dir):
     )
     date_str = datetime.now().strftime("%d%m%Y_%H%M%S")
 
-    tres_card_html = f"""
+    if solo_metricas:
+        tres_card_html = f"""
+    <div class="premium-stats-grid">
+    <div class="premium-card">
+    <div class="premium-card-icon icon-total">🪄</div>
+    <div class="premium-card-label">Total Casos</div>
+    <div class="premium-card-value">{total_cases}</div>
+    <div class="premium-card-sub">Escenarios evaluados</div>
+    </div>
+    <div class="premium-card">
+    <div class="premium-card-icon icon-pass">✅</div>
+    <div class="premium-card-label">PASS</div>
+    <div class="premium-card-value value-pass">{total_pass_metricas}</div>
+    <div class="premium-card-sub">{pass_percent_metricas}% del total</div>
+    </div>
+    <div class="premium-card">
+    <div class="premium-card-icon icon-warning">⚠️</div>
+    <div class="premium-card-label">WARNING</div>
+    <div class="premium-card-value value-warning">{total_warning_metricas}</div>
+    <div class="premium-card-sub">{warning_percent_metricas}% del total</div>
+    </div>
+    <div class="premium-card">
+    <div class="premium-card-icon icon-fail">❌</div>
+    <div class="premium-card-label">FAIL</div>
+    <div class="premium-card-value value-fail">{total_fail_metricas}</div>
+    <div class="premium-card-sub">{fail_percent_metricas}% del total</div>
+    </div>
+    <div class="premium-card premium-card-score">
+    <div class="premium-card-icon icon-score">📊</div>
+    <div class="premium-card-label premium-white">Promedio métricas</div>
+    <div class="premium-card-value premium-white">{promedio_score_metricas:.2f}</div>
+    <div class="premium-card-sub premium-white-soft">Puntuación promedio de métricas</div>
+    </div>
+    </div>
+    """
+    else:
+        tres_card_html = f"""
     <div class="premium-stats-grid">
     <div class="premium-card">
     <div class="premium-card-icon icon-total">🪄</div>
@@ -716,7 +760,7 @@ def generar_reporte(rows, total_exec_time, wall_exec_time, output_dir):
     <div class="premium-header-wrap">
     <div class="premium-header">
     <div>
-    <h2 class="premium-header-title">Reporte de Evaluación de Agente Phoenix</h2>
+    <h2 class="premium-header-title">{html.escape(REPORT_TITLE)}</h2>
     <div class="premium-header-sub">
                    Generado: {datetime.now().strftime('%d-%m-%Y %H:%M:%S')} &nbsp;|&nbsp; Umbral Global: 80% &nbsp;|&nbsp; Casos De Prueba: {total_cases} &nbsp;|&nbsp; Tiempo de Ejecución: {wall_exec_time_formatted}
     </div>
@@ -731,7 +775,7 @@ def generar_reporte(rows, total_exec_time, wall_exec_time, output_dir):
     <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Reporte USER-SIMULATOR + Juez LLM</title>
+    <title>{html.escape(REPORT_TITLE)}</title>
     <style>
        :root {{
            --bg-1: #f4f7fc;
@@ -2488,6 +2532,19 @@ def generar_reporte(rows, total_exec_time, wall_exec_time, output_dir):
            cardsMetricas += renderMetricCard(item);
        }});
 
+       if ({str(solo_metricas).lower()}) {{
+           rich.innerHTML = `
+    <div class="metric-cards-grid">
+        ${{cardsMetricas}}
+    </div>
+    <div class="metric-summary-box">
+        <div class="metric-summary-title">Resumen métricas</div>
+        <div class="metric-summary-text">${{escaparHtml(resumenmetricas)}}</div>
+    </div>
+    `;
+           return;
+       }}
+
        let htmlMetricas = `
     <div class="metric-tabs-wrapper">
         <div class="metric-tabs">
@@ -2552,6 +2609,7 @@ def generar_reporte(rows, total_exec_time, wall_exec_time, output_dir):
     }});
 
     document.addEventListener('DOMContentLoaded', function() {{
+       const soloMetricas = {str(solo_metricas).lower()};
        const pageSize = 6;
        const table = document.getElementById('myTable');
        if (!table) return;
@@ -2569,7 +2627,7 @@ def generar_reporte(rows, total_exec_time, wall_exec_time, output_dir):
        const pagination = document.getElementById('tablePagination');
        let activeFilter = 'TODOS';
        let currentPage = 1;
-       let currentView = 'funcionalidades';
+       let currentView = soloMetricas ? 'metricas' : 'funcionalidades';
 
        function normalizeResult(value) {{
            const normalized = String(value || '').trim().toUpperCase();
@@ -2593,6 +2651,9 @@ def generar_reporte(rows, total_exec_time, wall_exec_time, output_dir):
        }}
 
        function switchSummary(target) {{
+           if (soloMetricas) {{
+               target = 'metricas';
+           }}
            currentView = target === 'metricas' ? 'metricas' : 'funcionalidades';
 
            summaryButtons.forEach(function(btn) {{
@@ -2688,7 +2749,7 @@ def generar_reporte(rows, total_exec_time, wall_exec_time, output_dir):
            }});
        }});
 
-       switchSummary('funcionalidades');
+       switchSummary(soloMetricas ? 'metricas' : 'funcionalidades');
     }});
 
     </script>

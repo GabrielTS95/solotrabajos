@@ -7,10 +7,14 @@ except ImportError:
     def load_dotenv(*args, **kwargs):
         return False
 
-
 BASE_DIR = Path(__file__).resolve().parent
 AMBIENTES_PERMITIDOS = {"desa", "certi", "prod"}
-TIPOS_AGENTE_PERMITIDOS = {"agentico", "no_agentico"}
+TIPOS_AGENTE_PERMITIDOS = {"agentico", "hibrido", "no_agentico"}
+EVAL_PROFILES_PERMITIDOS = {
+    "phoenix_cobranzas",
+    "generic_agentic",
+    "no_agentico_default",
+}
 
 
 def _obtener_app_env() -> str:
@@ -69,6 +73,14 @@ def _get_required_flag_env(name: str) -> bool:
     return value == "1"
 
 
+def _get_optional_env(name: str, default: str = "") -> str:
+    value = os.getenv(name)
+    if value is None:
+        return default
+    value = value.strip()
+    return value if value else default
+
+
 def _get_tipo_agente() -> str:
     tipo_agente = _get_required_env("TIPO_AGENTE").lower()
     if tipo_agente not in TIPOS_AGENTE_PERMITIDOS:
@@ -78,6 +90,20 @@ def _get_tipo_agente() -> str:
         )
     return tipo_agente
 
+
+def _get_eval_profile(tipo_agente: str) -> str:
+    eval_profile = os.getenv("EVAL_PROFILE", "").strip().lower()
+    if not eval_profile:
+        if tipo_agente == "no_agentico":
+            return "no_agentico_default"
+        return "phoenix_cobranzas"
+
+    if eval_profile not in EVAL_PROFILES_PERMITIDOS:
+        permitidos = ", ".join(sorted(EVAL_PROFILES_PERMITIDOS))
+        raise RuntimeError(
+            f"EVAL_PROFILE invalido: {eval_profile!r}. Valores permitidos: {permitidos}"
+        )
+    return eval_profile
 
 AZURE_OPENAI_API_KEY = _get_required_env("AZURE_OPENAI_API_KEY")
 AZURE_OPENAI_ENDPOINT = _get_required_env("AZURE_OPENAI_ENDPOINT")
@@ -91,6 +117,7 @@ MAX_TURNS_SAFE = _get_required_int_env("MAX_TURNS_SAFE")
 MAX_WORKERS = _get_required_int_env("MAX_WORKERS")
 DEBUG_HTTP = _get_required_flag_env("DEBUG_HTTP")
 TIPO_AGENTE = _get_tipo_agente()
+EVAL_PROFILE = _get_eval_profile(TIPO_AGENTE)
 
 URL_CHAT = _get_required_env("URL_CHAT")
 CUSTOMER_PROC_URL = _get_required_env("CUSTOMER_PROC_URL")
@@ -98,6 +125,7 @@ CUSTOMER_PROC_URL = _get_required_env("CUSTOMER_PROC_URL")
 CSV_PATH = _get_required_env("CSV_PATH")
 CSV_SEP = _get_required_env("CSV_SEP")
 OUTPUT_DIR = _get_required_env("OUTPUT_DIR")
+REPORT_TITLE = _get_optional_env("REPORT_TITLE", "Reporte de Evaluacion de Agente Phoenix")
 
 
 def obtener_max_workers(total_escenarios: int) -> int:
