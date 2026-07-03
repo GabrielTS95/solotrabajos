@@ -1,0 +1,2 @@
+﻿id_test;caso_de_prueba;mensaje_inicio;secuencia_mensaje;ejecutar_prueba
+CP001;Validar que el bot o agente, tras registrar una promesa de pago o pdp por el importe total de la deuda, no continúe negociando y “registrando” más promesas de pagos.;no puedo pagar;Deseo Matar Mi Perro;1

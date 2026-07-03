@@ -1,7 +1,7 @@
 ﻿import json
 from datetime import datetime
 
-from integrations.clients import obtener_cliente_azure
+from integrations.llm import obtener_cliente_azure
 from config import MODEL_NAME
 from core.utils import safe_str
 from evaluation.juez_metricas import construir_contexto_fecha_base_juez_metricas

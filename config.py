@@ -15,6 +15,7 @@ EVAL_PROFILES_PERMITIDOS = {
     "generic_agentic",
     "no_agentico_default",
 }
+AGENT_ADAPTERS_PERMITIDOS = {"phoenix", "no_agentico_rest"}
 
 
 def _obtener_app_env() -> str:
@@ -73,6 +74,29 @@ def _get_required_flag_env(name: str) -> bool:
     return value == "1"
 
 
+def _get_optional_int_env(name: str, default: int) -> int:
+    value = os.getenv(name, "").strip()
+    if not value:
+        return default
+    try:
+        return int(value)
+    except ValueError as exc:
+        raise RuntimeError(
+            f"Variable {name} debe ser un numero entero. Valor actual: {value!r}"
+        ) from exc
+
+
+def _get_optional_flag_env(name: str, default: bool = False) -> bool:
+    value = os.getenv(name, "").strip()
+    if not value:
+        return default
+    if value not in {"0", "1"}:
+        raise RuntimeError(
+            f"Variable {name} debe ser 0 o 1. Valor actual: {value!r}"
+        )
+    return value == "1"
+
+
 def _get_optional_env(name: str, default: str = "") -> str:
     value = os.getenv(name)
     if value is None:
@@ -105,22 +129,62 @@ def _get_eval_profile(tipo_agente: str) -> str:
         )
     return eval_profile
 
+
+def _get_agent_adapter() -> str:
+    agent_adapter = os.getenv("AGENT_ADAPTER", "phoenix").strip().lower()
+    if agent_adapter not in AGENT_ADAPTERS_PERMITIDOS:
+        permitidos = ", ".join(sorted(AGENT_ADAPTERS_PERMITIDOS))
+        raise RuntimeError(
+            f"AGENT_ADAPTER invalido: {agent_adapter!r}. "
+            f"Valores permitidos: {permitidos}"
+        )
+    return agent_adapter
+
+
+TIPO_AGENTE = _get_tipo_agente()
+EVAL_PROFILE = _get_eval_profile(TIPO_AGENTE)
+AGENT_ADAPTER = _get_agent_adapter()
+
 AZURE_OPENAI_API_KEY = _get_required_env("AZURE_OPENAI_API_KEY")
 AZURE_OPENAI_ENDPOINT = _get_required_env("AZURE_OPENAI_ENDPOINT")
 AZURE_OPENAI_API_VERSION = _get_required_env("AZURE_OPENAI_API_VERSION")
 
 # En Azure OpenAI, model=deployment name
 MODEL_NAME = _get_required_env("MODEL_NAME")
-API_KEY = _get_required_env("BOT_API_KEY")
+API_KEY = (
+    _get_required_env("BOT_API_KEY")
+    if AGENT_ADAPTER == "phoenix"
+    else _get_optional_env("BOT_API_KEY")
+)
 
 MAX_TURNS_SAFE = _get_required_int_env("MAX_TURNS_SAFE")
 MAX_WORKERS = _get_required_int_env("MAX_WORKERS")
 DEBUG_HTTP = _get_required_flag_env("DEBUG_HTTP")
-TIPO_AGENTE = _get_tipo_agente()
-EVAL_PROFILE = _get_eval_profile(TIPO_AGENTE)
 
-URL_CHAT = _get_required_env("URL_CHAT")
-CUSTOMER_PROC_URL = _get_required_env("CUSTOMER_PROC_URL")
+URL_CHAT = (
+    _get_required_env("URL_CHAT")
+    if AGENT_ADAPTER == "phoenix"
+    else _get_optional_env("URL_CHAT")
+)
+CUSTOMER_PROC_URL = (
+    _get_required_env("CUSTOMER_PROC_URL")
+    if AGENT_ADAPTER == "phoenix"
+    else _get_optional_env("CUSTOMER_PROC_URL")
+)
+
+NO_AGENTICO_REST_URL = _get_optional_env("NO_AGENTICO_REST_URL")
+NO_AGENTICO_REST_API_KEY = _get_optional_env("NO_AGENTICO_REST_API_KEY")
+NO_AGENTICO_REST_AUTH_HEADER = _get_optional_env(
+    "NO_AGENTICO_REST_AUTH_HEADER", "X-API-key"
+)
+NO_AGENTICO_REST_TIMEOUT = _get_optional_int_env("NO_AGENTICO_REST_TIMEOUT", 600)
+NO_AGENTICO_REST_VERIFY_SSL = _get_optional_flag_env(
+    "NO_AGENTICO_REST_VERIFY_SSL", True
+)
+NO_AGENTICO_REST_RESPONSE_FIELD = _get_optional_env("NO_AGENTICO_REST_RESPONSE_FIELD")
+NO_AGENTICO_REST_PAYLOAD_MODE = _get_optional_env(
+    "NO_AGENTICO_REST_PAYLOAD_MODE", "default"
+).lower()
 
 CSV_PATH = _get_required_env("CSV_PATH")
 CSV_SEP = _get_required_env("CSV_SEP")

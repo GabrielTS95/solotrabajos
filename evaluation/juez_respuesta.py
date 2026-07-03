@@ -5,7 +5,7 @@ from config import MODEL_NAME
 from core.utils import safe_str
 from evaluation.juez_funcionalidades import FUNCIONALIDADES_JUEZ
 from evaluation.juez_metricas import _normalizar_score_01, clasificar_cumplimiento_metricas
-from integrations.clients import obtener_cliente_azure
+from integrations.llm import obtener_cliente_azure
 
 
 def _base_resultado_no_agentico(score, resultado, justificacion, raw_json, latency_s):

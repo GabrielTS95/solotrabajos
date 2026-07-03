@@ -16,6 +16,7 @@ from evaluation.juez_respuesta import (
     build_error_juez_respuesta,
     llm_judge_respuesta,
 )
+from evaluation.profiles import resolver_pipeline
 
 __all__ = [
     "FUNCIONALIDADES_JUEZ",
@@ -54,15 +55,8 @@ def _adjuntar_metricas(eval_juez, metricas_eval):
     return eval_juez
 
 
-EVAL_PROFILE_PIPELINE = {
-    "phoenix_cobranzas": "funcionalidades",
-    "generic_agentic": "respuesta",
-    "no_agentico_default": "respuesta",
-}
-
-
 def _resolver_pipeline() -> str:
-    return EVAL_PROFILE_PIPELINE.get(EVAL_PROFILE, "funcionalidades")
+    return resolver_pipeline(EVAL_PROFILE)
 
 
 def build_default_juez_result(motivo=""):

@@ -10,12 +10,13 @@ from evaluation.juez import (
     _normalizar_score_01,
     normalizar_score_funcionalidad,
 )
+from evaluation.profiles import resolver_pipeline
 from core.utils import format_chat_id_log, format_td_hms, safe_str
 from config import EVAL_PROFILE, REPORT_TITLE
 
 
 def generar_reporte(rows, total_exec_time, wall_exec_time, output_dir):
-    solo_metricas = EVAL_PROFILE in {"no_agentico_default", "generic_agentic"}
+    solo_metricas = resolver_pipeline(EVAL_PROFILE) == "respuesta"
     os.makedirs(output_dir, exist_ok=True)
     total_exec_time_formatted = format_td_hms(total_exec_time)
     wall_exec_time_formatted = format_td_hms(wall_exec_time)
