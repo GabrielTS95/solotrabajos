@@ -3,7 +3,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta
 
 from adapters.factory import build_agent_client
-from config import MAX_TURNS_SAFE, TIPO_AGENTE, obtener_max_workers
+from config import MAX_TURNS_SAFE, obtener_max_workers
 from evaluation.juez import (
     FUNCIONALIDADES_JUEZ,
     build_default_juez_result,
@@ -171,10 +171,7 @@ def ejecutar_escenario(orden_csv, user, agent_client=None, adapter_name=None):
     )
     eval_juez.update(_campos_metricas(metricas_eval))
 
-    requiere_user_simulator = TIPO_AGENTE in {"agentico", "hibrido"}
-    usar_user_simulator = requiere_user_simulator and hasattr(
-        agent_client, "simulate_user"
-    )
+    usar_user_simulator = hasattr(agent_client, "simulate_user")
 
     try:
         prepared = agent_client.prepare_scenario(user)
@@ -223,12 +220,7 @@ def ejecutar_escenario(orden_csv, user, agent_client=None, adapter_name=None):
             exit_status = response.exit_status
             conversa.append(("bot", bot_text))
 
-        if requiere_user_simulator and not usar_user_simulator:
-            status = (
-                f"ERROR: TIPO_AGENTE={TIPO_AGENTE!r} requiere user_simulator, "
-                f"pero el adapter {getattr(agent_client, 'name', '')!r} no lo soporta"
-            )
-        elif usar_user_simulator:
+        if usar_user_simulator:
             turn_count = 0
             while True:
                 if exit_status == 1:

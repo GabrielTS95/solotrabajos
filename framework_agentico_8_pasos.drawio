@@ -1,0 +1,103 @@
+<mxfile host="app.diagrams.net" modified="2026-07-07T00:00:00.000Z" agent="Codex" version="24.7.17">
+  <diagram id="framework-agentico-8-pasos" name="IA-AGENT">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="IA-AGENT - Framework para Agentes con IA Agentica" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=28;fontStyle=1;fontColor=#1F2937;" vertex="1" parent="1">
+          <mxGeometry x="280" y="30" width="1040" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" value="Evaluar comportamiento, herramientas, estado, planificacion y respuesta final" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontColor=#4B5563;" vertex="1" parent="1">
+          <mxGeometry x="320" y="78" width="960" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s1" value="1. Diseno del Dataset de Evaluacion&#xa;&#xa;- Objetivo del agente&#xa;- Mensaje inicial&#xa;- Secuencia opcional&#xa;- Herramientas esperadas&#xa;- Estado esperado&#xa;- Reglas del juez" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F1FF;strokeColor=#4A86E8;fontSize=13;fontStyle=1;align=left;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="70" y="150" width="300" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="s2" value="2. Carga de Configuracion&#xa;&#xa;- .env / config.py&#xa;- AGENT_ADAPTER&#xa;- CONVERSATION_DRIVER&#xa;- EVAL_PROFILE&#xa;- Endpoints y modelo LLM" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F1FF;strokeColor=#4A86E8;fontSize=13;fontStyle=1;align=left;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="450" y="150" width="300" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="s3" value="3. Preparacion del Escenario&#xa;&#xa;- Scenario Loader&#xa;- Normalizacion CSV&#xa;- Metadata&#xa;- Estado inicial&#xa;- Payload base del adapter" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F1FF;strokeColor=#4A86E8;fontSize=13;fontStyle=1;align=left;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="830" y="150" width="300" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="s4" value="4. Seleccion e Invocacion del Adapter&#xa;&#xa;- Phoenix&#xa;- Custom REST&#xa;- LangGraph / OpenAI Agents&#xa;- Traduce contrato generico a API real" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontSize=13;fontStyle=1;align=left;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="1210" y="150" width="300" height="160" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s5" value="5. Ejecucion del Comportamiento Agentico&#xa;&#xa;- Planificacion&#xa;- Razonamiento exportado&#xa;- Tool calls&#xa;- Memoria / estado&#xa;- Respuesta parcial o final" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontSize=13;fontStyle=1;align=left;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="1210" y="430" width="300" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="s6" value="6. Conduccion de la Conversacion&#xa;&#xa;- csv_sequence&#xa;- single_turn&#xa;- user_simulator opcional&#xa;&#xa;Nota: ser agentico no implica usar siempre simulador." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontSize=13;fontStyle=1;align=left;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="830" y="430" width="300" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="s7" value="7. Construccion de la Traza de Ejecucion&#xa;&#xa;- Mensajes&#xa;- Tool calls&#xa;- Estado inicial/final&#xa;- Errores&#xa;- Latencias&#xa;- Raw responses" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F1FF;strokeColor=#4A86E8;fontSize=13;fontStyle=1;align=left;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="450" y="430" width="300" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="s8" value="8. Evaluacion y Generacion de Reportes&#xa;&#xa;- Juez respuesta&#xa;- Juez metricas&#xa;- Juez herramientas&#xa;- Juez estado&#xa;- Juez planificacion&#xa;- HTML / CSV / JSON traces" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8CECC;strokeColor=#B85450;fontSize=13;fontStyle=1;align=left;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="70" y="430" width="300" height="170" as="geometry" />
+        </mxCell>
+
+        <mxCell id="icon_s1" value="📊" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#4A86E8;strokeWidth=2;fontSize=24;align=center;verticalAlign=middle;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="315" y="160" width="44" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="icon_s2" value="⚙" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#4A86E8;strokeWidth=2;fontSize=25;align=center;verticalAlign=middle;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="695" y="160" width="44" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="icon_s3" value="🧩" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#4A86E8;strokeWidth=2;fontSize=23;align=center;verticalAlign=middle;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1075" y="160" width="44" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="icon_s4" value="🔌" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#D6B656;strokeWidth=2;fontSize=23;align=center;verticalAlign=middle;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1455" y="160" width="44" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="icon_s5" value="🧠" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#82B366;strokeWidth=2;fontSize=23;align=center;verticalAlign=middle;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1455" y="440" width="44" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="icon_s6" value="💬" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#D6B656;strokeWidth=2;fontSize=23;align=center;verticalAlign=middle;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1075" y="440" width="44" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="icon_s7" value="🧾" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#4A86E8;strokeWidth=2;fontSize=23;align=center;verticalAlign=middle;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="695" y="440" width="44" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="icon_s8" value="📈" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#B85450;strokeWidth=2;fontSize=23;align=center;verticalAlign=middle;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="315" y="440" width="44" height="44" as="geometry" />
+        </mxCell>
+
+        <mxCell id="tech" value="Tecnologias Base: Python | Pandas | Requests / HTTPX | Azure OpenAI | dotenv | unittest | Git / GitHub | diagrams.net" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3F4F6;strokeColor=#9CA3AF;fontSize=14;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="210" y="690" width="1180" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend_core" value="Core generico" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F1FF;strokeColor=#4A86E8;fontSize=12;align=center;" vertex="1" parent="1">
+          <mxGeometry x="470" y="790" width="160" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_adapter" value="Adapter especifico" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontSize=12;align=center;" vertex="1" parent="1">
+          <mxGeometry x="700" y="790" width="160" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_eval" value="Evaluacion reusable" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8CECC;strokeColor=#B85450;fontSize=12;align=center;" vertex="1" parent="1">
+          <mxGeometry x="930" y="790" width="170" height="38" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#4B5563;strokeWidth=2;" edge="1" parent="1" source="s1" target="s2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#4B5563;strokeWidth=2;" edge="1" parent="1" source="s2" target="s3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#4B5563;strokeWidth=2;" edge="1" parent="1" source="s3" target="s4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#4B5563;strokeWidth=2;" edge="1" parent="1" source="s4" target="s5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#4B5563;strokeWidth=2;" edge="1" parent="1" source="s5" target="s6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#4B5563;strokeWidth=2;" edge="1" parent="1" source="s6" target="s7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#4B5563;strokeWidth=2;" edge="1" parent="1" source="s7" target="s8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

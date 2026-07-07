@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch
 
-from adapters.no_agentico_rest.agent import NoAgenticoRestClient
+from adapters.agentico_rest.agent import AgenticoRestClient
 from adapters.factory import build_agent_client
 from core.contracts import AgentResponse, ChatSession, PreparedScenario
 from core.runner import ejecutar_escenario
@@ -73,9 +73,9 @@ class AdapterRunnerTests(unittest.TestCase):
         self.assertEqual(build_agent_client("phoenix").name, "phoenix")
         self.assertTrue(hasattr(build_agent_client("phoenix"), "simulate_user"))
 
-    def test_factory_resuelve_no_agentico_rest(self):
-        client = build_agent_client("no_agentico_rest")
-        self.assertEqual(client.name, "no_agentico_rest")
+    def test_factory_resuelve_agentico_rest(self):
+        client = build_agent_client("agentico_rest")
+        self.assertEqual(client.name, "agentico_rest")
         self.assertFalse(hasattr(client, "simulate_user"))
 
     def test_factory_rechaza_adapter_desconocido(self):
@@ -111,13 +111,12 @@ class AdapterRunnerTests(unittest.TestCase):
             "reglas_negocio_cliente": "Regla cliente.",
         }
 
-        with patch("core.runner.TIPO_AGENTE", "no_agentico"):
-            with patch("core.runner.llm_judge_metricas", side_effect=fake_judge):
-                row = ejecutar_escenario(
-                    0,
-                    user,
-                    agent_client=MockAgentClient(),
-                )
+        with patch("core.runner.llm_judge_metricas", side_effect=fake_judge):
+            row = ejecutar_escenario(
+                0,
+                user,
+                agent_client=MockAgentClient(),
+            )
 
         self.assertEqual(row["chat_id"], "mock-chat")
         self.assertEqual(row["status_prueba"], "PASS")
@@ -125,7 +124,7 @@ class AdapterRunnerTests(unittest.TestCase):
         self.assertIn("Respuesta mock", row["answer_last_bot"])
         self.assertIn('"adapter": "mock"', row["payload"])
 
-    def test_runner_reporta_error_si_adapter_no_soporta_user_simulator(self):
+    def test_runner_permite_adapter_agentico_sin_user_simulator(self):
         user = {
             "id_test": "CP-MOCK",
             "mensaje_inicio": "hola",
@@ -136,19 +135,18 @@ class AdapterRunnerTests(unittest.TestCase):
             "reglas_negocio_cliente": "Regla cliente.",
         }
 
-        with patch("core.runner.TIPO_AGENTE", "agentico"):
-            with patch("core.runner.llm_judge_metricas", side_effect=fake_judge):
-                row = ejecutar_escenario(
-                    0,
-                    user,
-                    agent_client=MockAgentClient(),
-                )
+        with patch("core.runner.llm_judge_metricas", side_effect=fake_judge):
+            row = ejecutar_escenario(
+                0,
+                user,
+                agent_client=MockAgentClient(),
+            )
 
-        self.assertIn("no lo soporta", row["status"])
+        self.assertEqual(row["status"], "OK")
         self.assertEqual(row["status_prueba"], "PASS")
 
-    def test_no_agentico_rest_envia_mensaje_y_parsea_respuesta(self):
-        client = NoAgenticoRestClient()
+    def test_agentico_rest_envia_mensaje_y_parsea_respuesta(self):
+        client = AgenticoRestClient()
         prepared = client.prepare_scenario(
             {
                 "id_test": "CP-REST",
@@ -159,11 +157,11 @@ class AdapterRunnerTests(unittest.TestCase):
         session = client.start_chat(prepared)
 
         with patch(
-            "adapters.no_agentico_rest.client.NO_AGENTICO_REST_URL",
+            "adapters.agentico_rest.client.AGENTICO_REST_URL",
             "https://example.test/agent",
         ):
             with patch(
-                "adapters.no_agentico_rest.client.requests.post",
+                "adapters.agentico_rest.client.requests.post",
                 return_value=FakeRestResponse(),
             ) as post:
                 response = client.send_message(session, "hola")

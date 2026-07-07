@@ -1,7 +1,7 @@
 EVAL_PROFILE_PIPELINE = {
     "phoenix_cobranzas": "funcionalidades",
-    "generic_agentic": "respuesta",
-    "no_agentico_default": "respuesta",
+    "phoenix_cobranzas_agentico": "funcionalidades",
+    "agentico_default": "respuesta",
 }
 
 

@@ -4,13 +4,13 @@ from datetime import datetime
 import requests
 
 from config import (
-    NO_AGENTICO_REST_API_KEY,
-    NO_AGENTICO_REST_AUTH_HEADER,
-    NO_AGENTICO_REST_PAYLOAD_MODE,
-    NO_AGENTICO_REST_RESPONSE_FIELD,
-    NO_AGENTICO_REST_TIMEOUT,
-    NO_AGENTICO_REST_URL,
-    NO_AGENTICO_REST_VERIFY_SSL,
+    AGENTICO_REST_API_KEY,
+    AGENTICO_REST_AUTH_HEADER,
+    AGENTICO_REST_PAYLOAD_MODE,
+    AGENTICO_REST_RESPONSE_FIELD,
+    AGENTICO_REST_TIMEOUT,
+    AGENTICO_REST_URL,
+    AGENTICO_REST_VERIFY_SSL,
 )
 from core.contracts import AgentResponse
 from core.utils import safe_str
@@ -18,8 +18,8 @@ from core.utils import safe_str
 
 def _headers():
     headers = {"Content-Type": "application/json"}
-    if NO_AGENTICO_REST_API_KEY:
-        headers[NO_AGENTICO_REST_AUTH_HEADER] = NO_AGENTICO_REST_API_KEY
+    if AGENTICO_REST_API_KEY:
+        headers[AGENTICO_REST_AUTH_HEADER] = AGENTICO_REST_API_KEY
     return headers
 
 
@@ -39,7 +39,7 @@ def _get_path(data, path):
 
 
 def _extract_text(data):
-    configured_field = safe_str(NO_AGENTICO_REST_RESPONSE_FIELD).strip()
+    configured_field = safe_str(AGENTICO_REST_RESPONSE_FIELD).strip()
     if configured_field:
         configured_value = _get_path(data, configured_field)
         if configured_value is not None:
@@ -96,7 +96,7 @@ def _extract_exit_status(data):
 
 
 def _build_payload(session, message):
-    if NO_AGENTICO_REST_PAYLOAD_MODE == "message_only":
+    if AGENTICO_REST_PAYLOAD_MODE == "message_only":
         return {"message": message}
 
     history = session.raw.setdefault("history", [])
@@ -111,9 +111,9 @@ def _build_payload(session, message):
 
 
 def send_rest_message(session, message):
-    if not NO_AGENTICO_REST_URL:
+    if not AGENTICO_REST_URL:
         raise RuntimeError(
-            "NO_AGENTICO_REST_URL no configurado para AGENT_ADAPTER=no_agentico_rest"
+            "AGENTICO_REST_URL no configurado para AGENT_ADAPTER=agentico_rest"
         )
 
     payload = _build_payload(session, message)
@@ -123,11 +123,11 @@ def send_rest_message(session, message):
 
     t0 = datetime.now()
     response = requests.post(
-        NO_AGENTICO_REST_URL,
+        AGENTICO_REST_URL,
         json=payload,
         headers=_headers(),
-        timeout=NO_AGENTICO_REST_TIMEOUT,
-        verify=NO_AGENTICO_REST_VERIFY_SSL,
+        timeout=AGENTICO_REST_TIMEOUT,
+        verify=AGENTICO_REST_VERIFY_SSL,
     )
     latency_s = round((datetime.now() - t0).total_seconds(), 2)
     response.raise_for_status()

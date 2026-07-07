@@ -1,0 +1,2 @@
+id_test;caso_de_prueba;mensaje_inicio;secuencia_mensaje;ejecutar_prueba
+CP001;Validar que el agente registre una promesa de pago y no continue negociando despues de confirmar el compromiso.;no puedo pagar;Deseo registrar una promesa de pago para el viernes;1

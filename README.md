@@ -1,18 +1,8 @@
-# framework_base_agentes
+# IA-AGENT
 
-Framework base para ejecutar y evaluar agentes conversacionales que usan IA generativa o flujos agenticos. Permite leer escenarios desde CSV, ejecutar conversaciones contra un agente externo, evaluar la conversacion con jueces LLM y generar reportes HTML/CSV.
+Framework base para ejecutar y evaluar agentes que usan IA agentica. Esta base queda enfocada solo en IA-AGENT; la base para casos puramente generativos se manejara aparte como IA-GEN.
 
-La arquitectura actual separa el nucleo del framework de las implementaciones concretas de agentes:
-
-```text
-core/                  Orquestacion generica de escenarios.
-adapters/              Integraciones concretas con agentes externos.
-integrations/          Clientes reutilizables, como Azure OpenAI.
-evaluation/            Jueces de respuesta, funcionalidades y metricas.
-reporting/             Generacion de reportes HTML y CSV.
-data/                  CSV de entrada.
-resultados/            Reportes generados.
-```
+IA-AGENT permite leer escenarios desde CSV, invocar un agente externo mediante un adapter, conservar la conversacion, evaluar la salida con jueces LLM y generar reportes HTML/CSV.
 
 ## Estructura
 
@@ -33,7 +23,7 @@ framework_base_agentes/
 |
 |-- adapters/
 |   |-- factory.py
-|   |-- no_agentico_rest/
+|   |-- agentico_rest/
 |   |   |-- agent.py
 |   |   |-- client.py
 |   |-- phoenix/
@@ -60,7 +50,7 @@ framework_base_agentes/
 |
 |-- data/
 |   |-- casos_de_prueba_desa.csv
-|   |-- agentes_no_agentico.csv
+|   |-- agentes_agenticos.csv
 ```
 
 ## Conceptos
@@ -72,8 +62,8 @@ Un adapter es la pieza que sabe hablar con un agente externo.
 Adapters disponibles:
 
 ```text
-phoenix             Agente Phoenix/cobranzas.
-no_agentico_rest    Agente no agentico expuesto por API REST.
+phoenix         Agente Phoenix/cobranzas.
+agentico_rest  Agente agentico expuesto por API REST.
 ```
 
 Se selecciona con:
@@ -82,31 +72,30 @@ Se selecciona con:
 AGENT_ADAPTER=phoenix
 ```
 
-Si no se define `AGENT_ADAPTER`, el framework usa `phoenix` por compatibilidad.
+Si no se define `AGENT_ADAPTER`, el framework usa `phoenix`.
 
-### Tipo de agente
+### Tipo De Agente
 
-`TIPO_AGENTE` define como se ejecuta la conversacion:
+En IA-AGENT el valor valido es:
 
 ```text
-agentico       Usa secuencia del CSV + user simulator.
-hibrido        Usa secuencia del CSV + user simulator.
-no_agentico    Usa solo mensaje inicial + secuencia del CSV.
+agentico
 ```
 
-Importante: el `user_simulator` y los prompts `AR`, `I` y `R` son exclusivos del adapter Phoenix. El adapter `no_agentico_rest` no implementa simulador.
+El `user_simulator` no es obligatorio para todos los agentes agenticos. El runner lo usa solo si el adapter implementa `simulate_user`.
 
-### Perfil de evaluacion
+Importante: el `user_simulator` y los prompts `AR`, `I` y `R` son exclusivos del adapter Phoenix, ubicados en `adapters/phoenix/`.
+
+### Perfil De Evaluacion
 
 `EVAL_PROFILE` define que jueces se ejecutan:
 
 ```text
-phoenix_cobranzas     juez_funcionalidades + juez_metricas
-generic_agentic       juez_respuesta + juez_metricas
-no_agentico_default   juez_respuesta + juez_metricas
+phoenix_cobranzas   juez_funcionalidades + juez_metricas
+agentico_default    juez_respuesta + juez_metricas
 ```
 
-La evaluacion de metricas en `evaluation/juez_metricas.py` puede usarse con cualquier adapter.
+La evaluacion de metricas en `evaluation/juez_metricas.py` puede usarse con cualquier adapter IA-AGENT.
 
 ## Instalacion
 
@@ -138,11 +127,171 @@ $env:CONFIRM_PROD="1"
 python main.py
 ```
 
+## Ejecuciones Soportadas
+
+Actualmente el framework IA-AGENT permite 2 ejecuciones reales y una tercera ejecucion por extension.
+
+### 1. Ejecucion Phoenix
+
+Usa esta ejecucion cuando el agente a evaluar sea Phoenix/cobranzas.
+
+Configuracion minima:
+
+```env
+AGENT_ADAPTER=phoenix
+TIPO_AGENTE=agentico
+EVAL_PROFILE=phoenix_cobranzas
+CSV_PATH=.\data\casos_de_prueba_desa.csv
+```
+
+Tambien requiere:
+
+```env
+BOT_API_KEY=...
+URL_CHAT=https://...
+CUSTOMER_PROC_URL=https://...
+
+AZURE_OPENAI_ENDPOINT=https://...
+AZURE_OPENAI_API_KEY=...
+AZURE_OPENAI_API_VERSION=...
+MODEL_NAME=...
+```
+
+Que ejecuta:
+
+```text
+CSV -> payload Phoenix -> customer proc -> chat Phoenix -> user_simulator -> jueces -> reporte
+```
+
+Carpetas y archivos principales:
+
+```text
+data/casos_de_prueba_desa.csv
+adapters/phoenix/
+adapters/phoenix/payload.py
+adapters/phoenix/client.py
+adapters/phoenix/prompts.py
+adapters/phoenix/simulator.py
+evaluation/juez_funcionalidades.py
+evaluation/juez_metricas.py
+reporting/report.py
+```
+
+Consideraciones:
+
+- El `user_simulator` es exclusivo de Phoenix.
+- Los prompts `AR`, `I` y `R` viven solo en `adapters/phoenix/prompts.py`.
+- El perfil recomendado es `phoenix_cobranzas`, porque usa juez de funcionalidades mas metricas.
+
+### 2. Ejecucion Agentico REST
+
+Usa esta ejecucion cuando el agente IA-AGENT no sea Phoenix y exponga un endpoint REST.
+
+Configuracion minima:
+
+```env
+AGENT_ADAPTER=agentico_rest
+TIPO_AGENTE=agentico
+EVAL_PROFILE=agentico_default
+CSV_PATH=.\data\agentes_agenticos.csv
+```
+
+Tambien requiere:
+
+```env
+AGENTICO_REST_URL=https://tu-api/agente
+AGENTICO_REST_API_KEY=opcional
+AGENTICO_REST_AUTH_HEADER=X-API-key
+AGENTICO_REST_PAYLOAD_MODE=default
+AGENTICO_REST_RESPONSE_FIELD=respuesta
+AGENTICO_REST_TIMEOUT=600
+AGENTICO_REST_VERIFY_SSL=1
+
+AZURE_OPENAI_ENDPOINT=https://...
+AZURE_OPENAI_API_KEY=...
+AZURE_OPENAI_API_VERSION=...
+MODEL_NAME=...
+```
+
+Que ejecuta:
+
+```text
+CSV -> metadata generica -> endpoint REST -> secuencia CSV -> juez_respuesta -> juez_metricas -> reporte
+```
+
+Carpetas y archivos principales:
+
+```text
+data/agentes_agenticos.csv
+adapters/agentico_rest/
+adapters/agentico_rest/agent.py
+adapters/agentico_rest/client.py
+evaluation/juez_respuesta.py
+evaluation/juez_metricas.py
+reporting/report.py
+```
+
+Consideraciones:
+
+- No usa `user_simulator`.
+- No usa prompts `AR`, `I` ni `R`.
+- No usa `BOT_API_KEY`, `URL_CHAT` ni `CUSTOMER_PROC_URL`.
+- Usa `secuencia_mensaje` del CSV para conducir los turnos adicionales.
+- El perfil recomendado es `agentico_default`, porque usa juez de respuesta mas metricas.
+
+### 3. Ejecucion Con Nuevo Adapter IA-AGENT
+
+Esta ejecucion no existe como adapter concreto todavia, pero el framework ya esta preparado para agregarla.
+
+Requiere crear una carpeta nueva:
+
+```text
+adapters/mi_nuevo_agente/
+```
+
+Y registrar el adapter en:
+
+```text
+adapters/factory.py
+config.py
+```
+
+Contrato minimo que debe implementar:
+
+```python
+class MiNuevoAgenteClient:
+    name = "mi_nuevo_agente"
+
+    def prepare_scenario(self, scenario_data):
+        ...
+
+    def start_chat(self, prepared):
+        ...
+
+    def send_message(self, session, message):
+        ...
+```
+
+Capacidad opcional:
+
+```python
+def simulate_user(self, scenario, prepared, history):
+    ...
+```
+
+Cuando se agrega esta capacidad, el runner puede continuar la conversacion con simulador. Si no se agrega, el flujo sigue siendo valido y se ejecuta con `mensaje_inicio` mas `secuencia_mensaje`.
+
+Resumen:
+
+```text
+1. phoenix        Ejecucion real especializada para Phoenix/cobranzas.
+2. agentico_rest Ejecucion real generica para agentes IA-AGENT por REST.
+3. nuevo adapter Ejecucion extensible para otro agente agentico.
+```
+
 ## Configuracion Comun
 
 Todas las variables se leen desde `.env.<ambiente>`, por ejemplo `.env.desa`.
-
-Variables comunes:
 
 ```env
 APP_ENV=desa
@@ -153,7 +302,7 @@ EVAL_PROFILE=phoenix_cobranzas
 CSV_PATH=.\data\casos_de_prueba_desa.csv
 CSV_SEP=;
 OUTPUT_DIR=.\resultados
-REPORT_TITLE=Reporte de Evaluacion
+REPORT_TITLE=Reporte de Evaluacion IA-AGENT
 
 MAX_TURNS_SAFE=5
 MAX_WORKERS=3
@@ -175,8 +324,6 @@ No versionar archivos `.env.*`. El repo ya los ignora mediante `.gitignore`.
 
 Usa este modo cuando ejecutes el agente Phoenix/cobranzas.
 
-Configuracion recomendada:
-
 ```env
 AGENT_ADAPTER=phoenix
 TIPO_AGENTE=agentico
@@ -193,7 +340,7 @@ CUSTOMER_PROC_URL=https://...
 Flujo:
 
 ```text
-CSV -> Phoenix payload -> customer proc -> chat Phoenix -> user simulator opcional -> jueces -> reporte
+CSV -> Phoenix payload -> customer proc -> chat Phoenix -> user simulator -> jueces -> reporte
 ```
 
 En Phoenix:
@@ -205,30 +352,28 @@ adapters/phoenix/prompts.py      contiene prompts AR/I/R.
 adapters/phoenix/simulator.py    simula cliente con Azure OpenAI.
 ```
 
-## Modo No Agentico REST
+## Modo Agentico REST
 
-Usa este modo cuando quieras evaluar un agente no Phoenix que expone un endpoint REST.
-
-Configuracion recomendada:
+Usa este modo cuando quieras evaluar un agente IA-AGENT distinto de Phoenix que expone un endpoint REST.
 
 ```env
-AGENT_ADAPTER=no_agentico_rest
-TIPO_AGENTE=no_agentico
-EVAL_PROFILE=no_agentico_default
+AGENT_ADAPTER=agentico_rest
+TIPO_AGENTE=agentico
+EVAL_PROFILE=agentico_default
 
-CSV_PATH=.\data\agentes_no_agentico.csv
+CSV_PATH=.\data\agentes_agenticos.csv
 CSV_SEP=;
 
-NO_AGENTICO_REST_URL=https://tu-api/agente
-NO_AGENTICO_REST_API_KEY=opcional
-NO_AGENTICO_REST_AUTH_HEADER=X-API-key
-NO_AGENTICO_REST_PAYLOAD_MODE=default
-NO_AGENTICO_REST_RESPONSE_FIELD=respuesta
-NO_AGENTICO_REST_TIMEOUT=600
-NO_AGENTICO_REST_VERIFY_SSL=1
+AGENTICO_REST_URL=https://tu-api/agente
+AGENTICO_REST_API_KEY=opcional
+AGENTICO_REST_AUTH_HEADER=X-API-key
+AGENTICO_REST_PAYLOAD_MODE=default
+AGENTICO_REST_RESPONSE_FIELD=respuesta
+AGENTICO_REST_TIMEOUT=600
+AGENTICO_REST_VERIFY_SSL=1
 ```
 
-En este modo no se usan:
+Este adapter no usa:
 
 ```text
 BOT_API_KEY
@@ -239,7 +384,7 @@ prompts AR/I/R
 juez_funcionalidades
 ```
 
-Si `NO_AGENTICO_REST_PAYLOAD_MODE=default`, el framework envia:
+Si `AGENTICO_REST_PAYLOAD_MODE=default`, el framework envia:
 
 ```json
 {
@@ -251,10 +396,10 @@ Si `NO_AGENTICO_REST_PAYLOAD_MODE=default`, el framework envia:
 }
 ```
 
-Si tu API solo acepta el mensaje, usa:
+Si tu API solo acepta el mensaje:
 
 ```env
-NO_AGENTICO_REST_PAYLOAD_MODE=message_only
+AGENTICO_REST_PAYLOAD_MODE=message_only
 ```
 
 Y se enviara:
@@ -283,10 +428,10 @@ data.respuesta
 choices.0.message.content
 ```
 
-Si tu API responde en un campo especifico, define:
+Si tu API responde en un campo especifico:
 
 ```env
-NO_AGENTICO_REST_RESPONSE_FIELD=respuesta
+AGENTICO_REST_RESPONSE_FIELD=respuesta
 ```
 
 ## CSV De Entrada
@@ -301,12 +446,12 @@ data/casos_de_prueba_desa.csv
 
 Incluye columnas especificas de cobranzas, por ejemplo `tipo_cliente`, `tipo_seg`, `deuda_soles`, `dni`, `cic`, `reglas_muy_importante`, etc.
 
-### CSV No Agentico
+### CSV Agentico Generico
 
 Archivo disponible:
 
 ```text
-data/agentes_no_agentico.csv
+data/agentes_agenticos.csv
 ```
 
 Columnas minimas:
@@ -323,7 +468,7 @@ Ejemplo:
 
 ```csv
 id_test;caso_de_prueba;mensaje_inicio;secuencia_mensaje;ejecutar_prueba
-CP001;Validar respuesta ante solicitud inicial;hola;dame mas detalle;1
+CP001;Validar que el agente registre una promesa de pago;no puedo pagar;Deseo registrar una promesa de pago para el viernes;1
 ```
 
 `secuencia_mensaje` puede contener varios mensajes separados por saltos de linea.
@@ -363,7 +508,7 @@ Pruebas del runner y adapters:
 python -m unittest tests.test_adapter_runner
 ```
 
-## Agregar Un Nuevo Adapter
+## Agregar Un Nuevo Adapter IA-AGENT
 
 Para conectar otro agente:
 
@@ -390,7 +535,7 @@ class MiAdapter:
         ...
 ```
 
-Si el adapter necesita simular usuario para modo `agentico` o `hibrido`, puede implementar la capacidad opcional:
+Si el adapter necesita simular al usuario, puede implementar esta capacidad opcional:
 
 ```python
 def simulate_user(self, scenario, prepared, history):

@@ -9,13 +9,16 @@ except ImportError:
 
 BASE_DIR = Path(__file__).resolve().parent
 AMBIENTES_PERMITIDOS = {"desa", "certi", "prod"}
-TIPOS_AGENTE_PERMITIDOS = {"agentico", "hibrido", "no_agentico"}
+TIPOS_AGENTE_PERMITIDOS = {"agentico"}
 EVAL_PROFILES_PERMITIDOS = {
     "phoenix_cobranzas",
-    "generic_agentic",
-    "no_agentico_default",
+    "phoenix_cobranzas_agentico",
+    "agentico_default",
 }
-AGENT_ADAPTERS_PERMITIDOS = {"phoenix", "no_agentico_rest"}
+EVAL_PROFILE_ALIASES = {
+    "phoenix_cobranzas_agentico": "phoenix_cobranzas",
+}
+AGENT_ADAPTERS_PERMITIDOS = {"phoenix", "agentico_rest"}
 
 
 def _obtener_app_env() -> str:
@@ -115,13 +118,14 @@ def _get_tipo_agente() -> str:
     return tipo_agente
 
 
-def _get_eval_profile(tipo_agente: str) -> str:
+def _get_eval_profile(agent_adapter: str) -> str:
     eval_profile = os.getenv("EVAL_PROFILE", "").strip().lower()
     if not eval_profile:
-        if tipo_agente == "no_agentico":
-            return "no_agentico_default"
-        return "phoenix_cobranzas"
+        if agent_adapter == "phoenix":
+            return "phoenix_cobranzas"
+        return "agentico_default"
 
+    eval_profile = EVAL_PROFILE_ALIASES.get(eval_profile, eval_profile)
     if eval_profile not in EVAL_PROFILES_PERMITIDOS:
         permitidos = ", ".join(sorted(EVAL_PROFILES_PERMITIDOS))
         raise RuntimeError(
@@ -142,8 +146,8 @@ def _get_agent_adapter() -> str:
 
 
 TIPO_AGENTE = _get_tipo_agente()
-EVAL_PROFILE = _get_eval_profile(TIPO_AGENTE)
 AGENT_ADAPTER = _get_agent_adapter()
+EVAL_PROFILE = _get_eval_profile(AGENT_ADAPTER)
 
 AZURE_OPENAI_API_KEY = _get_required_env("AZURE_OPENAI_API_KEY")
 AZURE_OPENAI_ENDPOINT = _get_required_env("AZURE_OPENAI_ENDPOINT")
@@ -172,24 +176,20 @@ CUSTOMER_PROC_URL = (
     else _get_optional_env("CUSTOMER_PROC_URL")
 )
 
-NO_AGENTICO_REST_URL = _get_optional_env("NO_AGENTICO_REST_URL")
-NO_AGENTICO_REST_API_KEY = _get_optional_env("NO_AGENTICO_REST_API_KEY")
-NO_AGENTICO_REST_AUTH_HEADER = _get_optional_env(
-    "NO_AGENTICO_REST_AUTH_HEADER", "X-API-key"
-)
-NO_AGENTICO_REST_TIMEOUT = _get_optional_int_env("NO_AGENTICO_REST_TIMEOUT", 600)
-NO_AGENTICO_REST_VERIFY_SSL = _get_optional_flag_env(
-    "NO_AGENTICO_REST_VERIFY_SSL", True
-)
-NO_AGENTICO_REST_RESPONSE_FIELD = _get_optional_env("NO_AGENTICO_REST_RESPONSE_FIELD")
-NO_AGENTICO_REST_PAYLOAD_MODE = _get_optional_env(
-    "NO_AGENTICO_REST_PAYLOAD_MODE", "default"
+AGENTICO_REST_URL = _get_optional_env("AGENTICO_REST_URL")
+AGENTICO_REST_API_KEY = _get_optional_env("AGENTICO_REST_API_KEY")
+AGENTICO_REST_AUTH_HEADER = _get_optional_env("AGENTICO_REST_AUTH_HEADER", "X-API-key")
+AGENTICO_REST_TIMEOUT = _get_optional_int_env("AGENTICO_REST_TIMEOUT", 600)
+AGENTICO_REST_VERIFY_SSL = _get_optional_flag_env("AGENTICO_REST_VERIFY_SSL", True)
+AGENTICO_REST_RESPONSE_FIELD = _get_optional_env("AGENTICO_REST_RESPONSE_FIELD")
+AGENTICO_REST_PAYLOAD_MODE = _get_optional_env(
+    "AGENTICO_REST_PAYLOAD_MODE", "default"
 ).lower()
 
 CSV_PATH = _get_required_env("CSV_PATH")
 CSV_SEP = _get_required_env("CSV_SEP")
 OUTPUT_DIR = _get_required_env("OUTPUT_DIR")
-REPORT_TITLE = _get_optional_env("REPORT_TITLE", "Reporte de Evaluacion de Agente Phoenix")
+REPORT_TITLE = _get_optional_env("REPORT_TITLE", "Reporte de Evaluacion IA-AGENT")
 
 
 def obtener_max_workers(total_escenarios: int) -> int:

@@ -1,10 +1,10 @@
-from adapters.no_agentico_rest.agent import NoAgenticoRestClient
+from adapters.agentico_rest.agent import AgenticoRestClient
 from adapters.phoenix.agent import PhoenixAgentClient
 from config import AGENT_ADAPTER
 
 
 AGENT_CLIENTS = {
-    "no_agentico_rest": NoAgenticoRestClient,
+    "agentico_rest": AgenticoRestClient,
     "phoenix": PhoenixAgentClient,
 }
 

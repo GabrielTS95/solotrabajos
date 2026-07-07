@@ -1,0 +1,500 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [ 7 0 R 9 0 R 11 0 R 13 0 R 15 0 R 17 0 R 19 0 R 21 0 R 23 0 R 25 0 R 27 0 R 29 0 R 31 0 R ] /Count 13 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier /Encoding /WinAnsiEncoding >>
+endobj
+6 0 obj
+<< /Length 850 >>
+stream
+0.040 0.120 0.300 rg 0.00 809.89 595.28 32.00 re f
+BT 1.000 1.000 1.000 rg /F2 10 Tf 52.00 819.89 Td (IA-AGENT - Guia detallada por etapas) Tj ET
+BT 0.040 0.120 0.300 rg /F2 22 Tf 52.00 779.89 Td (IA-AGENT - Guia detallada por etapas) Tj ET
+0.140 0.330 0.780 RG 1.20 w 52.00 755.89 m 543.28 755.89 l S
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 732.89 Td (Este documento explica las 8 etapas del framework IA-AGENT y detalla que carpetas y archivos) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 718.89 Td (participan en cada una. La base esta orientada solo a agentes con IA agentica. Los casos puramente) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 704.89 Td (generativos deben manejarse en una base separada, IA-GEN.) Tj ET
+0.780 0.820 0.880 RG 0.70 w 52.00 38.00 m 543.28 38.00 l S
+BT 0.350 0.420 0.520 rg /F1 8 Tf 483.28 24.00 Td (Pagina 1) Tj ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 6 0 R >>
+endobj
+8 0 obj
+<< /Length 2466 >>
+stream
+0.040 0.120 0.300 rg 0.00 809.89 595.28 32.00 re f
+BT 1.000 1.000 1.000 rg /F2 10 Tf 52.00 819.89 Td (IA-AGENT - Guia detallada por etapas) Tj ET
+0.910 0.960 1.000 rg 0.370 0.580 0.860 RG 0.80 w 44.00 759.89 507.28 34.00 re B
+BT 0.040 0.180 0.460 rg /F2 16 Tf 52.00 769.89 Td (Vista general de carpetas) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 734.89 Td (- `data/`: contiene los datasets CSV de entrada. Aqui viven los casos de prueba que el framework) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 720.89 Td (  ejecuta.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 704.89 Td (- `config.py`: centraliza carga de ambiente, validacion de variables y seleccion de adapter/perfil.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 688.89 Td (- `.env.<ambiente>`: archivos locales de configuracion por ambiente, por ejemplo `.env.desa`. No se) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 674.89 Td (  versionan.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 658.89 Td (- `main.py`: punto de entrada de ejecucion. Carga CSV, ejecuta escenarios y dispara reportes.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 642.89 Td (- `core/`: nucleo del framework. Orquesta escenarios, contratos, runner, utilidades y trazas.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 626.89 Td (- `adapters/`: integraciones concretas con agentes reales. Actualmente `phoenix` y `agentico_rest`.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 610.89 Td (- `integrations/`: clientes reutilizables para servicios externos, principalmente Azure OpenAI.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 594.89 Td (- `evaluation/`: jueces LLM, perfiles de evaluacion, metricas y validaciones.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 578.89 Td (- `reporting/`: generacion de reportes HTML/CSV a partir de los resultados.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 562.89 Td (- `resultados/`: carpeta de salida de reportes y evidencias generadas.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 546.89 Td (- `tests/`: pruebas unitarias del runner, adapters, humo de evaluacion y contratos principales.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 530.89 Td (- `diagramas/`: imagenes generadas para documentar la arquitectura.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 514.89 Td (- `tools/`: scripts auxiliares para generar diagramas o documentos.) Tj ET
+0.780 0.820 0.880 RG 0.70 w 52.00 38.00 m 543.28 38.00 l S
+BT 0.350 0.420 0.520 rg /F1 8 Tf 483.28 24.00 Td (Pagina 2) Tj ET
+endstream
+endobj
+9 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 8 0 R >>
+endobj
+10 0 obj
+<< /Length 4828 >>
+stream
+0.040 0.120 0.300 rg 0.00 809.89 595.28 32.00 re f
+BT 1.000 1.000 1.000 rg /F2 10 Tf 52.00 819.89 Td (IA-AGENT - Guia detallada por etapas) Tj ET
+0.910 0.960 1.000 rg 0.370 0.580 0.860 RG 0.80 w 44.00 759.89 507.28 34.00 re B
+BT 0.040 0.180 0.460 rg /F2 16 Tf 52.00 769.89 Td (Etapa 1. Diseno del Dataset de Evaluacion) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 732.89 Td (Objetivo) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 709.89 Td (Definir que se va a probar antes de ejecutar el agente. Esta etapa convierte una necesidad de negocio) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 695.89 Td (o tecnica en casos de prueba estructurados que el framework puede leer.) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 672.89 Td (Carpetas y archivos involucrados) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 649.89 Td (- `data/casos_de_prueba_desa.csv`: dataset principal para Phoenix/cobranzas.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 633.89 Td (- `data/agentes_agenticos.csv`: dataset generico para agentes IA-AGENT expuestos por REST.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 617.89 Td (- `data/README.md`: documentacion local del dataset, si se desea ampliar reglas de columnas.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 601.89 Td (- `config.py`: consume `CSV_PATH` y `CSV_SEP`, por lo tanto condiciona que dataset se cargara.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 585.89 Td (- `evaluation/juez_funcionalidades.py`: define criterios especializados cuando el perfil usa) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 571.89 Td (  funcionalidades, por ejemplo Phoenix.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 555.89 Td (- `evaluation/juez_respuesta.py`: define el juez generico de respuesta para `agentico_default`.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 539.89 Td (- `evaluation/juez_metricas.py`: define metricas reutilizables para cualquier adapter.) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 516.89 Td (Actividades) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 493.89 Td (- Definir el objetivo del caso de prueba: que comportamiento agentico se quiere validar.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 477.89 Td (- Asignar un identificador estable en `id_test`.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 461.89 Td (- Redactar el `caso_de_prueba` con el comportamiento esperado.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 445.89 Td (- Definir `mensaje_inicio`, que sera el primer mensaje enviado al agente.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 429.89 Td (- Definir `secuencia_mensaje` cuando se necesiten turnos controlados desde CSV.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 413.89 Td (- Definir `reglas_negocio_juez` para indicar al juez que debe considerar PASS, WARNING o FAIL.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 397.89 Td (- Definir `ejecutar_prueba=1` solo para los escenarios que deben correr.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 381.89 Td (- Para Phoenix, completar datos de cliente, deuda, segmentacion y perfil de simulacion cuando) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 367.89 Td (  aplique.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 351.89 Td (- Para `agentico_rest`, mantener el dataset mas generico y depender de `metadata` para campos propios) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 337.89 Td (  del agente.) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 314.89 Td (Campos recomendados) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 291.89 Td (- `id_test`: codigo unico del caso.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 275.89 Td (- `caso_de_prueba`: descripcion del escenario y comportamiento esperado.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 259.89 Td (- `mensaje_inicio`: primer mensaje enviado al agente.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 243.89 Td (- `secuencia_mensaje`: mensajes adicionales, uno por linea si hay varios.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 227.89 Td (- `ejecutar_prueba`: 1 para ejecutar, 0 para omitir.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 211.89 Td (- `reglas_negocio_juez`: criterios que el juez debe usar.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 195.89 Td (- `perfil_juez`: perfil funcional opcional para adaptar la evaluacion.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 179.89 Td (- `tipo_cliente`: util para Phoenix y escenarios con perfiles de conversacion.) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 156.89 Td (Salida de la etapa) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 133.89 Td (Un CSV valido, versionable y ejecutable por el framework. Este CSV es la fuente de verdad de los) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 119.89 Td (escenarios.) Tj ET
+0.780 0.820 0.880 RG 0.70 w 52.00 38.00 m 543.28 38.00 l S
+BT 0.350 0.420 0.520 rg /F1 8 Tf 483.28 24.00 Td (Pagina 3) Tj ET
+endstream
+endobj
+11 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 10 0 R >>
+endobj
+12 0 obj
+<< /Length 4193 >>
+stream
+0.040 0.120 0.300 rg 0.00 809.89 595.28 32.00 re f
+BT 1.000 1.000 1.000 rg /F2 10 Tf 52.00 819.89 Td (IA-AGENT - Guia detallada por etapas) Tj ET
+0.910 0.960 1.000 rg 0.370 0.580 0.860 RG 0.80 w 44.00 759.89 507.28 34.00 re B
+BT 0.040 0.180 0.460 rg /F2 16 Tf 52.00 769.89 Td (Etapa 2. Carga de Configuracion del Framework) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 732.89 Td (Objetivo) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 709.89 Td (Cargar el ambiente activo y validar que la ejecucion tenga todos los parametros necesarios antes de) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 695.89 Td (tocar agentes externos o servicios LLM.) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 672.89 Td (Carpetas y archivos involucrados) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 649.89 Td (- `.env.desa`, `.env.certi`, `.env.prod`: archivos de variables por ambiente.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 633.89 Td (- `config.py`: valida ambiente, adapter, tipo de agente, perfil de evaluacion, Azure OpenAI, CSV,) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 619.89 Td (  salida y variables REST.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 603.89 Td (- `requirements.txt`: dependencias necesarias para ejecutar el framework.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 587.89 Td (- `main.py`: importa la configuracion ya validada.) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 564.89 Td (Variables principales) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 541.89 Td (- `APP_ENV`: ambiente activo. Por defecto se usa `desa`.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 525.89 Td (- `AGENT_ADAPTER`: adapter a ejecutar. Valores actuales: `phoenix` o `agentico_rest`.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 509.89 Td (- `TIPO_AGENTE`: en esta base debe ser `agentico`.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 493.89 Td (- `EVAL_PROFILE`: perfil de evaluacion. Valores principales: `phoenix_cobranzas` o) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 479.89 Td (  `agentico_default`.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 463.89 Td (- `CSV_PATH`: ruta del dataset.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 447.89 Td (- `CSV_SEP`: separador del CSV.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 431.89 Td (- `OUTPUT_DIR`: carpeta donde se escriben reportes.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 415.89 Td (- `AZURE_OPENAI_*` y `MODEL_NAME`: configuracion del LLM usado por jueces y simulador Phoenix.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 399.89 Td (- `AGENTICO_REST_*`: configuracion del adapter REST generico.) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 376.89 Td (Actividades) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 353.89 Td (- Resolver `APP_ENV` y buscar `.env.<ambiente>`.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 337.89 Td (- Cargar variables con `python-dotenv`.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 321.89 Td (- Validar que `TIPO_AGENTE=agentico`.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 305.89 Td (- Validar que `AGENT_ADAPTER` exista en los adapters permitidos.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 289.89 Td (- Validar `EVAL_PROFILE` para elegir pipeline de evaluacion.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 273.89 Td (- Validar variables obligatorias de Azure OpenAI.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 257.89 Td (- Validar rutas de CSV y carpeta de salida.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 241.89 Td (- Para Phoenix, exigir `BOT_API_KEY`, `URL_CHAT` y `CUSTOMER_PROC_URL`.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 225.89 Td (- Para `agentico_rest`, leer `AGENTICO_REST_URL`, headers, timeout, modo de payload y campo de) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 211.89 Td (  respuesta.) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 188.89 Td (Salida de la etapa) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 165.89 Td (Constantes de configuracion listas para ser usadas por main.py, core/runner.py, adapters/ y) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 151.89 Td (evaluation/.) Tj ET
+0.780 0.820 0.880 RG 0.70 w 52.00 38.00 m 543.28 38.00 l S
+BT 0.350 0.420 0.520 rg /F1 8 Tf 483.28 24.00 Td (Pagina 4) Tj ET
+endstream
+endobj
+13 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 12 0 R >>
+endobj
+14 0 obj
+<< /Length 2633 >>
+stream
+0.040 0.120 0.300 rg 0.00 809.89 595.28 32.00 re f
+BT 1.000 1.000 1.000 rg /F2 10 Tf 52.00 819.89 Td (IA-AGENT - Guia detallada por etapas) Tj ET
+0.910 0.960 1.000 rg 0.370 0.580 0.860 RG 0.80 w 44.00 759.89 507.28 34.00 re B
+BT 0.040 0.180 0.460 rg /F2 16 Tf 52.00 769.89 Td (Etapa 3. Preparacion del Escenario) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 732.89 Td (Objetivo) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 709.89 Td (Convertir cada fila del CSV en un objeto de escenario normalizado, con campos estandar para que el) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 695.89 Td (runner no dependa directamente del formato bruto del CSV.) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 672.89 Td (Carpetas y archivos involucrados) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 649.89 Td (- `main.py`: lee el CSV con pandas y filtra `ejecutar_prueba == 1`.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 633.89 Td (- `core/scenario.py`: define `Scenario` y `scenario_from_row`.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 617.89 Td (- `core/utils.py`: normaliza strings y parsea `secuencia_mensaje`.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 601.89 Td (- `core/contracts.py`: define objetos que luego usaran los adapters.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 585.89 Td (- `data/`: fuente del escenario.) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 562.89 Td (Actividades) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 539.89 Td (- Leer el CSV usando `CSV_PATH`, `CSV_SEP` y encoding UTF-8.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 523.89 Td (- Filtrar solo filas habilitadas para ejecucion.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 507.89 Td (- Convertir cada fila en un diccionario `metadata`.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 491.89 Td (- Construir `Scenario` con `id_test`, `mensaje_inicio`, `secuencia_mensaje`, `caso_de_prueba`,) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 477.89 Td (  `tipo_cliente`, reglas de negocio y reglas del juez.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 461.89 Td (- Separar `simulator_profile` para Phoenix, sin forzar que otros adapters lo usen.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 445.89 Td (- Mantener `metadata` completa para que cada adapter pueda leer campos propios.) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 422.89 Td (Salida de la etapa) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 399.89 Td (Un Scenario por fila ejecutable. Este objeto es la entrada normalizada del runner.) Tj ET
+0.780 0.820 0.880 RG 0.70 w 52.00 38.00 m 543.28 38.00 l S
+BT 0.350 0.420 0.520 rg /F1 8 Tf 483.28 24.00 Td (Pagina 5) Tj ET
+endstream
+endobj
+15 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 14 0 R >>
+endobj
+16 0 obj
+<< /Length 3713 >>
+stream
+0.040 0.120 0.300 rg 0.00 809.89 595.28 32.00 re f
+BT 1.000 1.000 1.000 rg /F2 10 Tf 52.00 819.89 Td (IA-AGENT - Guia detallada por etapas) Tj ET
+0.910 0.960 1.000 rg 0.370 0.580 0.860 RG 0.80 w 44.00 759.89 507.28 34.00 re B
+BT 0.040 0.180 0.460 rg /F2 16 Tf 52.00 769.89 Td (Etapa 4. Seleccion e Invocacion del Adapter del Agente) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 732.89 Td (Objetivo) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 709.89 Td (Seleccionar que agente real se va a invocar y adaptar el contrato generico del framework al contrato) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 695.89 Td (especifico de ese agente.) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 672.89 Td (Carpetas y archivos involucrados) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 649.89 Td (- `adapters/factory.py`: resuelve el adapter desde `AGENT_ADAPTER`.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 633.89 Td (- `adapters/phoenix/`: implementacion especializada para Phoenix.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 617.89 Td (- `adapters/agentico_rest/`: implementacion generica para un agente IA-AGENT por REST.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 601.89 Td (- `core/contracts.py`: define `AgentClient`, `PreparedScenario`, `ChatSession` y `AgentResponse`.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 585.89 Td (- `config.py`: aporta el adapter configurado.) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 562.89 Td (Contrato minimo del adapter) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 539.89 Td (- `prepare_scenario\(scenario_data\)`: transforma metadata del CSV en payload propio del agente.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 523.89 Td (- `start_chat\(prepared\)`: inicia sesion o prepara contexto de conversacion.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 507.89 Td (- `send_message\(session, message\)`: envia un mensaje y devuelve una respuesta estandar.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 491.89 Td (- `simulate_user\(...\)`: capacidad opcional. En la arquitectura actual es exclusiva de Phoenix.) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 468.89 Td (Phoenix) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 445.89 Td (- `adapters/phoenix/payload.py`: construye el payload de cliente.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 429.89 Td (- `adapters/phoenix/client.py`: llama customer proc y chat Phoenix.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 413.89 Td (- `adapters/phoenix/agent.py`: implementa el contrato `AgentClient`.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 397.89 Td (- `adapters/phoenix/prompts.py`: contiene prompts AR/I/R exclusivos de Phoenix.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 381.89 Td (- `adapters/phoenix/simulator.py`: invoca Azure OpenAI para simular cliente.) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 358.89 Td (Agentico REST) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 335.89 Td (- `adapters/agentico_rest/agent.py`: implementa el contrato para un agente REST generico.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 319.89 Td (- `adapters/agentico_rest/client.py`: arma payload HTTP, headers, timeout, parsing de respuesta y) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 305.89 Td (  `exit_status`.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 289.89 Td (- Este adapter no usa `user_simulator`, prompts AR/I/R ni endpoints Phoenix.) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 266.89 Td (Salida de la etapa) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 243.89 Td (Un cliente de agente listo para ejecutar escenarios bajo una interfaz comun.) Tj ET
+0.780 0.820 0.880 RG 0.70 w 52.00 38.00 m 543.28 38.00 l S
+BT 0.350 0.420 0.520 rg /F1 8 Tf 483.28 24.00 Td (Pagina 6) Tj ET
+endstream
+endobj
+17 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 16 0 R >>
+endobj
+18 0 obj
+<< /Length 3265 >>
+stream
+0.040 0.120 0.300 rg 0.00 809.89 595.28 32.00 re f
+BT 1.000 1.000 1.000 rg /F2 10 Tf 52.00 819.89 Td (IA-AGENT - Guia detallada por etapas) Tj ET
+0.910 0.960 1.000 rg 0.370 0.580 0.860 RG 0.80 w 44.00 759.89 507.28 34.00 re B
+BT 0.040 0.180 0.460 rg /F2 16 Tf 52.00 769.89 Td (Etapa 5. Ejecucion del Comportamiento Agentico) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 732.89 Td (Objetivo) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 709.89 Td (Ejecutar el comportamiento real del agente: enviar mensajes, recibir respuestas, medir latencias,) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 695.89 Td (detectar fin de conversacion y capturar datos crudos.) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 672.89 Td (Carpetas y archivos involucrados) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 649.89 Td (- `core/runner.py`: orquesta la ejecucion de cada escenario.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 633.89 Td (- `core/contracts.py`: estandariza `AgentResponse`.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 617.89 Td (- `adapters/phoenix/client.py`: invoca APIs Phoenix.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 601.89 Td (- `adapters/agentico_rest/client.py`: invoca endpoint REST configurado.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 585.89 Td (- `integrations/`: participa cuando se requiere LLM, especialmente en simulador/evaluacion.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 569.89 Td (- `config.py`: aporta `MAX_TURNS_SAFE`, timeouts y variables de adapter.) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 546.89 Td (Actividades) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 523.89 Td (- Ejecutar `prepare_scenario`.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 507.89 Td (- Iniciar sesion con `start_chat`.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 491.89 Td (- Enviar `mensaje_inicio`.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 475.89 Td (- Registrar texto del bot, latencia, `exit_status` y respuesta cruda.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 459.89 Td (- Enviar mensajes de `secuencia_mensaje` mientras el agente no indique fin.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 443.89 Td (- Evaluar `exit_status=1` como fin de conversacion cuando el adapter lo provee.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 427.89 Td (- Capturar errores y convertirlos en estado de ejecucion para el reporte.) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 404.89 Td (Diferencia clave entre adapters) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 381.89 Td (- Phoenix puede tener comportamiento agentico mas conversacional y simulacion automatica.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 365.89 Td (- `agentico_rest` ejecuta el contrato REST configurado y normalmente depende de la secuencia definida) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 351.89 Td (  en CSV.) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 328.89 Td (Salida de la etapa) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 305.89 Td (Una conversacion ejecutada, respuestas normalizadas y datos suficientes para construir trazas y) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 291.89 Td (evaluar.) Tj ET
+0.780 0.820 0.880 RG 0.70 w 52.00 38.00 m 543.28 38.00 l S
+BT 0.350 0.420 0.520 rg /F1 8 Tf 483.28 24.00 Td (Pagina 7) Tj ET
+endstream
+endobj
+19 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 18 0 R >>
+endobj
+20 0 obj
+<< /Length 3045 >>
+stream
+0.040 0.120 0.300 rg 0.00 809.89 595.28 32.00 re f
+BT 1.000 1.000 1.000 rg /F2 10 Tf 52.00 819.89 Td (IA-AGENT - Guia detallada por etapas) Tj ET
+0.910 0.960 1.000 rg 0.370 0.580 0.860 RG 0.80 w 44.00 759.89 507.28 34.00 re B
+BT 0.040 0.180 0.460 rg /F2 16 Tf 52.00 769.89 Td (Etapa 6. Conduccion de la Conversacion) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 732.89 Td (Objetivo) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 709.89 Td (Definir como avanza la conversacion despues del mensaje inicial: por secuencia fija desde CSV, por) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 695.89 Td (simulador de usuario o por una sola interaccion.) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 672.89 Td (Carpetas y archivos involucrados) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 649.89 Td (- `core/runner.py`: decide si se usa simulador y controla turnos.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 633.89 Td (- `core/utils.py`: arma texto de conversacion para el simulador y para evaluacion.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 617.89 Td (- `adapters/phoenix/simulator.py`: ejecuta el simulador de usuario via Azure OpenAI.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 601.89 Td (- `adapters/phoenix/prompts.py`: define personalidad/perfil del cliente simulado.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 585.89 Td (- `integrations/llm.py`: cliente Azure OpenAI reutilizable.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 569.89 Td (- `data/`: aporta `secuencia_mensaje` y perfiles de simulacion.) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 546.89 Td (Actividades) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 523.89 Td (- Ejecutar primero la secuencia definida en CSV.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 507.89 Td (- Si el adapter tiene `simulate_user`, continuar la conversacion con usuario simulado.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 491.89 Td (- Aplicar `MAX_TURNS_SAFE` para evitar bucles infinitos.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 475.89 Td (- Terminar cuando el agente indique `exit_status=1`.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 459.89 Td (- Terminar si el simulador devuelve fin, adios o texto vacio.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 443.89 Td (- Para `agentico_rest`, continuar sin simulador y cerrar con la secuencia definida.) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 420.89 Td (Regla de arquitectura) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 397.89 Td (El user_simulator no pertenece al framework completo ni a todos los agentes. En esta base es una) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 383.89 Td (capacidad opcional del adapter y actualmente es exclusiva de Phoenix.) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 360.89 Td (Salida de la etapa) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 337.89 Td (Una conversacion completa, con turnos de usuario/agente y latencias acumuladas.) Tj ET
+0.780 0.820 0.880 RG 0.70 w 52.00 38.00 m 543.28 38.00 l S
+BT 0.350 0.420 0.520 rg /F1 8 Tf 483.28 24.00 Td (Pagina 8) Tj ET
+endstream
+endobj
+21 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 20 0 R >>
+endobj
+22 0 obj
+<< /Length 3240 >>
+stream
+0.040 0.120 0.300 rg 0.00 809.89 595.28 32.00 re f
+BT 1.000 1.000 1.000 rg /F2 10 Tf 52.00 819.89 Td (IA-AGENT - Guia detallada por etapas) Tj ET
+0.910 0.960 1.000 rg 0.370 0.580 0.860 RG 0.80 w 44.00 759.89 507.28 34.00 re B
+BT 0.040 0.180 0.460 rg /F2 16 Tf 52.00 769.89 Td (Etapa 7. Construccion de la Traza de Ejecucion) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 732.89 Td (Objetivo) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 709.89 Td (Convertir la ejecucion en evidencia auditable: payload, conversacion, estado, latencias, ultima) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 695.89 Td (respuesta y datos para reporte.) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 672.89 Td (Carpetas y archivos involucrados) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 649.89 Td (- `core/runner.py`: construye cada fila de resultado con `construir_row_resultado`.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 633.89 Td (- `core/utils.py`: genera conversacion completa con `build_full_conversation`.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 617.89 Td (- `core/contracts.py`: aporta `ChatSession.raw` y `AgentResponse.raw`.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 601.89 Td (- `reporting/report.py`: consume las filas para HTML/CSV.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 585.89 Td (- `resultados/`: destino final de evidencias generadas.) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 562.89 Td (Datos que se registran) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 539.89 Td (- `id_test` y `chat_id`.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 523.89 Td (- `caso_de_prueba` y perfil del juez.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 507.89 Td (- `payload` enviado o preparado.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 491.89 Td (- `conversa`, con turnos de cliente y agente.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 475.89 Td (- `answer_last_bot`.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 459.89 Td (- `bot_turns`, `bot_latency_s_total` y `sim_latency_s_total`.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 443.89 Td (- `status` tecnico de ejecucion.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 427.89 Td (- `secuencia_mensaje`.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 411.89 Td (- Campos de evaluacion agregados despues por los jueces.) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 388.89 Td (Actividades) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 365.89 Td (- Mantener historial de conversacion en memoria.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 349.89 Td (- Registrar cada mensaje de usuario y bot.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 333.89 Td (- Acumular latencias.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 317.89 Td (- Capturar excepciones como evidencia y no perder el caso completo.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 301.89 Td (- Convertir objetos internos a JSON seguro para reporte.) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 278.89 Td (Salida de la etapa) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 255.89 Td (Una fila estructurada por escenario, lista para evaluacion y reporte.) Tj ET
+0.780 0.820 0.880 RG 0.70 w 52.00 38.00 m 543.28 38.00 l S
+BT 0.350 0.420 0.520 rg /F1 8 Tf 483.28 24.00 Td (Pagina 9) Tj ET
+endstream
+endobj
+23 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 22 0 R >>
+endobj
+24 0 obj
+<< /Length 4249 >>
+stream
+0.040 0.120 0.300 rg 0.00 809.89 595.28 32.00 re f
+BT 1.000 1.000 1.000 rg /F2 10 Tf 52.00 819.89 Td (IA-AGENT - Guia detallada por etapas) Tj ET
+0.910 0.960 1.000 rg 0.370 0.580 0.860 RG 0.80 w 44.00 759.89 507.28 34.00 re B
+BT 0.040 0.180 0.460 rg /F2 16 Tf 52.00 769.89 Td (Etapa 8. Evaluacion y Generacion de Reportes) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 732.89 Td (Objetivo) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 709.89 Td (Agrupar evaluacion, reportes y evidencias. Esta etapa determina si el agente cumple el caso de prueba,) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 695.89 Td (calcula metricas y genera artefactos finales.) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 672.89 Td (Carpetas y archivos involucrados) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 649.89 Td (- `evaluation/juez.py`: fachada principal que ejecuta el pipeline de evaluacion.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 633.89 Td (- `evaluation/profiles/registry.py`: mapea `EVAL_PROFILE` a pipeline.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 617.89 Td (- `evaluation/juez_funcionalidades.py`: juez especializado para funcionalidades Phoenix/cobranzas.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 601.89 Td (- `evaluation/juez_respuesta.py`: juez generico para `agentico_default`.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 585.89 Td (- `evaluation/juez_metricas.py`: juez reutilizable de metricas.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 569.89 Td (- `integrations/llm.py`: cliente Azure OpenAI para llamar jueces LLM.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 553.89 Td (- `reporting/report.py`: genera HTML y CSV.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 537.89 Td (- `resultados/`: guarda `Rep-paralelizado-<fecha>.html` y `.csv`.) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 514.89 Td (Pipelines actuales) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 491.89 Td (- `phoenix_cobranzas`: ejecuta `juez_funcionalidades` y luego `juez_metricas`.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 475.89 Td (- `agentico_default`: ejecuta `juez_respuesta` y luego `juez_metricas`.) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 452.89 Td (Actividades de evaluacion) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 429.89 Td (- Construir conversacion completa para el juez.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 413.89 Td (- Aplicar reglas del caso de prueba.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 397.89 Td (- Ejecutar juez principal segun perfil.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 381.89 Td (- Ejecutar juez de metricas para coherencia, fluidez, cumplimiento, integridad, claridad y) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 367.89 Td (  correccion.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 351.89 Td (- Adjuntar JSON crudo del juez para auditoria.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 335.89 Td (- Clasificar resultado como PASS, WARNING o FAIL.) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 312.89 Td (Actividades de reporte) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 289.89 Td (- Consolidar resultados en un DataFrame.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 273.89 Td (- Calcular resumen general.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 257.89 Td (- Generar tablas, badges, detalle de metricas y modales de evidencia.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 241.89 Td (- Exportar HTML navegable.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 225.89 Td (- Exportar CSV con todos los campos para analisis posterior.) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 202.89 Td (Evidencias generadas) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 179.89 Td (- Conversacion completa.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 163.89 Td (- Payload usado por el adapter.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 147.89 Td (- JSON del juez principal.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 131.89 Td (- JSON del juez de metricas.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 115.89 Td (- Latencias y estados.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 99.89 Td (- HTML y CSV final.) Tj ET
+0.780 0.820 0.880 RG 0.70 w 52.00 38.00 m 543.28 38.00 l S
+BT 0.350 0.420 0.520 rg /F1 8 Tf 483.28 24.00 Td (Pagina 10) Tj ET
+endstream
+endobj
+25 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 24 0 R >>
+endobj
+26 0 obj
+<< /Length 585 >>
+stream
+0.040 0.120 0.300 rg 0.00 809.89 595.28 32.00 re f
+BT 1.000 1.000 1.000 rg /F2 10 Tf 52.00 819.89 Td (IA-AGENT - Guia detallada por etapas) Tj ET
+BT 0.070 0.220 0.470 rg /F2 12 Tf 52.00 785.89 Td (Salida de la etapa) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 762.89 Td (Reporte final en resultados/, con evaluacion funcional o de respuesta, metricas, evidencia y) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 748.89 Td (trazabilidad por escenario.) Tj ET
+0.780 0.820 0.880 RG 0.70 w 52.00 38.00 m 543.28 38.00 l S
+BT 0.350 0.420 0.520 rg /F1 8 Tf 483.28 24.00 Td (Pagina 11) Tj ET
+endstream
+endobj
+27 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 26 0 R >>
+endobj
+28 0 obj
+<< /Length 1717 >>
+stream
+0.040 0.120 0.300 rg 0.00 809.89 595.28 32.00 re f
+BT 1.000 1.000 1.000 rg /F2 10 Tf 52.00 819.89 Td (IA-AGENT - Guia detallada por etapas) Tj ET
+0.910 0.960 1.000 rg 0.370 0.580 0.860 RG 0.80 w 44.00 759.89 507.28 34.00 re B
+BT 0.040 0.180 0.460 rg /F2 16 Tf 52.00 769.89 Td (Matriz resumida por etapa) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 734.89 Td (- Etapa 1 usa principalmente `data/` y define las reglas que usara `evaluation/`.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 718.89 Td (- Etapa 2 usa `.env.<ambiente>` y `config.py`.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 702.89 Td (- Etapa 3 usa `main.py`, `core/scenario.py` y `core/utils.py`.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 686.89 Td (- Etapa 4 usa `adapters/factory.py`, `adapters/phoenix/`, `adapters/agentico_rest/` y) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 672.89 Td (  `core/contracts.py`.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 656.89 Td (- Etapa 5 usa `core/runner.py`, los clientes dentro de `adapters/` y servicios externos.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 640.89 Td (- Etapa 6 usa `core/runner.py`, `adapters/phoenix/simulator.py`, `adapters/phoenix/prompts.py` e) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 626.89 Td (  `integrations/llm.py` cuando aplica.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 610.89 Td (- Etapa 7 usa `core/runner.py`, `core/utils.py`, contratos y prepara datos para `reporting/`.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 594.89 Td (- Etapa 8 usa `evaluation/`, `integrations/llm.py`, `reporting/` y `resultados/`.) Tj ET
+0.780 0.820 0.880 RG 0.70 w 52.00 38.00 m 543.28 38.00 l S
+BT 0.350 0.420 0.520 rg /F1 8 Tf 483.28 24.00 Td (Pagina 12) Tj ET
+endstream
+endobj
+29 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 28 0 R >>
+endobj
+30 0 obj
+<< /Length 1333 >>
+stream
+0.040 0.120 0.300 rg 0.00 809.89 595.28 32.00 re f
+BT 1.000 1.000 1.000 rg /F2 10 Tf 52.00 819.89 Td (IA-AGENT - Guia detallada por etapas) Tj ET
+0.910 0.960 1.000 rg 0.370 0.580 0.860 RG 0.80 w 44.00 759.89 507.28 34.00 re B
+BT 0.040 0.180 0.460 rg /F2 16 Tf 52.00 769.89 Td (Recomendacion para mantener el framework limpio) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 734.89 Td (- Mantener IA-AGENT solo para agentes con comportamiento agentico.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 718.89 Td (- No mezclar flujos IA-GEN dentro de este repositorio base.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 702.89 Td (- Tratar cada nuevo agente como un adapter dentro de `adapters/<nombre>/`.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 686.89 Td (- No poner logica de un agente especifico dentro de `core/`.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 670.89 Td (- Mantener `user_simulator` como capacidad opcional del adapter, no como obligacion del framework.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 654.89 Td (- Versionar datasets de ejemplo sin datos sensibles.) Tj ET
+BT 0.050 0.100 0.200 rg /F1 10 Tf 52.00 638.89 Td (- No versionar `.env.*`, tokens ni endpoints privados.) Tj ET
+0.780 0.820 0.880 RG 0.70 w 52.00 38.00 m 543.28 38.00 l S
+BT 0.350 0.420 0.520 rg /F1 8 Tf 483.28 24.00 Td (Pagina 13) Tj ET
+endstream
+endobj
+31 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 30 0 R >>
+endobj
+xref
+0 32
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000207 00000 n 
+0000000304 00000 n 
+0000000406 00000 n 
+0000000501 00000 n 
+0000001402 00000 n 
+0000001554 00000 n 
+0000004072 00000 n 
+0000004224 00000 n 
+0000009105 00000 n 
+0000009259 00000 n 
+0000013505 00000 n 
+0000013659 00000 n 
+0000016345 00000 n 
+0000016499 00000 n 
+0000020265 00000 n 
+0000020419 00000 n 
+0000023737 00000 n 
+0000023891 00000 n 
+0000026989 00000 n 
+0000027143 00000 n 
+0000030436 00000 n 
+0000030590 00000 n 
+0000034892 00000 n 
+0000035046 00000 n 
+0000035683 00000 n 
+0000035837 00000 n 
+0000037607 00000 n 
+0000037761 00000 n 
+0000039147 00000 n 
+trailer
+<< /Size 32 /Root 1 0 R >>
+startxref
+39301
+%%EOF
