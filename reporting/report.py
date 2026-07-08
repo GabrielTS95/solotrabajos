@@ -12,7 +12,73 @@ from evaluation.juez import (
 )
 from evaluation.profiles import resolver_pipeline
 from core.utils import format_chat_id_log, format_td_hms, safe_str
-from config import EVAL_PROFILE, REPORT_TITLE
+from config import AGENT_ADAPTER, EVAL_PROFILE, REPORT_TITLE
+
+
+def _normalizar_adapter_label(adapter_name):
+    adapter_name = safe_str(adapter_name).strip().lower()
+    labels = {
+        "phoenix": "AG. PHOENIX",
+        "agentico_rest": "AGENTE",
+        "text_summarizer": "TEXT SUMMARIZER",
+    }
+    return labels.get(adapter_name, "AGENTE")
+
+
+def _obtener_adapter_desde_payload(payload_value):
+    try:
+        payload = json.loads(safe_str(payload_value))
+    except Exception:
+        payload = {}
+    if not isinstance(payload, dict):
+        return ""
+    return safe_str(payload.get("adapter"))
+
+
+def formatear_conversacion_reporte(row):
+    adapter_label = _normalizar_adapter_label(
+        _obtener_adapter_desde_payload(row.get("payload")) or AGENT_ADAPTER
+    )
+
+    def label_rol(rol):
+        rol = safe_str(rol).strip().lower()
+        if rol in {"usuario", "user", "cliente"}:
+            return "CLIENTE"
+        if rol in {"bot", "assistant", "agente"}:
+            return adapter_label
+        return safe_str(rol).upper() or "DETALLE"
+
+    raw_conversa = safe_str(row.get("conversa", "")).strip()
+    lineas = []
+
+    if raw_conversa:
+        try:
+            hist_list = json.loads(raw_conversa)
+            if isinstance(hist_list, list):
+                for item in hist_list:
+                    if isinstance(item, dict):
+                        rol = item.get("role") or item.get("rol") or item.get("quien")
+                        texto = item.get("content") or item.get("texto")
+                    elif isinstance(item, (list, tuple)) and len(item) >= 2:
+                        rol, texto = item[0], item[1]
+                    else:
+                        rol, texto = "detalle", item
+
+                    texto = safe_str(texto).strip()
+                    if texto:
+                        lineas.append(f"[{label_rol(rol)}] {texto}")
+        except Exception:
+            return raw_conversa
+
+    if not lineas:
+        mensaje_inicio = safe_str(row.get("mensaje_inicio", "")).strip()
+        respuesta = safe_str(row.get("answer_last_bot", "")).strip()
+        if mensaje_inicio:
+            lineas.append(f"[CLIENTE] {mensaje_inicio}")
+        if respuesta:
+            lineas.append(f"[{adapter_label}] {respuesta}")
+
+    return "\n\n".join(lineas)
 
 
 def generar_reporte(rows, total_exec_time, wall_exec_time, output_dir):
@@ -434,19 +500,7 @@ def generar_reporte(rows, total_exec_time, wall_exec_time, output_dir):
             "conversa": "",
             "detalle_metricas": detalle_metricas,
         }
-
-        try:
-            hist_list = json.loads(r.get("conversa", "[]"))
-            out = ""
-
-            for quien, texto in hist_list:
-                out += f"[{str(quien).upper()}] {texto}\n\n"
-
-            out = out.replace("[USUARIO]", "[CLIENTE]").replace("[BOT]", "[AG. PHOENIX]")
-            fila_modal["conversa"] = out.strip()
-
-        except Exception:
-            fila_modal["conversa"] = r.get("conversa", "") or ""
+        fila_modal["conversa"] = formatear_conversacion_reporte(r)
 
         modal_contents.append(fila_modal)
 
@@ -2447,7 +2501,15 @@ def generar_reporte(rows, total_exec_time, wall_exec_time, output_dir):
            const roleUpper = role.toUpperCase();
            const cssClass = roleUpper.includes("CLIENTE")
                ? "client"
-               : (roleUpper.includes("AG.") || roleUpper.includes("BOT") || roleUpper.includes("PHOENIX") ? "bot" : "neutral");
+               : (
+                   roleUpper.includes("AG.") ||
+                   roleUpper.includes("BOT") ||
+                   roleUpper.includes("PHOENIX") ||
+                   roleUpper.includes("AGENTE") ||
+                   roleUpper.includes("TEXT SUMMARIZER")
+                       ? "bot"
+                       : "neutral"
+               );
            messages += `<div class="conversation-message ${{cssClass}}"><div class="conversation-role">${{escaparHtml(roleUpper)}}</div><div class="conversation-text">${{escaparHtml(body.trim())}}</div></div>`;
        }});
        return `<div class="conversation-thread">${{messages}}</div>`;
