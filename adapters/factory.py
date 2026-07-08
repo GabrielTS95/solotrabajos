@@ -1,11 +1,13 @@
 from adapters.agentico_rest.agent import AgenticoRestClient
 from adapters.phoenix.agent import PhoenixAgentClient
+from adapters.text_summarizer.agent import TextSummarizerAgentClient
 from config import AGENT_ADAPTER
 
 
 AGENT_CLIENTS = {
     "agentico_rest": AgenticoRestClient,
     "phoenix": PhoenixAgentClient,
+    "text_summarizer": TextSummarizerAgentClient,
 }
 
 

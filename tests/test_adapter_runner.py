@@ -78,6 +78,11 @@ class AdapterRunnerTests(unittest.TestCase):
         self.assertEqual(client.name, "agentico_rest")
         self.assertFalse(hasattr(client, "simulate_user"))
 
+    def test_factory_resuelve_text_summarizer(self):
+        client = build_agent_client("text_summarizer")
+        self.assertEqual(client.name, "text_summarizer")
+        self.assertFalse(hasattr(client, "simulate_user"))
+
     def test_factory_rechaza_adapter_desconocido(self):
         with self.assertRaises(RuntimeError):
             build_agent_client("desconocido")

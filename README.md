@@ -27,11 +27,14 @@ framework_base_agentes/
 |   |   |-- agent.py
 |   |   |-- client.py
 |   |-- phoenix/
-|       |-- agent.py
-|       |-- client.py
-|       |-- payload.py
-|       |-- prompts.py
-|       |-- simulator.py
+|   |   |-- agent.py
+|   |   |-- client.py
+|   |   |-- payload.py
+|   |   |-- prompts.py
+|   |   |-- simulator.py
+|   |-- text_summarizer/
+|   |   |-- agent.py
+|   |   |-- client.py
 |
 |-- integrations/
 |   |-- clients.py
@@ -51,6 +54,7 @@ framework_base_agentes/
 |-- data/
 |   |-- casos_de_prueba_desa.csv
 |   |-- agentes_agenticos.csv
+|   |-- text_summarizer_casos.csv
 ```
 
 ## Conceptos
@@ -62,8 +66,9 @@ Un adapter es la pieza que sabe hablar con un agente externo.
 Adapters disponibles:
 
 ```text
-phoenix         Agente Phoenix/cobranzas.
-agentico_rest  Agente agentico expuesto por API REST.
+phoenix          Agente Phoenix/cobranzas.
+agentico_rest   Agente agentico expuesto por API REST.
+text_summarizer Agente IA-AGENT para conversaciones y documentos.
 ```
 
 Se selecciona con:
@@ -129,7 +134,7 @@ python main.py
 
 ## Ejecuciones Soportadas
 
-Actualmente el framework IA-AGENT permite 2 ejecuciones reales y una tercera ejecucion por extension.
+Actualmente el framework IA-AGENT permite 3 ejecuciones reales y una ejecucion adicional por extension.
 
 ### 1. Ejecucion Phoenix
 
@@ -239,7 +244,109 @@ Consideraciones:
 - Usa `secuencia_mensaje` del CSV para conducir los turnos adicionales.
 - El perfil recomendado es `agentico_default`, porque usa juez de respuesta mas metricas.
 
-### 3. Ejecucion Con Nuevo Adapter IA-AGENT
+### 3. Ejecucion Text Summarizer
+
+Usa esta ejecucion cuando el agente necesita crear una conversacion, enviar mensajes usando `conversation_id` y opcionalmente subir documentos.
+
+Configuracion minima:
+
+```env
+AGENT_ADAPTER=text_summarizer
+TIPO_AGENTE=agentico
+EVAL_PROFILE=agentico_default
+CSV_PATH=.\data\text_summarizer_casos.csv
+```
+
+Tambien requiere:
+
+```env
+TEXT_SUMMARIZER_BASE_URL=https://text-summarizer-agent.gentleplant-ff4f8991.westus2.azurecontainerapps.io
+TEXT_SUMMARIZER_TIMEOUT=600
+TEXT_SUMMARIZER_VERIFY_SSL=1
+TEXT_SUMMARIZER_RESPONSE_FIELD=content
+TEXT_SUMMARIZER_FORCE_TEXT_EXTRACTION=1
+
+AZURE_OPENAI_ENDPOINT=https://...
+AZURE_OPENAI_API_KEY=...
+AZURE_OPENAI_API_VERSION=...
+MODEL_NAME=...
+```
+
+Si el servicio usa autenticacion:
+
+```env
+TEXT_SUMMARIZER_API_KEY=...
+TEXT_SUMMARIZER_AUTH_HEADER=Authorization
+```
+
+Que ejecuta:
+
+```text
+CSV -> crear conversacion -> obtiene conversation_id -> enviar mensaje -> extraer content -> juez_respuesta -> juez_metricas -> reporte
+```
+
+Si el CSV contiene `document_path`, tambien ejecuta:
+
+```text
+POST /api/v1/documents/
+```
+
+Flujo de endpoints:
+
+```text
+1. POST /api/v1/conversations/
+   Response esperado:
+   {
+     "conversation_id": "conv_...",
+     "created_at": "..."
+   }
+
+2. POST /api/v1/conversations/{conversation_id}/
+   Payload:
+   {
+     "trace": {},
+     "message": "mensaje del usuario"
+   }
+
+3. POST /api/v1/documents/
+   Multipart opcional si existe document_path en el CSV.
+```
+
+El campo que se evalua como respuesta del agente es `content`:
+
+```json
+{
+  "type": "text",
+  "content": "Respuesta del agente",
+  "metadata": {
+    "conversation_id": "conv_...",
+    "usage_tokens": 100,
+    "model_name": "gpt-4o-mini"
+  }
+}
+```
+
+Carpetas y archivos principales:
+
+```text
+data/text_summarizer_casos.csv
+adapters/text_summarizer/
+adapters/text_summarizer/agent.py
+adapters/text_summarizer/client.py
+evaluation/juez_respuesta.py
+evaluation/juez_metricas.py
+reporting/report.py
+```
+
+Consideraciones:
+
+- No se configura `conversation_id` en `.env`; se obtiene dinamicamente del primer endpoint.
+- El `conversation_id` se guarda en `ChatSession.chat_id` y `session.raw`.
+- El segundo endpoint siempre usa `/api/v1/conversations/{conversation_id}/`.
+- Para evaluar correctamente tu respuesta, usa `TEXT_SUMMARIZER_RESPONSE_FIELD=content`.
+- Este adapter no usa `user_simulator` ni prompts Phoenix.
+
+### 4. Ejecucion Con Nuevo Adapter IA-AGENT
 
 Esta ejecucion no existe como adapter concreto todavia, pero el framework ya esta preparado para agregarla.
 
@@ -284,9 +391,10 @@ Cuando se agrega esta capacidad, el runner puede continuar la conversacion con s
 Resumen:
 
 ```text
-1. phoenix        Ejecucion real especializada para Phoenix/cobranzas.
-2. agentico_rest Ejecucion real generica para agentes IA-AGENT por REST.
-3. nuevo adapter Ejecucion extensible para otro agente agentico.
+1. phoenix         Ejecucion real especializada para Phoenix/cobranzas.
+2. agentico_rest  Ejecucion real generica para agentes IA-AGENT por REST.
+3. text_summarizer Ejecucion real para conversaciones y documentos.
+4. nuevo adapter  Ejecucion extensible para otro agente agentico.
 ```
 
 ## Configuracion Comun
@@ -434,6 +542,60 @@ Si tu API responde en un campo especifico:
 AGENTICO_REST_RESPONSE_FIELD=respuesta
 ```
 
+## Modo Text Summarizer
+
+Usa este modo cuando quieras evaluar el agente que crea conversaciones, responde por `content` y puede recibir documentos.
+
+```env
+AGENT_ADAPTER=text_summarizer
+TIPO_AGENTE=agentico
+EVAL_PROFILE=agentico_default
+
+CSV_PATH=.\data\text_summarizer_casos.csv
+CSV_SEP=;
+
+TEXT_SUMMARIZER_BASE_URL=https://text-summarizer-agent.gentleplant-ff4f8991.westus2.azurecontainerapps.io
+TEXT_SUMMARIZER_TIMEOUT=600
+TEXT_SUMMARIZER_VERIFY_SSL=1
+TEXT_SUMMARIZER_RESPONSE_FIELD=content
+TEXT_SUMMARIZER_FORCE_TEXT_EXTRACTION=1
+```
+
+Flujo:
+
+```text
+CSV -> POST /api/v1/conversations/ -> conversation_id -> POST /api/v1/conversations/{conversation_id}/ -> content -> jueces -> reporte
+```
+
+Si el CSV tiene `document_path`, el adapter tambien ejecuta:
+
+```text
+POST /api/v1/documents/
+```
+
+Este adapter evalua la conversacion formada por:
+
+```text
+CLIENTE: mensaje_inicio o secuencia_mensaje
+AGENTE: content devuelto por la API
+```
+
+Response esperado del segundo endpoint:
+
+```json
+{
+  "type": "text",
+  "content": "Respuesta que evaluara el juez",
+  "timestamp": "2026-07-08T15:42:25.188162",
+  "metadata": {
+    "conversation_id": "conv_...",
+    "usage_tokens": 100,
+    "message_id": "",
+    "model_name": "gpt-4o-mini"
+  }
+}
+```
+
 ## CSV De Entrada
 
 ### CSV Phoenix
@@ -472,6 +634,42 @@ CP001;Validar que el agente registre una promesa de pago;no puedo pagar;Deseo re
 ```
 
 `secuencia_mensaje` puede contener varios mensajes separados por saltos de linea.
+
+### CSV Text Summarizer
+
+Archivo disponible:
+
+```text
+data/text_summarizer_casos.csv
+```
+
+Columnas recomendadas:
+
+```text
+id_test
+caso_de_prueba
+mensaje_inicio
+secuencia_mensaje
+document_path
+reglas_negocio_juez
+ejecutar_prueba
+```
+
+Ejemplo sin documento:
+
+```csv
+id_test;caso_de_prueba;mensaje_inicio;secuencia_mensaje;document_path;reglas_negocio_juez;ejecutar_prueba
+TS001;Validar respuesta de viaje;Si deseo ir de vacaciones.;;;Debe responder de forma pertinente y pedir informacion adicional util.;1
+```
+
+Ejemplo con documento:
+
+```csv
+id_test;caso_de_prueba;mensaje_inicio;secuencia_mensaje;document_path;reglas_negocio_juez;ejecutar_prueba
+TS002;Validar resumen de PDF;Resume el documento en 5 puntos;;C:\ruta\documento.pdf;Debe resumir de forma clara y sin inventar informacion.;1
+```
+
+Si `document_path` viene vacio, no se sube documento. Si trae ruta, el adapter ejecuta el endpoint `/api/v1/documents/`.
 
 ## Reportes
 

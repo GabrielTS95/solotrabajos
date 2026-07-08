@@ -18,7 +18,7 @@ EVAL_PROFILES_PERMITIDOS = {
 EVAL_PROFILE_ALIASES = {
     "phoenix_cobranzas_agentico": "phoenix_cobranzas",
 }
-AGENT_ADAPTERS_PERMITIDOS = {"phoenix", "agentico_rest"}
+AGENT_ADAPTERS_PERMITIDOS = {"phoenix", "agentico_rest", "text_summarizer"}
 
 
 def _obtener_app_env() -> str:
@@ -185,6 +185,22 @@ AGENTICO_REST_RESPONSE_FIELD = _get_optional_env("AGENTICO_REST_RESPONSE_FIELD")
 AGENTICO_REST_PAYLOAD_MODE = _get_optional_env(
     "AGENTICO_REST_PAYLOAD_MODE", "default"
 ).lower()
+
+TEXT_SUMMARIZER_BASE_URL = _get_optional_env("TEXT_SUMMARIZER_BASE_URL")
+TEXT_SUMMARIZER_API_KEY = _get_optional_env("TEXT_SUMMARIZER_API_KEY")
+TEXT_SUMMARIZER_AUTH_HEADER = _get_optional_env(
+    "TEXT_SUMMARIZER_AUTH_HEADER", "Authorization"
+)
+TEXT_SUMMARIZER_TIMEOUT = _get_optional_int_env("TEXT_SUMMARIZER_TIMEOUT", 600)
+TEXT_SUMMARIZER_VERIFY_SSL = _get_optional_flag_env(
+    "TEXT_SUMMARIZER_VERIFY_SSL", True
+)
+TEXT_SUMMARIZER_RESPONSE_FIELD = _get_optional_env(
+    "TEXT_SUMMARIZER_RESPONSE_FIELD", "content"
+)
+TEXT_SUMMARIZER_FORCE_TEXT_EXTRACTION = _get_optional_flag_env(
+    "TEXT_SUMMARIZER_FORCE_TEXT_EXTRACTION", True
+)
 
 CSV_PATH = _get_required_env("CSV_PATH")
 CSV_SEP = _get_required_env("CSV_SEP")

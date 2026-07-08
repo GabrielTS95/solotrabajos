@@ -1,0 +1,3 @@
+id_test;caso_de_prueba;mensaje_inicio;secuencia_mensaje;document_path;reglas_negocio_juez;ejecutar_prueba
+TS001;Validar que el agente responda de forma util a una intencion de viaje;Si deseo ir de vacaciones.;;;Debe responder de forma pertinente, amable y pedir informacion adicional util.;1
+TS002;Validar resumen de documento cuando se adjunta un PDF;Resume el documento en 5 puntos;;C:\ruta\documento.pdf;Debe generar un resumen claro, fiel al documento y sin inventar informacion.;0
