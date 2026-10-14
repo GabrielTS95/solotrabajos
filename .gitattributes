@@ -1,0 +1,1 @@
+sin[[:space:]]monitoeo.zip filter=lfs diff=lfs merge=lfs -text
